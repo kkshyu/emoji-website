@@ -3,5 +3,5 @@
 User-agent: *
 Allow: /
 
-# ponytail: 若正式網域非 taiwantalenthub.com，請一併更新此網址
-Sitemap: https://taiwantalenthub.com/sitemap.xml
+# 正式網址以 www 為準（apex 會跳轉至 www）
+Sitemap: https://www.taiwantalenthub.com/sitemap.xml

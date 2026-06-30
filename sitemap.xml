@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ponytail: 若正式網域非 taiwantalenthub.com，請一併更新 loc -->
+<!-- 正式網址以 www 為準（apex taiwantalenthub.com 會跳轉至 www） -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://taiwantalenthub.com/</loc>
+    <loc>https://www.taiwantalenthub.com/</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
