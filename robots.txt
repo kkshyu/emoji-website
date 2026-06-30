@@ -3,5 +3,5 @@
 User-agent: *
 Allow: /
 
-# ponytail: 若正式網域非 taiwantalenthub.tw，請一併更新此網址
-Sitemap: https://taiwantalenthub.tw/sitemap.xml
+# ponytail: 若正式網域非 taiwantalenthub.com，請一併更新此網址
+Sitemap: https://taiwantalenthub.com/sitemap.xml
