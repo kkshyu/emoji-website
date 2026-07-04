@@ -12,6 +12,9 @@
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <!-- 正式網址以 www 為準（apex taiwantalenthub.com 會跳轉至 www）；canonical／og／JSON-LD 一律用 www，信箱 us@taiwantalenthub.com 不加 www -->
 <link rel="canonical" href="https://www.taiwantalenthub.com/">
+<link rel="alternate" hreflang="zh-Hant" href="https://www.taiwantalenthub.com/">
+<link rel="alternate" hreflang="en" href="https://www.taiwantalenthub.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://www.taiwantalenthub.com/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="logo.png">
 <meta property="og:site_name" content="台灣人才聚落 Taiwan Talent Hub">
@@ -58,6 +61,12 @@
         "addressCountry": "TW"
       },
       "geo": { "@type": "GeoCoordinates", "latitude": "25.046198", "longitude": "121.51342" },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "11:00",
+        "closes": "03:00"
+      },
       "hasMap": "https://www.google.com/maps/search/?api=1&query=25.046198,121.51342",
       "memberOf": { "@type": "Organization", "name": "台灣數位遊牧者協會 TDNA", "url": "https://dna.org.tw" },
       "makesOffer": [
@@ -106,7 +115,7 @@
         {
           "@type": "Question",
           "name": "台灣人才聚落 Taiwan Talent Hub 是什麼？",
-          "acceptedAnswer": { "@type": "Answer", "text": "它不是咖啡廳，也不是一般共享辦公室，而是一個以「人才密度」為核心的實體平台。結合 Café & Bar、Talent Member 共享工作空間、Resident Member 共居、活動與創業媒合，以及 TDNA 台灣數位遊牧者協會的國際社群，讓高潛力人才在此相遇、合作、創業。" }
+          "acceptedAnswer": { "@type": "Answer", "text": "一棟在台北車站旁、讓你遇見對的人的房子。一樓是 Café & Bar，二樓是 Talent Member 共享工作空間，三樓是 Resident Member 共居，全年有講座、活動與創業媒合，並連結 TDNA 台灣數位遊牧者協會的國際社群。你可以只來喝杯咖啡，也可以在這裡工作，或成為 Resident 以聚落為根據地。" }
         },
         {
           "@type": "Question",
@@ -142,303 +151,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#17140E;
-    --ink-soft:#3A352B;
-    --muted:#7A7264;
-    --cream:#F6EFE2;
-    --paper:#FFFCF6;
-    --line:#E4DAC8;
-    --terra:#D9461F;
-    --terra-deep:#B5380F;
-    --gold:#C2872B;
-    --forest:#1F5746;
-    --radius:18px;
-    --shadow:0 24px 60px -28px rgba(40,28,12,.45);
-    --max:1180px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-  body{
-    font-family:"Noto Sans TC",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
-    color:var(--ink);background:var(--cream);line-height:1.75;
-    font-weight:400;letter-spacing:.01em;
-    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-  }
-  h1,h2,h3,.serif{font-family:"Noto Serif TC",serif;letter-spacing:.005em}
-  a{color:inherit;text-decoration:none}
-  img{max-width:100%;display:block}
-  ::selection{background:var(--terra);color:#fff}
-  .wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 24px}
-  .eyebrow{
-    font-size:.78rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
-    color:var(--terra);display:inline-flex;align-items:center;gap:.6em;
-  }
-  .eyebrow::before{content:"";width:28px;height:1.5px;background:var(--terra)}
-  .btn{
-    display:inline-flex;align-items:center;gap:.5em;
-    padding:.85em 1.6em;border-radius:999px;font-weight:500;font-size:.97rem;
-    border:1.5px solid var(--ink);transition:transform .18s ease,background .18s ease,color .18s ease,box-shadow .18s ease;
-    cursor:pointer;
-  }
-  .btn--solid{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-  .btn--solid:hover{background:var(--terra);border-color:var(--terra);transform:translateY(-2px);box-shadow:var(--shadow)}
-  .btn--ghost:hover{background:var(--ink);color:var(--paper);transform:translateY(-2px)}
-  :focus-visible{outline:3px solid var(--terra);outline-offset:3px;border-radius:6px}
-
-  /* ---------- NAV ---------- */
-  header.nav{
-    position:sticky;top:0;z-index:50;
-    background:rgba(246,239,226,.82);backdrop-filter:saturate(160%) blur(14px);
-    border-bottom:1px solid transparent;transition:border-color .3s ease,background .3s ease;
-  }
-  header.nav.scrolled{border-bottom-color:var(--line);background:rgba(246,239,226,.94)}
-  .nav__inner{display:flex;align-items:center;justify-content:space-between;height:70px}
-  .brand{display:flex;flex-direction:column;line-height:1.15;font-family:"Noto Serif TC",serif}
-  .brand b{font-weight:900;font-size:1.12rem;letter-spacing:.02em}
-  .brand span{font-size:.66rem;letter-spacing:.28em;color:var(--muted);font-family:"Noto Sans TC",sans-serif;text-transform:uppercase}
-  .nav__links{display:flex;gap:30px;align-items:center}
-  .nav__links a:not(.btn){font-size:.92rem;color:var(--ink-soft);font-weight:500;position:relative}
-  .nav__links a:not(.btn)::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:2px;background:var(--terra);transition:width .25s ease}
-  .nav__links a:not(.btn):hover::after{width:100%}
-  .nav__toggle{display:none;place-items:center;min-width:44px;min-height:44px;background:none;border:0;cursor:pointer;font-size:1.6rem;color:var(--ink)}
-  @media(max-width:880px){
-    .nav__links{
-      position:fixed;inset:70px 0 auto 0;flex-direction:column;gap:0;
-      background:var(--paper);border-bottom:1px solid var(--line);
-      max-height:0;overflow:hidden;transition:max-height .35s ease;padding:0 24px;
-    }
-    .nav__links.open{max-height:420px;padding:8px 24px 24px}
-    .nav__links a{width:100%;padding:14px 0;border-bottom:1px solid var(--line)}
-    .nav__links a.btn{margin-top:14px;justify-content:center;border-bottom:1.5px solid var(--ink)}
-    .nav__toggle{display:grid}
-  }
-
-  /* ---------- HERO ---------- */
-  .hero{position:relative;overflow:hidden;padding:clamp(60px,9vw,120px) 0 clamp(56px,7vw,96px)}
-  .hero::before{
-    content:"";position:absolute;right:-12%;top:-18%;width:60vw;height:60vw;max-width:820px;max-height:820px;
-    background:radial-gradient(circle at 30% 30%,rgba(217,70,31,.16),transparent 62%);
-    pointer-events:none;
-  }
-  .hero__loc{
-    display:inline-flex;align-items:center;gap:.55em;margin:22px 0 26px;
-    font-size:.86rem;color:var(--ink-soft);background:var(--paper);
-    border:1px solid var(--line);padding:.5em 1em;border-radius:999px;
-  }
-  .hero__soon{
-    display:inline-flex;align-items:center;gap:.55em;margin:22px 10px 26px 0;
-    font-size:.86rem;font-weight:700;letter-spacing:.06em;color:#fff;
-    background:var(--terra);padding:.5em 1.1em;border-radius:999px;
-  }
-  .hero__soon .dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse 1.6s ease-in-out infinite}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
-
-  /* ---------- 開幕倒數 ---------- */
-  .count{margin-top:42px}
-  .count__label{font-size:.8rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--terra)}
-  .count__grid{display:flex;gap:14px;margin-top:14px}
-  .count__grid>div{min-width:80px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center}
-  .count__grid b{display:block;font-family:"Noto Serif TC",serif;font-size:clamp(1.6rem,3.4vw,2.3rem);font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
-  .count__grid small{display:block;margin-top:6px;font-size:.75rem;color:var(--muted);letter-spacing:.1em}
-  @media(max-width:560px){.count__grid{gap:10px}.count__grid>div{min-width:0;flex:1;padding:12px 6px}}
-  .hero__loc svg{width:15px;height:15px;color:var(--terra)}
-  .hero h1{
-    font-size:clamp(2.3rem,6.2vw,4.6rem);font-weight:900;line-height:1.18;letter-spacing:.01em;
-    max-width:16ch;
-  }
-  .hero h1 em{font-style:normal;color:var(--terra);position:relative}
-  .hero p.lead{
-    margin:28px 0 0;max-width:42ch;font-size:clamp(1.05rem,2vw,1.28rem);
-    color:var(--ink-soft);font-weight:300;line-height:1.85;
-  }
-  .hero__cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px}
-  .hero__brands{margin-top:46px;padding-top:26px;border-top:1px solid var(--line);
-    display:flex;flex-wrap:wrap;gap:8px 34px;font-size:.84rem;color:var(--muted)}
-  .hero__brands b{color:var(--ink);font-weight:700}
-
-  /* ---------- STATS ---------- */
-  .stats{background:var(--ink);color:var(--paper);padding:54px 0}
-  .stats__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
-  .stat .n{font-family:"Noto Serif TC",serif;font-size:clamp(1.7rem,3.4vw,2.6rem);font-weight:900;color:#fff;line-height:1}
-  .stat .n small{font-size:.55em;font-weight:700;color:var(--gold);margin-left:.2em}
-  .stat .l{font-size:.83rem;color:#C9C0B0;margin-top:10px;line-height:1.6}
-  @media(max-width:760px){.stats__grid{grid-template-columns:repeat(2,1fr);gap:30px 24px}}
-
-  /* ---------- SECTION SHELL ---------- */
-  section{padding:clamp(64px,9vw,118px) 0}
-  .sec-head{max-width:720px;margin-bottom:clamp(40px,5vw,64px)}
-  .sec-head h2{font-size:clamp(1.8rem,4.2vw,3rem);font-weight:900;line-height:1.25;margin:18px 0 0}
-  .sec-head p{margin-top:18px;color:var(--ink-soft);font-size:1.06rem;font-weight:300;max-width:60ch}
-
-  /* ---------- FLYWHEEL ---------- */
-  .about{background:var(--paper)}
-  .flywheel{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:8px}
-  .fw-node{
-    background:var(--cream);border:1px solid var(--line);border-radius:999px;
-    padding:.6em 1.15em;font-size:.95rem;font-weight:500;
-  }
-  .fw-arrow{color:var(--terra);font-weight:700}
-  .about__grid{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(28px,5vw,64px);margin-top:54px;align-items:start}
-  .duo{display:grid;gap:18px}
-  .duo article{border:1px solid var(--line);border-radius:var(--radius);padding:28px;background:var(--cream)}
-  .duo article .tag{font-size:.74rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--terra)}
-  .duo article h3{font-size:1.35rem;margin:10px 0 8px;font-weight:700}
-  .duo article p{color:var(--ink-soft);font-size:.97rem;font-weight:300}
-  .pull{font-family:"Noto Serif TC",serif;font-size:clamp(1.4rem,3.4vw,2.1rem);font-weight:700;line-height:1.5;color:var(--ink)}
-  .pull span{color:var(--terra)}
-
-  /* ---------- FLOORS ---------- */
-  .floors__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-  .floor{
-    position:relative;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
-    padding:34px 30px 32px;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;
-  }
-  .floor:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:var(--terra)}
-  .floor__no{font-family:"Noto Serif TC",serif;font-size:3.4rem;font-weight:900;line-height:1;color:var(--cream);
-    -webkit-text-stroke:1.5px var(--line);position:absolute;top:18px;right:22px}
-  .floor:hover .floor__no{color:rgba(217,70,31,.08);-webkit-text-stroke-color:var(--terra)}
-  .floor__kicker{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);font-weight:700}
-  .floor h3{font-size:1.5rem;font-weight:900;margin:12px 0 14px}
-  .floor h3 small{display:block;font-size:.78rem;color:var(--muted);font-weight:500;letter-spacing:.16em;text-transform:uppercase;margin-top:4px;font-family:"Noto Sans TC",sans-serif}
-  .floor p{color:var(--ink-soft);font-size:.95rem;font-weight:300;margin-bottom:18px}
-  .floor ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
-  .floor li{font-size:.8rem;background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:.35em .85em;color:var(--ink-soft)}
-  @media(max-width:860px){.floors__grid{grid-template-columns:1fr}}
-
-  /* ---------- MEMBERSHIP / PRICING ---------- */
-  .member{background:var(--paper)}
-  .entries{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:52px}
-  .entry{border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px;background:var(--cream);transition:border-color .2s,transform .2s}
-  .entry:hover{border-color:var(--terra);transform:translateY(-4px)}
-  .entry .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--ink);color:var(--paper);margin-bottom:16px}
-  .entry .ic svg{width:22px;height:22px}
-  .entry h3{font-size:1.12rem;font-weight:700;margin:0}
-  .entry .who{font-size:.78rem;color:var(--terra);font-weight:700;letter-spacing:.04em;margin:4px 0 10px}
-  .entry p{font-size:.9rem;color:var(--ink-soft);font-weight:300}
-  @media(max-width:900px){.entries{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:520px){.entries{grid-template-columns:1fr}}
-
-  .price-card{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--paper)}
-  .price-row{display:grid;grid-template-columns:1.4fr auto 2fr;gap:18px;align-items:baseline;
-    padding:20px 28px;border-bottom:1px solid var(--line)}
-  .price-row:last-child{border-bottom:0}
-  .price-row:nth-child(odd){background:rgba(246,239,226,.5)}
-  .price-row .item{font-weight:700;font-size:1.02rem}
-  .price-row .amt{font-family:"Noto Serif TC",serif;font-weight:700;color:var(--terra);white-space:nowrap;font-size:1.05rem}
-  .price-row .desc{color:var(--muted);font-size:.88rem;font-weight:300}
-  @media(max-width:640px){
-    .price-row{grid-template-columns:1fr;gap:4px;padding:18px 22px}
-    .price-row .amt{font-size:1.15rem}
-  }
-
-  /* ---------- FOUNDING ---------- */
-  .founding{background:linear-gradient(135deg,#17140E,#2a2114);color:var(--paper);position:relative;overflow:hidden}
-  .founding::before{content:"";position:absolute;left:-10%;bottom:-30%;width:50vw;height:50vw;max-width:600px;max-height:600px;
-    background:radial-gradient(circle,rgba(194,135,43,.22),transparent 60%)}
-  .founding .sec-head h2{color:#fff}
-  .founding .eyebrow{color:var(--gold)}
-  .founding .eyebrow::before{background:var(--gold)}
-  .founding .sec-head p{color:#CFC6B5}
-  .found__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-  .found-card{border:1px solid rgba(255,255,255,.16);border-radius:var(--radius);padding:30px 26px;background:rgba(255,255,255,.04)}
-  .found-card .badge{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--ink);background:var(--gold);padding:.3em .8em;border-radius:999px;margin-bottom:16px}
-  .found-card h3{font-size:1.22rem;color:#fff;font-weight:700;margin:0 0 6px}
-  .found-card .p{font-family:"Noto Serif TC",serif;font-size:1.9rem;font-weight:900;color:var(--gold);line-height:1.1}
-  .found-card .p small{font-size:.5em;color:#CFC6B5;font-weight:500}
-  .found-card p.note{color:#CFC6B5;font-size:.9rem;font-weight:300;margin-top:12px}
-  @media(max-width:860px){.found__grid{grid-template-columns:1fr}}
-
-  /* ---------- PARTNERS ---------- */
-  .partners__grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-  .partner{border:1px solid var(--line);border-radius:var(--radius);padding:34px 32px;background:var(--paper)}
-  .partner .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:#fff;margin-bottom:18px}
-  .partner:nth-child(1) .ic{background:var(--forest)}
-  .partner:nth-child(2) .ic{background:var(--terra)}
-  .partner h3{font-size:1.4rem;font-weight:700}
-  .partner .sub{color:var(--muted);font-size:.84rem;letter-spacing:.04em;margin:2px 0 14px}
-  .partner p{color:var(--ink-soft);font-size:.98rem;font-weight:300}
-  .partner ul{margin-top:16px;list-style:none;display:grid;gap:9px}
-  .partner li{position:relative;padding-left:1.5em;font-size:.93rem;color:var(--ink-soft)}
-  .partner li::before{content:"→";position:absolute;left:0;color:var(--terra);font-weight:700}
-  @media(max-width:760px){.partners__grid{grid-template-columns:1fr}}
-
-  /* ---------- FAQ ---------- */
-  .faq{background:var(--paper)}
-  .faq__list{max-width:820px;margin:0 auto;display:grid;gap:14px}
-  .faq__item{border:1px solid var(--line);border-radius:var(--radius);background:var(--cream);overflow:hidden}
-  .faq__item summary{list-style:none;cursor:pointer;padding:22px 26px;font-family:"Noto Serif TC",serif;font-weight:700;
-    font-size:1.1rem;display:flex;justify-content:space-between;align-items:center;gap:16px}
-  .faq__item summary::-webkit-details-marker{display:none}
-  .faq__item summary::after{content:"+";color:var(--terra);font-size:1.6rem;font-weight:400;line-height:1;transition:transform .2s ease;flex-shrink:0}
-  .faq__item[open] summary::after{transform:rotate(45deg)}
-  .faq__a{padding:0 26px 24px;color:var(--ink-soft);font-weight:300;line-height:1.85}
-  @media(max-width:560px){
-    .faq__item summary{padding:18px 20px;font-size:1.02rem}
-    .faq__a{padding:0 20px 20px}
-  }
-
-  /* ---------- CTA / FOOTER ---------- */
-  .cta{background:var(--terra);color:#fff;text-align:center}
-  .cta h2{font-size:clamp(2rem,5vw,3.4rem);font-weight:900;line-height:1.25;max-width:18ch;margin:0 auto}
-  .cta p{margin:22px auto 0;max-width:48ch;font-weight:300;font-size:1.1rem;color:#FFE9DF}
-  .cta__btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:38px}
-  .cta .btn--solid{background:#fff;color:var(--ink);border-color:#fff}
-  .cta .btn--solid:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .cta .btn--ghost{background:rgba(0,0,0,.12);border-color:rgba(255,255,255,.7);color:#fff}
-  .cta .btn--ghost:hover{background:#fff;color:var(--terra);border-color:#fff}
-  .cta__form{margin-top:38px}
-  .cta__form iframe{border-radius:var(--radius);background:#fff;box-shadow:var(--shadow)}
-
-  footer{background:var(--ink);color:#C9C0B0;padding:64px 0 40px}
-  .foot__top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,.12)}
-  .foot__brand b{display:block;font-family:"Noto Serif TC",serif;color:#fff;font-size:1.3rem;font-weight:900}
-  .foot__brand span{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
-  .foot__brand p{margin-top:14px;font-size:.92rem;font-weight:300;max-width:34ch}
-  .foot__col h3{color:#fff;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;font-family:"Noto Sans TC",sans-serif;font-weight:700}
-  .foot__col a,.foot__col p{display:block;font-size:.92rem;color:#C9C0B0;margin-bottom:10px;font-weight:300;transition:color .2s}
-  .foot__col a:hover{color:#fff}
-  .foot__bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:26px;font-size:.82rem;color:#8C8470}
-  @media(max-width:760px){.foot__top{grid-template-columns:1fr;gap:30px}}
-
-  /* ---------- REVEAL（漸進增強：無 JS 時內容照常顯示）---------- */
-  .js .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
-  .js .reveal.in{opacity:1;transform:none}
-  @media(prefers-reduced-motion:reduce){
-    html{scroll-behavior:auto}
-    .reveal{opacity:1;transform:none;transition:none}
-    *{animation:none!important;transition:none!important}
-  }
-
-  /* 略過連結（鍵盤無障礙）：平常隱藏，聚焦時出現 */
-  .skip-link{position:absolute;left:-9999px;top:0;z-index:100;background:var(--ink);color:var(--paper);
-    padding:.7em 1.2em;border-radius:0 0 10px 0;font-weight:500}
-  .skip-link:focus{left:0}
-
-  /* ---------- RWD 細部校正（平板與小手機）---------- */
-  @media(max-width:760px){
-    .about__grid{grid-template-columns:1fr;gap:28px}
-    .price-row{grid-template-columns:1fr;gap:4px}
-    .price-row .amt{font-size:1.1rem}
-    .pull{font-size:clamp(1.3rem,5vw,1.8rem)}
-    .foot__col a{padding:6px 0;margin-bottom:4px}
-  }
-  @media(max-width:560px){
-    .wrap{padding:0 18px}
-    section{padding:clamp(46px,12vw,72px) 0}
-    .sec-head{margin-bottom:32px}
-    .hero{padding:48px 0 44px}
-    .hero__loc{font-size:.78rem;flex-wrap:wrap}
-    .floor,.partner,.duo article{padding:26px 22px}
-    .price-row{padding:16px 18px}
-    .found-card{padding:24px 22px}
-  }
-  @media(max-width:360px){
-    .hero h1{font-size:1.95rem}
-    .stat .n{font-size:1.5rem}
-  }
-</style>
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <a href="#content" class="skip-link">跳至主要內容</a>
@@ -456,9 +169,10 @@
       <a href="#member">會員方案</a>
       <a href="#founding">創始會員</a>
       <a href="#partners">夥伴計畫</a>
+      <a href="/en/" lang="en" hreflang="en">EN</a>
       <a href="#contact" class="btn btn--solid">搶先訂閱</a>
     </nav>
-    <button class="nav__toggle" id="navToggle" aria-label="開啟選單" aria-controls="navLinks" aria-expanded="false">☰</button>
+    <button class="nav__toggle" id="navToggle" aria-label="開啟選單" data-label-open="開啟選單" data-label-close="關閉選單" aria-controls="navLinks" aria-expanded="false">☰</button>
   </div>
 </header>
 
@@ -476,7 +190,7 @@
       </span>
     </div>
     <h1 class="reveal">讓你平常不會遇到的人，<br><em>在台北車站旁相遇</em>。</h1>
-    <p class="lead reveal">這裡不是咖啡廳，也不是共享辦公室，而是一個以「人才密度」為核心的實體平台。結合餐飲、工作、居住、社群、學習與創業媒合，讓高潛力人才在此相遇、合作、創業。預計 2026 年 9 月 1 日試營運——訂閱電子報，成為最早走進聚落的人。</p>
+    <p class="lead reveal">這裡不只是咖啡廳，也不只是共享辦公室。一樓喝咖啡、吃午餐、下班小酌；二樓專心工作、聽講座、找夥伴；三樓直接成為 Resident，以聚落為根據地。預計 2026 年 9 月 1 日試營運——訂閱電子報，成為最早走進聚落的人。</p>
     <div class="count reveal" aria-label="試營運倒數">
       <span class="count__label">試營運倒數 · 2026.09.01</span>
       <div class="count__grid" id="countdown">
@@ -501,10 +215,10 @@
 <!-- ===== STATS ===== -->
 <section class="stats" style="padding:54px 0">
   <div class="wrap stats__grid">
-    <div class="stat reveal"><div class="n">28.6<small>萬</small></div><div class="l">台北車站日均進出人次，全台運量第一</div></div>
-    <div class="stat reveal"><div class="n">4,500<small>萬</small></div><div class="l">全球數位遊牧人口，2030 上看 6,000 萬</div></div>
-    <div class="stat reveal"><div class="n">2<small>年</small></div><div class="l">台灣數位遊牧簽證最長效期（2026 起）</div></div>
-    <div class="stat reveal"><div class="n">48.4<small>%</small></div><div class="l">台北市咖啡館營業額占全台，需求高度集中</div></div>
+    <div class="stat reveal"><div class="n">Z10</div><div class="l">台北車站站前地下街出口，出站斜對面就到</div></div>
+    <div class="stat reveal"><div class="n">80<small>元起</small></div><div class="l">一杯咖啡就能走進來，不需要會員資格</div></div>
+    <div class="stat reveal"><div class="n">3<small>層樓</small></div><div class="l">咖啡吧 × 工作空間 × 共居，約 110 坪</div></div>
+    <div class="stat reveal"><div class="n">9.1<small>起</small></div><div class="l">2026 年 9 月 1 日開始試營運，倒數中</div></div>
   </div>
 </section>
 
@@ -512,34 +226,34 @@
 <section class="about" id="about">
   <div class="wrap">
     <div class="sec-head reveal">
-      <span class="eyebrow">為什麼是聚落，而不是三個生意</span>
-      <h2>真正驅動的，是一個自我強化的飛輪</h2>
-      <p>咖啡、共享空間、住宿都只是讓飛輪轉得更快的基礎設施。我們衡量成功的方式，不是「賣了多少咖啡」，而是「人才密度」與「有效的商業連結數」。</p>
+      <span class="eyebrow">這裡跟一般咖啡廳有什麼不同</span>
+      <h2>來的理由可以很簡單，留下的理由會越來越多</h2>
+      <p>你可以只是來喝一杯咖啡。但這裡的每一場活動、每一次聚會，都在讓對的人更容易遇見彼此——設計師遇見工程師、創業者遇見夥伴、學生遇見業界前輩。</p>
     </div>
 
-    <div class="flywheel reveal" aria-label="人才飛輪">
-      <span class="fw-node">吸引人才</span><span class="fw-arrow">→</span>
-      <span class="fw-node">互相認識</span><span class="fw-arrow">→</span>
-      <span class="fw-node">產生合作</span><span class="fw-arrow">→</span>
-      <span class="fw-node">成立公司</span><span class="fw-arrow">→</span>
-      <span class="fw-node">成功案例</span><span class="fw-arrow">→</span>
-      <span class="fw-node">品牌提升</span><span class="fw-arrow">↺</span>
+    <div class="flywheel reveal" aria-label="在聚落會發生的事">
+      <span class="fw-node">走進來喝杯咖啡</span><span class="fw-arrow">→</span>
+      <span class="fw-node">認識新朋友</span><span class="fw-arrow">→</span>
+      <span class="fw-node">聊出新想法</span><span class="fw-arrow">→</span>
+      <span class="fw-node">一起做點什麼</span><span class="fw-arrow">→</span>
+      <span class="fw-node">故事被看見</span><span class="fw-arrow">→</span>
+      <span class="fw-node">更多有趣的人加入</span><span class="fw-arrow">↺</span>
     </div>
 
     <div class="about__grid">
       <div class="reveal">
-        <p class="pull">讓優秀人才彼此遇見，並<span>降低「遇見對的人」的成本</span>。讓數位遊牧、遠端工作與新創人才，在台灣有實體根據地。</p>
+        <p class="pull">在對的地方，<span>遇見對的人</span>，本來就不該那麼難。不管你是遠端工作者、自由接案者，還是剛起步的創業者，這裡都是你在台北的根據地。</p>
       </div>
       <div class="duo reveal">
         <article>
-          <span class="tag">活下來的公司</span>
-          <h3>穩定且可預測的現金流</h3>
-          <p>以餐飲、酒吧、Talent Member、Resident Member、活動與社群合作，建立扎實營運基礎。</p>
+          <span class="tag">白天 · Day</span>
+          <h3>一杯咖啡的距離</h3>
+          <p>商業午餐、手沖咖啡、安靜的工作位。不用預約、不用會員，走進來就好。</p>
         </article>
         <article>
-          <span class="tag">變偉大的公司</span>
-          <h3>長期品牌與人才網絡價值</h3>
-          <p>以人才密度、商業媒合、投資人網絡與成功案例，形成難以複製的競爭優勢。</p>
+          <span class="tag">晚上 · Night</span>
+          <h3>一場活動的緣分</h3>
+          <p>酒吧、講座、Demo Night 與社群聚會，讓下班後的時間，變成新機會的開始。</p>
         </article>
       </div>
     </div>
@@ -558,22 +272,22 @@
       <article class="floor reveal">
         <div class="floor__no">01</div>
         <span class="floor__kicker">一樓</span>
-        <h3>Café & Bar<small>低門檻流量入口</small></h3>
-        <p>白天是商業午餐與工作咖啡，晚上是人才社交酒吧。把街邊自然客，轉換為日常會員。</p>
+        <h3>Café & Bar<small>路過就能走進來</small></h3>
+        <p>白天有商業午餐與適合工作的咖啡，晚上變身社交酒吧。不用是會員，一杯咖啡就是入場券。</p>
         <ul><li>商業午餐</li><li>手沖咖啡</li><li>夜間酒吧</li><li>活動社交</li></ul>
       </article>
       <article class="floor reveal">
         <div class="floor__no">02</div>
         <span class="floor__kicker">二樓</span>
-        <h3>Talent Member<small>人才密度與連結</small></h3>
-        <p>不是一般 coworking，而是人才會員空間。兼作活動、課程、講座、Demo Night 與創業媒合場域。</p>
+        <h3>Talent Member<small>工作，也遇見夥伴</small></h3>
+        <p>安靜的工作位與高速網路，加上講座、課程、Demo Night 與創業媒合——專心工作之餘，順便遇見下一個合作對象。</p>
         <ul><li>工作空間</li><li>高速網路</li><li>會議/錄影</li><li>商業媒合</li></ul>
       </article>
       <article class="floor reveal">
         <div class="floor__no">03</div>
         <span class="floor__kicker">三樓</span>
-        <h3>Resident Member<small>高黏著核心人才</small></h3>
-        <p>5–6 間雅房，包裝為居住會員：24 小時進出、工作空間使用權、Resident Dinner 與限定社群媒合。</p>
+        <h3>Resident Member<small>直接把這裡當家</small></h3>
+        <p>5–6 間雅房，24 小時進出，樓下就是工作空間與咖啡吧。每月 Resident Dinner，跟其他 Resident 變成朋友。</p>
         <ul><li>月租雅房</li><li>24h 進出</li><li>公共廚房</li><li>核心社群</li></ul>
       </article>
     </div>
@@ -586,33 +300,33 @@
     <div class="sec-head reveal">
       <span class="eyebrow">會員方案 · 四個入口</span>
       <h2>選一個適合你的方式加入</h2>
-      <p>入門低門檻、不擺高姿態。人才密度靠的是活動與媒合的「編排」，不是門口的「篩選」。</p>
+      <p>從一杯咖啡到一個房間，選你想要的距離。不用面試、不用推薦信——先進來喝杯咖啡再說。</p>
     </div>
 
     <div class="entries">
       <div class="entry reveal">
         <div class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z"/><path d="M17 9h2a2 2 0 0 1 0 4h-2"/><path d="M7 3v2M11 3v2"/></svg></div>
         <h3>Café & Bar</h3>
-        <div class="who">一般消費者</div>
-        <p>單次消費，最低門檻接觸聚落。一杯咖啡，就能感受人才密度。</p>
+        <div class="who">想先來看看的你</div>
+        <p>不用會員，隨時進來。一杯咖啡、一頓午餐，或下班後的一杯調酒。</p>
       </div>
       <div class="entry reveal">
         <div class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 20c0-3.3 3.6-5 8-5s8 1.7 8 5"/></svg></div>
         <h3>Talent Member</h3>
-        <div class="who">高潛力人才</div>
-        <p>月費制。留下核心人才，享工作空間、活動、商業媒合與社群權益。</p>
+        <div class="who">需要工作空間的你</div>
+        <p>月費制。工作空間、活動與講座、商業媒合與專屬社群，一次擁有。</p>
       </div>
       <div class="entry reveal">
         <div class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11 12 4l8 7"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg></div>
         <h3>Resident Member</h3>
-        <div class="who">居住者 / 核心人才</div>
-        <p>月費制。提高黏著與人才密度，讓駐留成為日常的相遇。</p>
+        <div class="who">想成為 Resident 的你</div>
+        <p>月費制。以聚落三樓為根據地，24 小時進出，樓下就是你的客廳與辦公室。</p>
       </div>
       <div class="entry reveal">
         <div class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h4v4"/><path d="M20 4 12 12"/><path d="M20 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/></svg></div>
         <h3>Partner Program</h3>
-        <div class="who">老師 · 社群 · 夥伴</div>
-        <p>條件式合作，帶入優質人才。家教、活動、企業與社群共同編織網絡。</p>
+        <div class="who">老師 · 社群 · 企業</div>
+        <p>帶學生來上課、辦活動、開工作坊——用更好的合作條件使用空間。</p>
       </div>
     </div>
 
@@ -654,7 +368,7 @@
         <span class="badge">前 5–6 位</span>
         <h3>Founding Resident Member</h3>
         <div class="p">NT$ 18,000<small> /月</small></div>
-        <p class="note">前 6 個月創始價，需面談；成為三樓最早的核心住戶。</p>
+        <p class="note">前 6 個月創始價，需面談；成為三樓最早的核心 Resident。</p>
       </div>
     </div>
   </div>
@@ -704,7 +418,7 @@
     <div class="faq__list reveal">
       <details class="faq__item">
         <summary>台灣人才聚落 Taiwan Talent Hub 是什麼？</summary>
-        <div class="faq__a"><p>它不是咖啡廳，也不是一般共享辦公室，而是一個以「人才密度」為核心的實體平台。結合 Café &amp; Bar、Talent Member 共享工作空間、Resident Member 共居、活動與創業媒合，以及 TDNA 台灣數位遊牧者協會的國際社群，讓高潛力人才在此相遇、合作、創業。</p></div>
+        <div class="faq__a"><p>一棟在台北車站旁、讓你遇見對的人的房子。一樓是 Café &amp; Bar，二樓是 Talent Member 共享工作空間，三樓是 Resident Member 共居，全年有講座、活動與創業媒合，並連結 TDNA 台灣數位遊牧者協會的國際社群。你可以只來喝杯咖啡，也可以在這裡工作，或成為 Resident 以聚落為根據地。</p></div>
       </details>
       <details class="faq__item">
         <summary>台灣人才聚落在哪裡？</summary>
@@ -771,6 +485,7 @@
         <h3>據點</h3>
         <p>台北市中正區<br>重慶南路一段 11 號</p>
         <p>台北車站站前地下街<br>Z10 出口斜對面</p>
+        <p>營業時間（試營運起）<br>每日 11:00 – 凌晨 03:00</p>
         <a href="https://www.google.com/maps/search/?api=1&amp;query=25.046198,121.51342" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
         <a href="tel:+886983665352">+886 983 665352</a>
         <a href="mailto:us@taiwantalenthub.com">us@taiwantalenthub.com</a>
@@ -783,41 +498,6 @@
   </div>
 </footer>
 
-<script>
-  // ponytail: 三個小互動全用原生 API，零相依
-  // 1) nav 滾動陰影  2) 手機選單  3) 進場 reveal
-  const nav = document.getElementById('nav');
-  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), {passive:true});
-
-  const toggle = document.getElementById('navToggle');
-  const links = document.getElementById('navLinks');
-  const setMenu = open => {
-    links.classList.toggle('open', open);
-    toggle.setAttribute('aria-expanded', open);
-    toggle.setAttribute('aria-label', open ? '關閉選單' : '開啟選單');
-    toggle.textContent = open ? '✕' : '☰';
-  };
-  toggle.addEventListener('click', () => setMenu(!links.classList.contains('open')));
-  links.addEventListener('click', e => { if (e.target.tagName === 'A') setMenu(false); });
-
-  // 試營運倒數：2026-09-01 00:00 台北時間；歸零後停在 0（試營運開始後記得改版）
-  const target = new Date('2026-09-01T00:00:00+08:00');
-  const cd = document.getElementById('countdown');
-  const cdEls = Object.fromEntries([...cd.querySelectorAll('[data-u]')].map(el => [el.dataset.u, el]));
-  const pad = n => String(n).padStart(2, '0');
-  const tick = () => {
-    let ms = Math.max(0, target - Date.now());
-    cdEls.d.textContent = Math.floor(ms / 864e5); ms %= 864e5;
-    cdEls.h.textContent = pad(Math.floor(ms / 36e5)); ms %= 36e5;
-    cdEls.m.textContent = pad(Math.floor(ms / 6e4)); ms %= 6e4;
-    cdEls.s.textContent = pad(Math.floor(ms / 1e3));
-  };
-  tick(); setInterval(tick, 1000);
-
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-</script>
+<script src="/script.js"></script>
 </body>
 </html>
