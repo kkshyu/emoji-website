@@ -75,9 +75,6 @@
   .btn--solid:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
   .btn--ghost{background:transparent;color:var(--ink)}
   .btn--ghost:hover{background:var(--ink);color:var(--paper);transform:translateY(-2px)}
-  /* 黃色 CTA — 墨字壓在黃上（每畫面唯一一擊）*/
-  .btn--gold{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:700}
-  .btn--gold:hover{background:var(--accent-strong);border-color:var(--accent-strong);transform:translateY(-2px);box-shadow:var(--shadow)}
   :focus-visible{outline:2.5px solid var(--ink);outline-offset:3px;border-radius:2px}
 
   /* ---------- NAV ---------- */
@@ -195,37 +192,17 @@
   .floor h3 small{display:block;font-size:.74rem;color:var(--muted);font-weight:400;letter-spacing:.18em;text-transform:uppercase;margin-top:6px;font-family:var(--sans)}
   .floor p{color:var(--ink-soft);font-size:.94rem;font-weight:300;margin-bottom:16px}
   .floor__how{font-size:.88rem;font-weight:500;color:var(--ink);margin-bottom:18px;letter-spacing:.02em}
+  .floor__how small{display:block;margin-top:5px;font-weight:400;font-size:.82em;color:var(--muted);letter-spacing:0;line-height:1.6}
   .floor ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
   .floor li{font-size:.78rem;background:var(--paper-alt);border:1px solid var(--line);border-radius:var(--radius-sm);padding:.35em .85em;color:var(--ink-soft)}
   @media(max-width:860px){.floors__grid{grid-template-columns:1fr}}
 
-  /* ---------- MEMBERSHIP / PRICING ---------- */
-  .member{background:var(--paper-alt)}
+  /* ---------- PARTNER 情境卡（.entry，用於 #partners）---------- */
   .entry{border:1px solid var(--line);border-radius:var(--radius);padding:28px 26px;background:var(--card);transition:border-color .2s,transform .2s}
   .entry:hover{border-color:var(--ink);transform:translateY(-4px)}
   .entry h3{font-size:1.1rem;font-weight:500;margin:0}
   .entry .who{font-size:.76rem;color:var(--muted);font-weight:500;letter-spacing:.06em;margin:6px 0 12px}
   .entry p{font-size:.9rem;color:var(--ink-soft);font-weight:300}
-
-  .price-card{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--card)}
-  .price-row{display:grid;grid-template-columns:1.4fr auto 2fr;gap:18px;align-items:baseline;
-    padding:22px 30px;border-bottom:1px solid var(--line)}
-  .price-row:last-child{border-bottom:0}
-  .price-row:nth-child(odd){background:var(--paper-alt)}
-  .price-row .item{font-weight:500;font-size:1rem}
-  .price-row .amt{font-family:var(--latin);font-weight:600;color:var(--ink);white-space:nowrap;font-size:1.2rem;letter-spacing:.01em}
-  .price-row .desc{color:var(--muted);font-size:.87rem;font-weight:300}
-  @media(max-width:640px){
-    .price-row{grid-template-columns:1fr;gap:4px;padding:18px 22px}
-    .price-row .amt{font-size:1.2rem}
-  }
-
-  /* ---------- FOUNDING（深色墨面・唯一黃 CTA）---------- */
-  .founding{background:var(--ink-surface);color:var(--on-ink);position:relative;overflow:hidden}
-  .founding .sec-head h2{color:var(--on-ink)}
-  .founding .eyebrow{color:var(--on-ink-soft)}
-  .founding .eyebrow::before{background:var(--on-ink-soft)}
-  .founding .sec-head p{color:var(--on-ink-soft)}
 
   /* ---------- PARTNERS：六大情境 ---------- */
   #partners{background:var(--paper)}
@@ -286,8 +263,6 @@
   /* ---------- RWD 細部校正（平板與小手機）---------- */
   @media(max-width:760px){
     .about__grid{grid-template-columns:1fr;gap:28px}
-    .price-row{grid-template-columns:1fr;gap:4px}
-    .price-row .amt{font-size:1.15rem}
     .pull{font-size:clamp(1.3rem,5vw,1.8rem)}
     .foot__col a{padding:6px 0;margin-bottom:4px}
   }
@@ -298,7 +273,6 @@
     .hero{padding:52px 0 48px}
     .hero__loc{font-size:.78rem;flex-wrap:wrap}
     .floor,.duo article{padding:28px 24px}
-    .price-row{padding:16px 18px}
   }
   @media(max-width:360px){
     .hero h1{font-size:1.95rem}
