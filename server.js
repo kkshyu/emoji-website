@@ -395,7 +395,8 @@ app.post('/api/commitments', auth, requireDb, wrap(async (req, res) => {
 app.post('/api/admin/invites', auth, adminOnly, requireDb, wrap(async (req, res) => {
   const name = (req.body.name || '').trim();
   if (!name) return res.status(400).json({ error: '請輸入姓名。' });
-  const code = 'TTH-' + crypto.randomBytes(4).toString('hex').toUpperCase().slice(0, 6);
+  // 邀請碼即登入憑證（見 /api/login）：需足夠熵。改用 80-bit 隨機（透過連結分享、不需手打，長度無妨）。
+  const code = 'TTH-' + crypto.randomBytes(10).toString('hex').toUpperCase();
   const id = uid('u_');
   await q(`INSERT INTO users (id,name,email,phone,invite_code,status,created_at)
            VALUES ($1,$2,$3,$4,$5,'未開啟',now())`,
