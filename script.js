@@ -14,8 +14,8 @@
   toggle.addEventListener('click', () => setMenu(!links.classList.contains('open')));
   links.addEventListener('click', e => { if (e.target.tagName === 'A') setMenu(false); });
 
-  // 試營運倒數：2026-09-01 00:00 台北時間；歸零後停在 0（試營運開始後記得改版）
-  const target = new Date('2026-09-01T00:00:00+08:00');
+  // 試營運倒數：2026-10-13 00:00 台北時間；歸零後停在 0（試營運開始後記得改版）
+  const target = new Date('2026-10-13T00:00:00+08:00');
   const cd = document.getElementById('countdown');
   const cdEls = Object.fromEntries([...cd.querySelectorAll('[data-u]')].map(el => [el.dataset.u, el]));
   const pad = n => String(n).padStart(2, '0');
