@@ -164,7 +164,7 @@ function setNavActive(view) {
    ========================================================================= */
 const CONTRACT_HTML = `
 <h4>言文字創始會員入會協議（摘要）</h4>
-<p>本協議由入會人（乙方）與發起方 徐愷 KK（甲方）就乙方加入「言文字——台灣人才聚落」創始會員計畫事宜訂立。乙方係甲方主動邀請之<strong>特定人</strong>；本計畫為<strong>會籍預售，非公開招攬，亦非任何金融商品之銷售</strong>。</p>
+<p>本協議由入會人（乙方）與發起方 徐愷 KK（甲方）就乙方加入「言文字——台灣人才聚落」創始會員計畫事宜訂立。乙方係甲方主動邀請之<strong>特定人</strong>；本計畫為<strong>會籍預售</strong>。</p>
 <h4>第一條　會籍內容與期間</h4>
 <p>乙方取得創始會員會籍，期間 18 個月，內容包含：二、三樓會員限定空間進出（人臉辨識門禁）、三樓共享辦公與活動空間自由使用、社群活動與互助網絡資格，以及創始專屬權益（三樓創始牆名錄、創始晚餐邀請、續約鎖價保障）。</p>
 <h4>第二條　休憩額度與時數規則</h4>
@@ -178,7 +178,7 @@ const CONTRACT_HTML = `
 <h4>第六條　退費</h4>
 <p>退費依會員規章辦理；會員規章正式條款由律師核定中，乙方於簽署正本前將取得完整文本。</p>
 <h4>第七條　性質聲明</h4>
-<p>本協議為會籍預售之服務契約，<strong>非投資、非存款、非任何金融商品</strong>；乙方支付會費所取得者為會籍與休憩額度，無任何收益、分潤或金錢報酬。創始會員證僅為管理與紀錄憑證，不得轉讓或交易。</p>
+<p>本協議為會籍預售之服務契約；乙方支付會費所取得者為會籍與休憩額度。創始會員證僅為管理與紀錄憑證，不得轉讓或交易。</p>
 <h4>第八條　個人資料</h4>
 <p>甲方依《個人資料保護法》第 8 條，為履約、會籍管理與法令遵循之目的蒐集、處理及利用乙方個人資料；乙方得依法行使查詢、更正、刪除等權利（詳見完整協議）。</p>
 <h4>第九條　準據法與管轄</h4>
@@ -380,7 +380,7 @@ function renderAgreement(certId) {
       <div class="ag-party"><b>甲方（發起方）</b>徐愷 KK<br>地址：台北市中正區重慶南路一段 11 號</div>
       <div class="ag-party"><b>乙方（入會人）</b>${esc(u.name || '—')}<br>電話：${esc(u.phone || '—')}<br>Email：${esc(u.email || '—')}</div>
     </div>
-    <p>雙方本於誠信，就乙方加入甲方推動之「言文字——台灣人才聚落」創始會員計畫事宜，訂立本協議。乙方係甲方主動邀請之特定人；本計畫為會籍預售，非公開招攬，亦非任何金融商品之銷售。</p>
+    <p>雙方本於誠信，就乙方加入甲方推動之「言文字——台灣人才聚落」創始會員計畫事宜，訂立本協議。乙方係甲方主動邀請之特定人；本計畫為會籍預售。</p>
     <h4>第一條（會籍內容與期間）</h4>
     <p>乙方取得創始會員會籍，期間 18 個月。會籍權益包含：二、三樓會員限定空間進出（人臉辨識門禁）、三樓共享辦公與活動空間自由使用、社群活動與互助網絡資格，以及創始專屬權益：三樓創始牆名錄、創始晚餐邀請、續約鎖價保障（未來牌價調漲不影響乙方首次續約價格）。</p>
     <h4>第二條（休憩額度與時數規則）</h4>
@@ -394,7 +394,7 @@ function renderAgreement(certId) {
     <h4>第六條（退費）</h4>
     <p>退費依會員規章辦理。會員規章正式條款由律師核定中，乙方於簽署正本前將取得完整文本；正式權利義務以律師核定版為準。</p>
     <h4>第七條（性質聲明）</h4>
-    <p>本協議為會籍預售之服務契約，非投資、非存款、非任何金融商品；乙方支付會費所取得者為會籍與休憩額度，無任何收益、分潤或金錢報酬。甲方核發之創始會員證僅為管理與紀錄憑證，不得轉讓、質押或交易，亦不得對外公開招攬或勸誘。</p>
+    <p>本協議為會籍預售之服務契約；乙方支付會費所取得者為會籍與休憩額度。甲方核發之創始會員證僅為管理與紀錄憑證，不得轉讓、質押或交易，亦不得對外公開招攬或勸誘。</p>
     <h4>第八條（個人資料之蒐集、處理及利用）</h4>
     <p>甲方依《個人資料保護法》第 8 條告知：蒐集乙方姓名、身分證統一編號、聯絡方式、地址及帳務資料，目的為本協議之履行、會籍管理與法令遵循；利用期間至法令規定之保存期限屆滿，利用地區為中華民國。乙方得依法請求查詢、閱覽、複製、補正、停止利用或刪除其個人資料。</p>
     <h4>第九條（契約審閱）</h4>
@@ -591,7 +591,7 @@ function applyRole() {
 let revealIO;
 function observeReveal() {
   if (!('IntersectionObserver' in window)) return;
-  if (!revealIO) revealIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); revealIO.unobserve(e.target); } }), { threshold: .12 });
+  if (!revealIO) revealIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); revealIO.unobserve(e.target); } }), { threshold: 0, rootMargin: '0px 0px 22% 0px' });
   $$('.view.active .section-head, .view.active .prose, .view.active .reveal').forEach(el => { if (!el.classList.contains('in')) revealIO.observe(el); });
 }
 function closeMenu() { const m = document.getElementById('navLinks'); if (m) m.classList.remove('open'); }
