@@ -116,6 +116,7 @@
     card.innerHTML = `
       <h1 class="m-hi">歡迎，${esc(me.name || '會員')}</h1>
       <p class="m-sub">${esc(me.email || '')}</p>
+      ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin.html">前往後台管理 →</a></div>` : ''}
       ${badge}
       <div>${membership}</div>
       <h3 class="m-sec-title">會員動態</h3>

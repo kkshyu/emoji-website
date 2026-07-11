@@ -259,10 +259,15 @@ body.authed{overflow-x:hidden}
 .hero-grid{display:grid;grid-template-columns:1.35fr .9fr;gap:clamp(32px,5vw,68px);align-items:center;position:relative;z-index:2}
 .hero h1{
   font-family:var(--display);font-weight:500;
-  font-size:clamp(2.05rem,8.5vw,4.4rem);line-height:1;letter-spacing:.005em;
-  color:var(--ink-2);overflow-wrap:break-word;
+  font-size:clamp(2.05rem,8.5vw,4.4rem);line-height:1.06;letter-spacing:.005em;
+  color:var(--ink-2);overflow-wrap:break-word;text-wrap:balance;
 }
+.hero h1 .nb{white-space:nowrap}   /* 保護詞語不被硬切（世界／落地台灣…）*/
 .hero h1 .cn{display:block;font-family:var(--serif);font-weight:600;font-size:.52em;letter-spacing:.1em;margin-top:.6rem;color:var(--ink)}
+/* 中文主導、英文低調（CIS）：品牌型 hero 以明體大標，拉丁副標寬字距小字 */
+.hero h1.hero-cjk{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,6.4vw,3.4rem);letter-spacing:.05em;line-height:1.18}
+.hero h1.hero-cjk .latin-sub{display:block;font-family:var(--display);font-weight:500;font-size:.34em;
+  letter-spacing:.18em;text-transform:uppercase;margin-top:.9rem;color:var(--muted)}
 .hero-lead{font-size:clamp(1.05rem,1.5vw,1.22rem);color:var(--text);max-width:48ch;margin-top:1.5rem;line-height:1.85}
 .hero-letter{font-family:var(--serif);font-size:1.02rem;color:var(--muted);margin-top:1.3rem;max-width:50ch;border-left:2px solid var(--brass);padding-left:1.1rem}
 .hero-sign{font-family:var(--display);font-style:italic;font-size:1.25rem;color:var(--ink);margin-top:1rem}
@@ -288,6 +293,10 @@ body.authed{overflow-x:hidden}
 .bar{height:9px;border-radius:20px;background:var(--paper-sunk);overflow:hidden;position:relative;border:1px solid var(--line-faint)}
 .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--ink),var(--seal));border-radius:20px;width:0;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
 .fund-note{font-size:.74rem;color:var(--faint);margin-top:8px}
+/* 名額未達門檻：隱藏 0% 與空進度條（負面社會證明），只留質性文案 */
+.fund--quiet .fund-top b,.fund--quiet .bar{display:none}
+.fund--quiet .fund-top{margin-bottom:0}
+.fund--quiet .fund-note{margin-top:6px}
 
 /* =========================================================================
    STAT / FACT strips & cards
@@ -657,7 +666,7 @@ table.led .total td{font-weight:700;background:var(--paper-sunk);color:var(--ink
 /* ---- scroll reveal (JS-gated so no-JS stays visible) ---- */
 body.js .view.active .section .section-head,
 body.js .view.active .section .prose,
-body.js .view.active .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+body.js .view.active .reveal{opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s cubic-bezier(.2,.8,.2,1)}
 body.js .in{opacity:1 !important;transform:none !important}
 
 /* ---- reduced motion ---- */

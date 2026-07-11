@@ -12,15 +12,15 @@ L = {
  'zh': dict(base='', about='關於聚落', floors='消費方式', proglabel='聚落計畫',
    member='會員登入', cta='追蹤我們', ltop='中文', mopen='開啟選單', mclose='關閉選單',
    baria='言文字——台灣人才聚落 Taiwan Talent Hub 首頁', bsub='台灣人才聚落 · Taiwan Talent Hub',
-   prog={'fellow':'創始會員計畫','partner':'合作夥伴計畫','startup':'新創陪跑計畫'}),
+   prog={'fellow':'創始會員計畫','partner':'社群夥伴計畫','startup':'新創陪跑計畫'}),
  'en': dict(base='/en', about='About', floors='Pricing', proglabel='Programs',
    member='Member login', cta='Follow us', ltop='English', mopen='Open menu', mclose='Close menu',
    baria='Taiwan Talent Hub home', bsub='Taiwan Talent Hub · 台灣人才聚落',
-   prog={'fellow':'Founding Member','partner':'Partner Program','startup':'Startup Program'}),
+   prog={'fellow':'Founding Member','partner':'Community Partner Program','startup':'Startup Program'}),
  'ja': dict(base='/ja', about='ハブについて', floors='料金', proglabel='プログラム',
    member='会員ログイン', cta='フォローする', ltop='日本語', mopen='メニューを開く', mclose='メニューを閉じる',
    baria='Taiwan Talent Hub ホーム', bsub='Taiwan Talent Hub · 台湾タレントハブ',
-   prog={'fellow':'創始会員プログラム','partner':'パートナープログラム','startup':'スタートアップ支援'}),
+   prog={'fellow':'創始会員プログラム','partner':'コミュニティパートナー','startup':'スタートアップ支援'}),
 }
 LANG_ORDER = [('zh','中文'),('en','English'),('ja','日本語')]
 LANGARIA = {'zh':'切換語言', 'en':'Change language', 'ja':'言語を切り替え'}
@@ -52,7 +52,7 @@ def build(lang, ptype):
       <a href="{home}#about">{d['about']}</a>
       <a href="{home}#floors">{d['floors']}</a>
       <div class="site-nav__dd">
-        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">{d['proglabel']} <i class="site-nav__caret" aria-hidden="true">▾</i></button>
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">{d['proglabel']} <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="site-nav__menu">
 {prog_items}
         </div>
@@ -62,7 +62,7 @@ def build(lang, ptype):
         <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false" aria-label="{LANGARIA[lang]}">
           <svg class="site-nav__globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><ellipse cx="12" cy="12" rx="4" ry="9"/></svg>
           <span class="site-nav__lang-label">{d['ltop']}</span>
-          <i class="site-nav__caret" aria-hidden="true">▾</i>
+          <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="site-nav__menu">
 {litems}

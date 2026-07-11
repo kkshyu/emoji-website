@@ -1,7 +1,7 @@
 /* =========================================================================
    全站共用導覽列（主站與各計畫頁一致；一站式）
    自包含：不依賴各頁 CSS 變數，直接用 CIS 值，兩套 stylesheet 下皆一致。
-   CIS：紙 #FBFAF6 / 純紙卡 #FFF / 墨 #1B1A17 / 內文墨 #3A362E / 次要 #8C857A
+   CIS：紙 #FBFAF6 / 純紙卡 #FFF / 墨 #1B1A17 / 內文墨 #3A362E / 次要 #6B6558
         唯一黃 #FFDE34（只當底）/ 明體 Noto Serif TC / 安靜留白
    下拉：桌機 hover/鍵盤 focus 顯示；觸控/窄螢幕改「點擊展開」(.open)，避免 hover 殘留。
    ========================================================================= */
@@ -14,7 +14,7 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
   display:flex;align-items:center;justify-content:space-between;height:70px;gap:20px}
 .site-nav .brand{display:flex;flex-direction:column;line-height:1.1;gap:3px;text-decoration:none;color:#1B1A17;flex:0 0 auto}
 .site-nav .brand b{font-family:"Noto Serif TC",serif;font-weight:700;font-size:1.16rem;letter-spacing:.16em}
-.site-nav .brand span{font-size:.6rem;letter-spacing:.13em;color:#8C857A;font-weight:400}
+.site-nav .brand span{font-size:.6rem;letter-spacing:.13em;color:#6B6558;font-weight:400}
 .site-nav__links{display:flex;gap:24px;align-items:center}
 .site-nav__links a:not(.btn),.site-nav__dd-top{font-size:.9rem;color:#3A362E;font-weight:500;
   text-decoration:none;background:none;border:0;cursor:pointer;font-family:inherit;line-height:1}
@@ -26,14 +26,14 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
 /* ── 下拉（計畫、語言） ── */
 .site-nav__dd{position:relative;display:inline-flex;align-items:center}
 .site-nav__dd-top{display:inline-flex;align-items:center;gap:5px}
-.site-nav__caret{font-size:.62em;color:#8C857A;transition:transform .2s ease}
+.site-nav__caret{width:15px;height:15px;color:#6B6558;transition:transform .2s ease;flex:0 0 auto}
 .site-nav__menu{position:absolute;top:calc(100% + 10px);left:50%;transform:translate(-50%,4px);min-width:184px;
   display:flex;flex-direction:column;background:#FFFFFF;border:1px solid rgba(27,26,23,.12);border-radius:12px;
   box-shadow:0 16px 38px -14px rgba(27,26,23,.32);padding:7px;opacity:0;visibility:hidden;
   transition:opacity .18s ease,transform .18s ease;z-index:81}
 .site-nav__menu a{font-size:.86rem;color:#3A362E;padding:9px 13px;border-radius:7px;white-space:nowrap;text-decoration:none}
 .site-nav__menu a[aria-current=page]{background:rgba(255,222,52,.22);color:#1B1A17}
-.site-nav__lang .site-nav__dd-top{font-size:.85rem;color:#8C857A}
+.site-nav__lang .site-nav__dd-top{font-size:.85rem;color:#6B6558}
 .site-nav__globe{width:19px;height:19px;display:block;flex:0 0 auto}
 .site-nav__lang-label{display:none}          /* 桌機：只留地球 icon */
 .site-nav__lang .site-nav__menu{left:auto;right:0;transform:translateY(4px);min-width:132px}
@@ -50,10 +50,10 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
   .site-nav__lang:hover .site-nav__dd-top,.site-nav__lang:focus-within .site-nav__dd-top{color:#1B1A17}
 }
 
-/* ── CTA 按鈕（唯一黃底、墨框）── */
+/* ── CTA 按鈕（墨底：黃色留給每頁唯一 highlight／主 CTA，避免同屏兩擊）── */
 .site-nav .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
   font-size:.86rem;font-weight:600;padding:9px 18px;border-radius:999px;text-decoration:none;
-  background:#FFDE34;color:#1B1A17;border:1px solid #1B1A17;transition:transform .15s ease,box-shadow .15s ease}
+  background:#1B1A17;color:#FBFAF6;border:1px solid #1B1A17;transition:transform .15s ease,box-shadow .15s ease}
 .site-nav .btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px -8px rgba(27,26,23,.45)}
 /* ── 漢堡（手機）── */
 .site-nav__toggle{display:none;place-items:center;min-width:44px;min-height:44px;background:none;border:0;
@@ -73,6 +73,8 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
     min-width:0;padding:0 0 0 14px;opacity:1;visibility:visible;max-height:0;overflow:hidden;transition:max-height .28s ease}
   .site-nav__lang .site-nav__menu{right:auto}
   .site-nav__lang-label{display:inline}       /* 手機：icon 旁補語言文字，整列較清楚 */
+  .site-nav__lang .site-nav__dd-top{justify-content:flex-start;gap:10px}  /* 手機：地球＋語言靠左，與其他項對齊 */
+  .site-nav__lang .site-nav__caret{margin-left:auto}
   .site-nav__dd.open>.site-nav__menu{max-height:70vh;transform:none;padding:2px 0 8px 14px}
   .site-nav__menu a{padding:12px 0;border-bottom:1px solid rgba(27,26,23,.07);border-radius:0}
   .site-nav .btn{margin-top:16px;width:100%}

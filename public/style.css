@@ -7,7 +7,7 @@
     /* 墨與紙 — the neutral spine */
     --ink:#1B1A17;          /* 主墨・暖近黑，非純黑 */
     --ink-soft:#3A362E;     /* 內文墨 */
-    --muted:#8C857A;        /* 標籤／說明 */
+    --muted:#6B6558;        /* 標籤／說明・darkened 至 WCAG AA（4.5:1 on paper），仍為墨灰調 */
     --paper:#FBFAF6;        /* 紙・頁面底（paper-warm）*/
     --paper-alt:#F4F1EA;    /* 紙・替代區塊 */
     --paper-deep:#ECE8DE;   /* 紙・深階／隔列 */
@@ -124,7 +124,7 @@
   .hero__loc svg{width:15px;height:15px;color:var(--ink)}
   .hero h1{
     font-size:clamp(2.3rem,6vw,4.6rem);font-weight:500;line-height:1.24;letter-spacing:.01em;
-    max-width:12.5em;
+    max-width:12.5em;text-wrap:balance;
   }
   .hero h1 em{font-style:normal;position:relative}
   .hero p.lead{
@@ -156,7 +156,7 @@
   /* ---------- SECTION SHELL ---------- */
   section{padding:clamp(72px,10vw,128px) 0}
   .sec-head{max-width:720px;margin-bottom:clamp(44px,6vw,72px)}
-  .sec-head h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:500;line-height:1.32;margin:20px 0 0}
+  .sec-head h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:500;line-height:1.32;margin:20px 0 0;text-wrap:balance}
   .sec-head p{margin-top:20px;color:var(--ink-soft);font-size:1.05rem;font-weight:300;max-width:60ch;line-height:1.9}
 
   /* ---------- ABOUT / FLYWHEEL ---------- */
@@ -278,11 +278,11 @@
   .foot__col h3{color:var(--on-ink);font-size:.76rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px;font-family:var(--sans);font-weight:500}
   .foot__col a,.foot__col p{display:block;font-size:.9rem;color:var(--on-ink-soft);margin-bottom:10px;font-weight:300;transition:color .2s}
   .foot__col a:hover{color:var(--on-ink)}
-  .foot__bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:28px;font-size:.8rem;color:var(--muted)}
+  .foot__bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:28px;font-size:.8rem;color:var(--on-ink-soft)}
   @media(max-width:760px){.foot__top{grid-template-columns:1fr;gap:32px}}
 
   /* ---------- REVEAL（漸進增強：無 JS 時內容照常顯示）---------- */
-  .js .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .js .reveal{opacity:0;transform:translateY(12px);transition:opacity .4s cubic-bezier(.2,.7,.2,1),transform .4s cubic-bezier(.2,.7,.2,1)}
   .js .reveal.in{opacity:1;transform:none}
   @media(prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
