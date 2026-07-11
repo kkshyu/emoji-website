@@ -1,19 +1,5 @@
-// ponytail: 三個小互動全用原生 API，零相依
-  // 1) nav 滾動陰影  2) 手機選單  3) 進場 reveal
-  const nav = document.getElementById('nav');
-  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), {passive:true});
-
-  const toggle = document.getElementById('navToggle');
-  const links = document.getElementById('navLinks');
-  const setMenu = open => {
-    links.classList.toggle('open', open);
-    toggle.setAttribute('aria-expanded', open);
-    toggle.setAttribute('aria-label', open ? toggle.dataset.labelClose : toggle.dataset.labelOpen);
-    toggle.textContent = open ? '✕' : '☰';
-  };
-  toggle.addEventListener('click', () => setMenu(!links.classList.contains('open')));
-  links.addEventListener('click', e => { if (e.target.tagName === 'A') setMenu(false); });
-
+// ponytail: 原生 API，零相依。導覽列（滾動陰影＋手機選單）已移至共用 nav.js。
+  // 進場 reveal 與試營運倒數留在本檔。
   // 試營運倒數：2026-10-13 00:00 台北時間；歸零後停在 0（試營運開始後記得改版）
   const target = new Date('2026-10-13T00:00:00+08:00');
   const cd = document.getElementById('countdown');

@@ -1,0 +1,78 @@
+/* =========================================================================
+   全站共用導覽列（主站與各計畫頁一致；一站式）
+   自包含：不依賴各頁 CSS 變數，直接用 CIS 值，兩套 stylesheet 下皆一致。
+   CIS：紙 #FBFAF6 / 純紙卡 #FFF / 墨 #1B1A17 / 內文墨 #3A362E / 次要 #8C857A
+        唯一黃 #FFDE34（只當底）/ 明體 Noto Serif TC / 安靜留白
+   下拉：桌機 hover/鍵盤 focus 顯示；觸控/窄螢幕改「點擊展開」(.open)，避免 hover 殘留。
+   ========================================================================= */
+header.site-nav{position:sticky;top:0;z-index:80;
+  background:rgba(251,250,246,.82);-webkit-backdrop-filter:saturate(140%) blur(14px);backdrop-filter:saturate(140%) blur(14px);
+  border-bottom:1px solid transparent;transition:border-color .3s ease,background .3s ease;
+  font-family:"Noto Sans TC",system-ui,-apple-system,sans-serif}
+header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(251,250,246,.96)}
+.site-nav__inner{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,40px);
+  display:flex;align-items:center;justify-content:space-between;height:70px;gap:20px}
+.site-nav .brand{display:flex;flex-direction:column;line-height:1.1;gap:3px;text-decoration:none;color:#1B1A17;flex:0 0 auto}
+.site-nav .brand b{font-family:"Noto Serif TC",serif;font-weight:700;font-size:1.16rem;letter-spacing:.16em}
+.site-nav .brand span{font-size:.6rem;letter-spacing:.13em;color:#8C857A;font-weight:400}
+.site-nav__links{display:flex;gap:24px;align-items:center}
+.site-nav__links a:not(.btn),.site-nav__dd-top{font-size:.9rem;color:#3A362E;font-weight:500;
+  text-decoration:none;background:none;border:0;cursor:pointer;font-family:inherit;line-height:1}
+.site-nav__links>a:not(.btn){position:relative}
+.site-nav__links>a:not(.btn)::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:1.5px;
+  background:#1B1A17;transition:width .25s ease}
+.site-nav__links a[aria-current=page]{color:#1B1A17;font-weight:600}
+
+/* ── 下拉（計畫、語言） ── */
+.site-nav__dd{position:relative;display:inline-flex;align-items:center}
+.site-nav__dd-top{display:inline-flex;align-items:center;gap:5px}
+.site-nav__caret{font-size:.62em;color:#8C857A;transition:transform .2s ease}
+.site-nav__menu{position:absolute;top:calc(100% + 10px);left:50%;transform:translate(-50%,4px);min-width:184px;
+  display:flex;flex-direction:column;background:#FFFFFF;border:1px solid rgba(27,26,23,.12);border-radius:12px;
+  box-shadow:0 16px 38px -14px rgba(27,26,23,.32);padding:7px;opacity:0;visibility:hidden;
+  transition:opacity .18s ease,transform .18s ease;z-index:81}
+.site-nav__menu a{font-size:.86rem;color:#3A362E;padding:9px 13px;border-radius:7px;white-space:nowrap;text-decoration:none}
+.site-nav__menu a[aria-current=page]{background:rgba(255,222,52,.22);color:#1B1A17}
+.site-nav__lang .site-nav__dd-top{font-size:.85rem;color:#8C857A}
+.site-nav__lang .site-nav__menu{left:auto;right:0;transform:translateY(4px);min-width:132px}
+/* 點擊展開（JS 加 .open）：桌機與觸控通用 */
+.site-nav__dd.open>.site-nav__menu{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.site-nav__lang.open>.site-nav__menu{transform:translateY(0)}
+.site-nav__dd.open .site-nav__caret{transform:rotate(180deg)}
+/* 桌機（可 hover）：滑鼠移入或鍵盤 focus 即顯示 */
+@media (hover:hover) and (min-width:901px){
+  .site-nav__dd:hover>.site-nav__menu,.site-nav__dd:focus-within>.site-nav__menu{opacity:1;visibility:visible;transform:translate(-50%,0)}
+  .site-nav__lang:hover>.site-nav__menu,.site-nav__lang:focus-within>.site-nav__menu{transform:translateY(0)}
+  .site-nav__dd:hover .site-nav__caret,.site-nav__dd:focus-within .site-nav__caret{transform:rotate(180deg)}
+  .site-nav__menu a:hover{background:rgba(255,222,52,.22);color:#1B1A17}
+  .site-nav__lang:hover .site-nav__dd-top,.site-nav__lang:focus-within .site-nav__dd-top{color:#1B1A17}
+}
+
+/* ── CTA 按鈕（唯一黃底、墨框）── */
+.site-nav .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
+  font-size:.86rem;font-weight:600;padding:9px 18px;border-radius:999px;text-decoration:none;
+  background:#FFDE34;color:#1B1A17;border:1px solid #1B1A17;transition:transform .15s ease,box-shadow .15s ease}
+.site-nav .btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px -8px rgba(27,26,23,.45)}
+/* ── 漢堡（手機）── */
+.site-nav__toggle{display:none;place-items:center;min-width:44px;min-height:44px;background:none;border:0;
+  cursor:pointer;font-size:1.5rem;color:#1B1A17;line-height:1}
+
+@media(max-width:900px){
+  .site-nav__links{position:fixed;inset:70px 0 auto 0;flex-direction:column;gap:0;align-items:stretch;
+    background:#FBFAF6;border-bottom:1px solid rgba(27,26,23,.14);max-height:0;overflow:hidden auto;
+    transition:max-height .35s ease;padding:0 24px}
+  .site-nav__links.open{max-height:calc(100vh - 70px);padding:8px 24px 26px}
+  .site-nav__links>a,.site-nav__dd{width:100%}
+  .site-nav__links>a:not(.btn){padding:15px 0;border-bottom:1px solid rgba(27,26,23,.10)}
+  .site-nav__dd{display:block}
+  .site-nav__dd-top{width:100%;padding:15px 0;border-bottom:1px solid rgba(27,26,23,.10);justify-content:space-between}
+  /* 手機：子選單改「摺疊/點擊展開」手風琴，不用 hover */
+  .site-nav__menu{position:static;transform:none;box-shadow:none;border:0;border-radius:0;background:transparent;
+    min-width:0;padding:0 0 0 14px;opacity:1;visibility:visible;max-height:0;overflow:hidden;transition:max-height .28s ease}
+  .site-nav__lang .site-nav__menu{right:auto}
+  .site-nav__dd.open>.site-nav__menu{max-height:70vh;transform:none;padding:2px 0 8px 14px}
+  .site-nav__menu a{padding:12px 0;border-bottom:1px solid rgba(27,26,23,.07);border-radius:0}
+  .site-nav .btn{margin-top:16px;width:100%}
+  .site-nav__toggle{display:grid}
+}
+@media print{header.site-nav{display:none}}

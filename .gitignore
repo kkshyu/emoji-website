@@ -1,0 +1,17 @@
+# 系統
+.DS_Store
+
+# 測試截圖與瀏覽器工具暫存（驗證用，不入版控）
+[0-9][0-9]-*.png
+.playwright-mcp/
+
+# 敏感參考文件（含財務與貸款細節，不入版控）
+*.docx
+_plan_extract.txt
+
+# Node
+node_modules/
+npm-debug.log*
+
+# 環境變數
+.env

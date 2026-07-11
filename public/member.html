@@ -31,6 +31,14 @@
   .m-google svg{width:20px;height:20px}
   .m-center{text-align:center}
   .m-note{color:var(--muted);font-size:.85rem;margin-top:1.2rem}
+  /* 創始會員勳章（CIS：印章＋唯一黃） */
+  .m-badge{display:inline-flex;align-items:center;gap:.65em;margin:.2rem 0 1.6rem;padding:.5em .95em .5em .55em;
+    border:1px solid var(--ink);border-radius:999px;background:rgba(255,222,52,.18)}
+  .m-badge .m-seal{width:30px;height:30px;flex:0 0 auto;display:grid;place-items:center;border-radius:50%;
+    background:#FFDE34;color:#1B1A17;font-family:var(--serif);font-weight:700;font-size:1rem;border:1px solid #1B1A17}
+  .m-badge .m-bt{line-height:1.25}
+  .m-badge .m-bt b{font-family:var(--serif);font-weight:700;letter-spacing:.04em}
+  .m-badge .m-bt small{display:block;color:var(--muted);font-size:.76rem;letter-spacing:.02em}
   .m-top{position:fixed;top:0;left:0;right:0;background:var(--paper);border-bottom:1px solid var(--line);z-index:10}
   .m-top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
   .m-brand b{font-family:var(--serif);font-weight:700;font-size:1.1rem}
@@ -52,9 +60,8 @@
 </main>
 
 <script>
-  // fellow 後端網址：本地測試指向 localhost:8080，正式指向 fellow.emoji.tw
-  const FELLOW = /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
-    ? 'http://localhost:8080' : 'https://fellow.emoji.tw';
+  // 後端與官網同源（www.emoji.tw），一律走相對路徑
+  const FELLOW = '';
   const KEY = 'tth_token';
   const card = document.getElementById('card');
   const esc = s => (s == null ? '' : String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -86,13 +93,20 @@
   function renderMember(data) {
     const me = data.me || {};
     const c = (data.commitments || [])[0];
+    // 參與創始會員計畫者，於會員頁顯示創始勳章
+    const badge = c
+      ? `<div class="m-badge" title="創始會員計畫參與者">
+           <span class="m-seal">創</span>
+           <span class="m-bt"><b>創始會員</b> Founding Member<small>${esc(c.cert_no || '')}${c.membership_status ? '　·　' + esc(c.membership_status) : ''}</small></span>
+         </div>`
+      : '';
     const membership = c
       ? `<div class="m-row"><b>會籍狀態</b><span>${esc(c.membership_status || '—')}</span></div>
          <div class="m-row"><b>會員編號</b><span>${esc(c.cert_no || '—')}</span></div>
          <div class="m-row"><b>會籍期間</b><span>${esc(c.start_date)} – ${esc(c.maturity_date)}</span></div>`
       : `<div class="m-row"><b>會籍狀態</b><span>尚未加入</span></div>
          <div class="m-empty">你目前尚未成為創始會員。
-           <a href="https://fellow.emoji.tw/" style="text-decoration:underline;text-underline-offset:3px">前往加入創始會員 →</a></div>`;
+           <a href="/fellow" style="text-decoration:underline;text-underline-offset:3px">前往加入創始會員 →</a></div>`;
 
     const updates = (data.updates || []).map(u => `
       <div class="m-upd"><h4>${esc(u.title)}</h4><time>${esc(u.published_at)}｜${esc(u.type)}</time>
@@ -102,6 +116,7 @@
     card.innerHTML = `
       <h1 class="m-hi">歡迎，${esc(me.name || '會員')}</h1>
       <p class="m-sub">${esc(me.email || '')}</p>
+      ${badge}
       <div>${membership}</div>
       <h3 class="m-sec-title">會員動態</h3>
       <div>${updates}</div>

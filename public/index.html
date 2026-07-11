@@ -68,7 +68,7 @@
         "opens": "11:00",
         "closes": "03:00"
       },
-      "hasMap": "https://www.google.com/maps/search/?api=1&query=25.046198,121.51342",
+      "hasMap": "https://maps.app.goo.gl/phJPEkUbBwAXHtoE8",
       "memberOf": { "@type": "Organization", "name": "台灣數位遊牧者協會 TDNA", "url": "https://dna.org.tw" },
       "makesOffer": [
         { "@type": "Offer", "name": "單日會員（4 小時）", "category": "會員", "price": "200", "priceCurrency": "TWD", "availability": "https://schema.org/PreOrder", "url": "https://www.emoji.tw/#floors" },
@@ -77,7 +77,7 @@
         { "@type": "Offer", "name": "季會員（贈休憩 30 小時）", "category": "會員", "price": "10000", "priceCurrency": "TWD", "availability": "https://schema.org/PreOrder", "url": "https://www.emoji.tw/#floors" },
         { "@type": "Offer", "name": "年會員（贈休憩 100 小時）", "category": "會員", "price": "35000", "priceCurrency": "TWD", "availability": "https://schema.org/PreOrder", "url": "https://www.emoji.tw/#floors" },
         { "@type": "Offer", "name": "二樓休憩（膠囊床位、遊樂室，會員限定，每小時）", "category": "會員休憩空間", "price": "100", "priceCurrency": "TWD", "availability": "https://schema.org/PreOrder", "url": "https://www.emoji.tw/#floors" },
-        { "@type": "Offer", "name": "創始會員計畫 Founding Member（18 個月會籍＋200 小時休憩額度，限量 100 名）", "category": "會員", "price": "35000", "priceCurrency": "TWD", "availability": "https://schema.org/LimitedAvailability", "validThrough": "2026-11-01", "url": "https://fellow.emoji.tw/" }
+        { "@type": "Offer", "name": "創始會員計畫 Founding Member（18 個月會籍＋200 小時休憩額度，限量 100 名）", "category": "會員", "price": "35000", "priceCurrency": "TWD", "availability": "https://schema.org/LimitedAvailability", "validThrough": "2026-10-31", "url": "https://www.emoji.tw/fellow" }
       ]
     },
     {
@@ -203,29 +203,42 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/nav.css">
+<script defer src="/nav.js"></script>
 </head>
 <body>
 <a href="#content" class="skip-link">跳至主要內容</a>
 
 <!-- ===== NAV ===== -->
-<header class="nav" id="nav">
-  <div class="wrap nav__inner">
-    <a class="brand" href="#top" aria-label="言文字——台灣人才聚落 Taiwan Talent Hub 首頁">
-      <b>言文字</b>
-      <span>台灣人才聚落 · Taiwan Talent Hub</span>
+<header class="site-nav" id="nav">
+  <div class="site-nav__inner">
+    <a class="brand" href="/" aria-label="言文字——台灣人才聚落 Taiwan Talent Hub 首頁">
+      <b>言文字</b><span>台灣人才聚落 · Taiwan Talent Hub</span>
     </a>
-    <nav class="nav__links" id="navLinks">
-      <a href="#about">關於聚落</a>
-      <a href="#floors">空間與費用</a>
-      <a href="#partners">夥伴計畫</a>
+    <nav class="site-nav__links" id="navLinks" aria-label="聚落計畫">
+      <a href="/#about">關於聚落</a>
+      <a href="/#floors">消費方式</a>
+      <div class="site-nav__dd">
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">聚落計畫 <i class="site-nav__caret" aria-hidden="true">▾</i></button>
+        <div class="site-nav__menu">
+          <a href="/fellow">創始會員計畫</a>
+          <a href="/partner">合作夥伴計畫</a>
+          <a href="/startup">新創陪跑計畫</a>
+        </div>
+      </div>
       <a href="/member.html">會員登入</a>
-      <a href="/en/" lang="en" hreflang="en">EN</a>
-      <a href="/ja/" lang="ja" hreflang="ja">日本語</a>
-      <a href="#contact" class="btn btn--solid">搶先訂閱</a>
+      <div class="site-nav__dd site-nav__lang">
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">中文 <i class="site-nav__caret" aria-hidden="true">▾</i></button>
+        <div class="site-nav__menu">
+          <a href="/" hreflang="zh-Hant" lang="zh-Hant" aria-current="page">中文</a>
+          <a href="/en/" hreflang="en" lang="en">English</a>
+          <a href="/ja/" hreflang="ja" lang="ja">日本語</a>
+        </div>
+      </div>
+      <a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener" class="btn">追蹤我們</a>
     </nav>
-    <button class="nav__toggle" id="navToggle" aria-label="開啟選單" data-label-open="開啟選單" data-label-close="關閉選單" aria-controls="navLinks" aria-expanded="false">☰</button>
+    <button class="site-nav__toggle" id="navToggle" aria-label="開啟選單" data-label-open="開啟選單" data-label-close="關閉選單" aria-controls="navLinks" aria-expanded="false">☰</button>
   </div>
 </header>
 
@@ -254,7 +267,7 @@
       </div>
     </div>
     <div class="hero__cta reveal">
-      <a href="#contact" class="btn btn--solid">搶先訂閱開幕消息 →</a>
+      <a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener" class="btn btn--solid">追蹤我們，掌握開幕 →</a>
       <a href="#floors" class="btn btn--ghost">探索三層空間</a>
     </div>
     <div class="hero__brands reveal">
@@ -372,12 +385,11 @@
       <div class="entry reveal">
         <h3>名額與起算</h3>
         <div class="who">受邀制 · 限量 100 名</div>
-        <p>售至 2026 年 11 月 1 日正式開幕日止；會籍自正式開幕日起算。</p>
+        <p>售至 2026 年 10 月 31 日（開幕前一日）止；會籍自正式開幕日起算。</p>
       </div>
     </div>
     <div class="reveal" style="margin-top:34px;display:flex;gap:14px;flex-wrap:wrap">
-      <a href="https://fellow.emoji.tw/" class="btn btn--solid">前往創始會員計畫 →</a>
-      <a href="#contact" class="btn btn--ghost">或先訂閱電子報</a>
+      <a href="/fellow" class="btn btn--solid">查看完整方案 →</a>
     </div>
   </div>
 </section>
@@ -423,12 +435,43 @@
       </div>
     </div>
     <div class="reveal" style="margin-top:34px">
-      <a href="mailto:us@emoji.tw?subject=合作提案" class="btn btn--solid">跟我們聊聊合作 →</a>
+      <a href="/partner" class="btn btn--solid">查看完整方案 →</a>
+      <a href="mailto:us@emoji.tw?subject=合作提案" class="btn btn--ghost" style="margin-left:12px">跟我們聊聊合作</a>
     </div>
   </div>
 </section>
 
 <!-- ===== FAQ ===== -->
+<section id="startup">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Startup Program · 新創陪跑計畫</span>
+      <h2>讓台灣新創走向世界，<br>讓世界新創<span class="swash">落地台灣</span></h2>
+      <p>每年三、六、九月召募，以創業培訓、產品優化與商業媒合，陪你把新創推向國際——不是課程，是陪跑。</p>
+    </div>
+    <div class="scenes">
+      <div class="entry reveal">
+        <h3>三大支援</h3>
+        <div class="who">培訓 · 優化 · 媒合</div>
+        <p>創業培訓、產品優化，與對接客戶、投資人、夥伴的商業媒合。</p>
+      </div>
+      <div class="entry reveal">
+        <h3>每年三梯次</h3>
+        <div class="who">三月 · 六月 · 九月</div>
+        <p>申請 → 面談 → 入選 → 陪跑，梯次滾動召募。</p>
+      </div>
+      <div class="entry reveal">
+        <h3>雙向橋樑</h3>
+        <div class="who">台灣 ⇄ 國際</div>
+        <p>台灣新創走向國際市場，國際新創落地台灣——連結 TDNA 國際網絡。</p>
+      </div>
+    </div>
+    <div class="reveal" style="margin-top:34px">
+      <a href="/startup" class="btn btn--solid">查看完整方案 →</a>
+    </div>
+  </div>
+</section>
+
 <section class="faq" id="faq">
   <div class="wrap">
     <div class="sec-head reveal">
@@ -446,7 +489,7 @@
       </details>
       <details class="faq__item">
         <summary>什麼時候開幕？</summary>
-        <div class="faq__a"><p>預計 2026 年 10 月 13 日開始試營運（10 月為限量邀請與預覽期），11 月 1 日正式開幕。11 月整月是開幕月，每週有不同主題活動——開幕體驗週、社群合作週、新創與企業週與年末感恩檔期。<a href="#contact" style="text-decoration:underline;text-underline-offset:3px">訂閱電子報</a>即可搶先收到開幕消息與空間進度的通知。</p></div>
+        <div class="faq__a"><p>預計 2026 年 10 月 13 日開始試營運（10 月為限量邀請與預覽期），11 月 1 日正式開幕。11 月整月是開幕月，每週有不同主題活動——開幕體驗週、社群合作週、新創與企業週與年末感恩檔期。<a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener" style="text-decoration:underline;text-underline-offset:3px">追蹤我們的 Instagram</a>即可搶先收到開幕消息與空間進度的通知。</p></div>
       </details>
       <details class="faq__item">
         <summary>有哪些會員方案與價格？</summary>
@@ -485,65 +528,6 @@
 </section>
 
 <!-- ===== CTA / CONTACT / NEWSLETTER ===== -->
-<section class="cta" id="contact">
-  <div class="wrap">
-    <h2 class="reveal">開幕前，先為你<span class="swash--solid">保留一個位置</span></h2>
-    <p class="reveal">聚落預計 2026 年 10 月 13 日在台北車站旁試營運，11 月 1 日正式開幕。訂閱電子報，第一時間收到開幕消息與空間進度的通知。</p>
-    <div class="cta__form reveal">
-      <!-- Brevo 內嵌訂閱表單（取代 iframe；樣式由 style.css 依 CIS 覆蓋）-->
-      <div class="sib-form">
-        <div id="sib-form-container" class="sib-form-container">
-          <div id="error-message" class="sib-form-message-panel">
-            <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
-              <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon">
-                <path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-11.49 120h22.979c6.823 0 12.274 5.682 11.99 12.5l-7 168c-.268 6.428-5.556 11.5-11.99 11.5h-8.979c-6.433 0-11.722-5.073-11.99-11.5l-7-168c-.283-6.818 5.167-12.5 11.99-12.5zM256 340c-15.464 0-28 12.536-28 28s12.536 28 28 28 28-12.536 28-28-12.536-28-28-28z" />
-              </svg>
-              <span class="sib-form-message-panel__inner-text">訂閱沒有成功，請再試一次。</span>
-            </div>
-          </div>
-          <div></div>
-          <div id="success-message" class="sib-form-message-panel">
-            <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
-              <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon">
-                <path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 464c-118.664 0-216-96.055-216-216 0-118.663 96.055-216 216-216 118.664 0 216 96.055 216 216 0 118.663-96.055 216-216 216zm141.63-274.961L217.15 376.071c-4.705 4.667-12.303 4.637-16.97-.068l-85.878-86.572c-4.667-4.705-4.637-12.303.068-16.97l8.52-8.451c4.705-4.667 12.303-4.637 16.97.068l68.976 69.533 163.441-162.13c4.705-4.667 12.303-4.637 16.97.068l8.451 8.52c4.668 4.705 4.637 12.303-.068 16.97z" />
-              </svg>
-              <span class="sib-form-message-panel__inner-text">已收到你的訂閱，開幕消息會第一時間寄給你。</span>
-            </div>
-          </div>
-          <div></div>
-          <div id="sib-container" class="sib-container--large sib-container--vertical">
-            <form id="sib-form" method="POST" action="https://b965903f.sibforms.com/serve/MUIFAGQmX2GgSEnjP4T20dGgeBM1uZBD8ZKsof7Wkttv_J_OxLv6vUs-wUoTCtlWA20OANR-VlxhdGYohMFcbGNTZ0JUStbCOW1tHxGFNr4sYEYIlwFjtQagimHhexs2YWWvTOgr6s5axIFlKE1ub7RXhqJSs_W1HUtJt7ivtqFIg2WGPXiHIclDIteghbJ9nK1axyXExiUfSV-kcw==" data-type="subscription">
-              <div class="sib-input sib-form-block">
-                <div class="form__entry entry_block">
-                  <div class="form__label-row">
-                    <div class="entry__field">
-                      <input class="input" type="text" id="EMAIL" name="EMAIL" autocomplete="off" value="" placeholder="你的 Email" data-required="true" required />
-                    </div>
-                  </div>
-                  <label class="entry__error entry__error--primary"></label>
-                </div>
-              </div>
-              <div class="sib-form-block">
-                <button class="sib-form-block__button sib-form-block__button-with-loader" form="sib-form" type="submit">
-                  <svg class="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512">
-                    <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z" />
-                  </svg>
-                  訂閱開幕消息
-                </button>
-              </div>
-              <input type="text" name="email_address_check" value="" class="input--hidden">
-              <input type="hidden" name="locale" value="en">
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="cta__btns reveal">
-      <a href="mailto:us@emoji.tw?subject=我想搶先了解台灣人才聚落" class="btn btn--ghost">或直接寫信給我們</a>
-      <a href="#floors" class="btn btn--ghost">查看空間與費用</a>
-    </div>
-  </div>
-</section>
 
 </main>
 
@@ -562,14 +546,14 @@
         <a href="#floors">空間與費用</a>
         <a href="#partners">夥伴計畫</a>
         <a href="#faq">常見問題</a>
-        <a href="#contact">訂閱電子報</a>
+        <a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener">追蹤我們</a>
       </div>
       <div class="foot__col">
         <h3>據點</h3>
         <p>台北市中正區<br>重慶南路一段 11 號</p>
         <p>台北車站站前地下街<br>Z10 出口斜對面</p>
         <p>營業時間（試營運起）<br>每日 11:00 – 凌晨 03:00<br>會員 24 小時分時進出</p>
-        <a href="https://www.google.com/maps/search/?api=1&amp;query=25.046198,121.51342" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
+        <a href="https://maps.app.goo.gl/phJPEkUbBwAXHtoE8" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
         <a href="tel:+886983665352">+886 983 665352</a>
         <a href="mailto:us@emoji.tw">us@emoji.tw</a>
       </div>

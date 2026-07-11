@@ -69,7 +69,7 @@
         "opens": "11:00",
         "closes": "03:00"
       },
-      "hasMap": "https://www.google.com/maps/search/?api=1&query=25.046198,121.51342",
+      "hasMap": "https://maps.app.goo.gl/phJPEkUbBwAXHtoE8",
       "memberOf": { "@type": "Organization", "name": "Taiwan Digital Nomad Association (TDNA)", "url": "https://dna.org.tw" },
       "makesOffer": [
         { "@type": "Offer", "name": "Day membership (4 hours)", "category": "Membership", "price": "200", "priceCurrency": "TWD", "availability": "https://schema.org/PreOrder", "url": "https://www.emoji.tw/en/#floors" },
@@ -78,7 +78,7 @@
         { "@type": "Offer", "name": "Quarterly membership (30 rest hours included)", "category": "Membership", "price": "10000", "priceCurrency": "TWD", "availability": "https://schema.org/PreOrder", "url": "https://www.emoji.tw/en/#floors" },
         { "@type": "Offer", "name": "Annual membership (100 rest hours included)", "category": "Membership", "price": "35000", "priceCurrency": "TWD", "availability": "https://schema.org/PreOrder", "url": "https://www.emoji.tw/en/#floors" },
         { "@type": "Offer", "name": "2F rest floor — capsule pods & play room (members only, per hour)", "category": "Member Plaza", "price": "100", "priceCurrency": "TWD", "availability": "https://schema.org/PreOrder", "url": "https://www.emoji.tw/en/#floors" },
-        { "@type": "Offer", "name": "Founding Member (18 months of membership + 200 rest hours, limited to 100)", "category": "Membership", "price": "35000", "priceCurrency": "TWD", "availability": "https://schema.org/LimitedAvailability", "validThrough": "2026-11-01", "url": "https://fellow.emoji.tw/" }
+        { "@type": "Offer", "name": "Founding Member (18 months of membership + 200 rest hours, limited to 100)", "category": "Membership", "price": "35000", "priceCurrency": "TWD", "availability": "https://schema.org/LimitedAvailability", "validThrough": "2026-10-31", "url": "https://www.emoji.tw/en/fellow" }
       ]
     },
     {
@@ -197,8 +197,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/nav.css">
+<script defer src="/nav.js"></script>
 <style>
   /* en 版行寬校正：拉丁字母的 ch 寬度較窄，放寬標題與內文行寬 */
   .hero h1{max-width:26ch}
@@ -210,21 +211,34 @@
 <a href="#content" class="skip-link">Skip to main content</a>
 
 <!-- ===== NAV ===== -->
-<header class="nav" id="nav">
-  <div class="wrap nav__inner">
-    <a class="brand" href="#top" aria-label="Emoji Hub | Taiwan Talent Hub home">
-      <b>言文字</b>
-      <span>Taiwan Talent Hub · 台灣人才聚落</span>
+<header class="site-nav" id="nav">
+  <div class="site-nav__inner">
+    <a class="brand" href="/en/" aria-label="Taiwan Talent Hub home">
+      <b>言文字</b><span>Taiwan Talent Hub · 台灣人才聚落</span>
     </a>
-    <nav class="nav__links" id="navLinks">
-      <a href="#about">About</a>
-      <a href="#floors">Space &amp; pricing</a>
-      <a href="#partners">Partners</a>
-      <a href="/" lang="zh-Hant" hreflang="zh-Hant">中文</a>
-      <a href="/ja/" lang="ja" hreflang="ja">日本語</a>
-      <a href="#contact" class="btn btn--solid">Subscribe</a>
+    <nav class="site-nav__links" id="navLinks" aria-label="Programs">
+      <a href="/en/#about">About</a>
+      <a href="/en/#floors">Pricing</a>
+      <div class="site-nav__dd">
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">Programs <i class="site-nav__caret" aria-hidden="true">▾</i></button>
+        <div class="site-nav__menu">
+          <a href="/en/fellow">Founding Member</a>
+          <a href="/en/partner">Partner Program</a>
+          <a href="/en/startup">Startup Program</a>
+        </div>
+      </div>
+      <a href="/member.html">Member login</a>
+      <div class="site-nav__dd site-nav__lang">
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">English <i class="site-nav__caret" aria-hidden="true">▾</i></button>
+        <div class="site-nav__menu">
+          <a href="/" hreflang="zh-Hant" lang="zh-Hant">中文</a>
+          <a href="/en/" hreflang="en" lang="en" aria-current="page">English</a>
+          <a href="/ja/" hreflang="ja" lang="ja">日本語</a>
+        </div>
+      </div>
+      <a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener" class="btn">Follow us</a>
     </nav>
-    <button class="nav__toggle" id="navToggle" aria-label="Open menu" data-label-open="Open menu" data-label-close="Close menu" aria-controls="navLinks" aria-expanded="false">☰</button>
+    <button class="site-nav__toggle" id="navToggle" aria-label="Open menu" data-label-open="Open menu" data-label-close="Close menu" aria-controls="navLinks" aria-expanded="false">☰</button>
   </div>
 </header>
 
@@ -253,7 +267,7 @@
       </div>
     </div>
     <div class="hero__cta reveal">
-      <a href="#contact" class="btn btn--solid">Get opening updates →</a>
+      <a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener" class="btn btn--solid">Follow us for updates →</a>
       <a href="#floors" class="btn btn--ghost">Explore the space</a>
     </div>
     <div class="hero__brands reveal">
@@ -371,12 +385,11 @@
       <div class="entry reveal">
         <h3>Availability &amp; start date</h3>
         <div class="who">By invitation · limited to 100</div>
-        <p>Available until the grand opening on November 1, 2026; membership starts on opening day.</p>
+        <p>Available until October 31, 2026, the day before the grand opening; membership starts on opening day.</p>
       </div>
     </div>
     <div class="reveal" style="margin-top:34px;display:flex;gap:14px;flex-wrap:wrap">
-      <a href="https://fellow.emoji.tw/" class="btn btn--solid">Visit the Founding Member site →</a>
-      <a href="#contact" class="btn btn--ghost">Or subscribe first</a>
+      <a href="/en/fellow" class="btn btn--solid">See the full program →</a>
     </div>
   </div>
 </section>
@@ -422,12 +435,43 @@
       </div>
     </div>
     <div class="reveal" style="margin-top:34px">
-      <a href="mailto:us@emoji.tw?subject=Partnership%20proposal" class="btn btn--solid">Talk to us about partnering →</a>
+      <a href="/en/partner" class="btn btn--solid">See the full program →</a>
+      <a href="mailto:us@emoji.tw?subject=Partnership%20proposal" class="btn btn--ghost" style="margin-left:12px">Talk to us</a>
     </div>
   </div>
 </section>
 
 <!-- ===== FAQ ===== -->
+<section id="startup">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Startup Program · 新創陪跑計畫</span>
+      <h2>Take Taiwan's startups global,<br>land the world's startups <span class="swash">in Taiwan</span></h2>
+      <p>Recruiting every March, June and September — founder training, product refinement and business matchmaking to walk your startup toward the world. Not a course; a companion for the journey.</p>
+    </div>
+    <div class="scenes">
+      <div class="entry reveal">
+        <h3>Three kinds of support</h3>
+        <div class="who">Training · Refinement · Matchmaking</div>
+        <p>Founder training, product refinement, and matchmaking to customers, investors and partners.</p>
+      </div>
+      <div class="entry reveal">
+        <h3>Three cohorts a year</h3>
+        <div class="who">March · June · September</div>
+        <p>Apply → interview → selection → accompaniment, on a rolling basis.</p>
+      </div>
+      <div class="entry reveal">
+        <h3>A two-way bridge</h3>
+        <div class="who">Taiwan ⇄ the world</div>
+        <p>Taiwan startups reach global markets; global startups land in Taiwan — connected through TDNA.</p>
+      </div>
+    </div>
+    <div class="reveal" style="margin-top:34px">
+      <a href="/en/startup" class="btn btn--solid">See the full program →</a>
+    </div>
+  </div>
+</section>
+
 <section class="faq" id="faq">
   <div class="wrap">
     <div class="sec-head reveal">
@@ -445,7 +489,7 @@
       </details>
       <details class="faq__item">
         <summary>When does it open?</summary>
-        <div class="faq__a"><p>The soft opening is planned for October 13, 2026 (a limited invitation and preview period through October), with the grand opening on November 1, 2026. November is our opening month, with themed weekly events — an opening experience week, community partnership week, startup &amp; enterprise week and a year-end thanksgiving programme. <a href="#contact" style="text-decoration:underline;text-underline-offset:3px">Subscribe to the newsletter</a> to be the first to hear about opening news and progress updates.</p></div>
+        <div class="faq__a"><p>The soft opening is planned for October 13, 2026 (a limited invitation and preview period through October), with the grand opening on November 1, 2026. November is our opening month, with themed weekly events — an opening experience week, community partnership week, startup &amp; enterprise week and a year-end thanksgiving programme. <a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener" style="text-decoration:underline;text-underline-offset:3px">Follow us on Instagram</a> to be the first to hear about opening news and progress updates.</p></div>
       </details>
       <details class="faq__item">
         <summary>What are the plans and prices?</summary>
@@ -484,65 +528,6 @@
 </section>
 
 <!-- ===== CTA / CONTACT / NEWSLETTER ===== -->
-<section class="cta" id="contact">
-  <div class="wrap">
-    <h2 class="reveal">Before we open, let us <span class="swash--solid">save you a seat</span></h2>
-    <p class="reveal">The hub is taking shape by Taipei Main Station, with the soft opening planned for October 13, 2026 and the grand opening on November 1. Subscribe to be the first to hear about opening news and progress updates.</p>
-    <div class="cta__form reveal">
-      <!-- Brevo 內嵌訂閱表單（取代 iframe；樣式由 style.css 依 CIS 覆蓋）-->
-      <div class="sib-form">
-        <div id="sib-form-container" class="sib-form-container">
-          <div id="error-message" class="sib-form-message-panel">
-            <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
-              <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon">
-                <path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-11.49 120h22.979c6.823 0 12.274 5.682 11.99 12.5l-7 168c-.268 6.428-5.556 11.5-11.99 11.5h-8.979c-6.433 0-11.722-5.073-11.99-11.5l-7-168c-.283-6.818 5.167-12.5 11.99-12.5zM256 340c-15.464 0-28 12.536-28 28s12.536 28 28 28 28-12.536 28-28-12.536-28-28-28z" />
-              </svg>
-              <span class="sib-form-message-panel__inner-text">Your subscription could not be saved. Please try again.</span>
-            </div>
-          </div>
-          <div></div>
-          <div id="success-message" class="sib-form-message-panel">
-            <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
-              <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon">
-                <path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 464c-118.664 0-216-96.055-216-216 0-118.663 96.055-216 216-216 118.664 0 216 96.055 216 216 0 118.663-96.055 216-216 216zm141.63-274.961L217.15 376.071c-4.705 4.667-12.303 4.637-16.97-.068l-85.878-86.572c-4.667-4.705-4.637-12.303.068-16.97l8.52-8.451c4.705-4.667 12.303-4.637 16.97.068l68.976 69.533 163.441-162.13c4.705-4.667 12.303-4.637 16.97.068l8.451 8.52c4.668 4.705 4.637 12.303-.068 16.97z" />
-              </svg>
-              <span class="sib-form-message-panel__inner-text">Your subscription has been successful.</span>
-            </div>
-          </div>
-          <div></div>
-          <div id="sib-container" class="sib-container--large sib-container--vertical">
-            <form id="sib-form" method="POST" action="https://b965903f.sibforms.com/serve/MUIFAGQmX2GgSEnjP4T20dGgeBM1uZBD8ZKsof7Wkttv_J_OxLv6vUs-wUoTCtlWA20OANR-VlxhdGYohMFcbGNTZ0JUStbCOW1tHxGFNr4sYEYIlwFjtQagimHhexs2YWWvTOgr6s5axIFlKE1ub7RXhqJSs_W1HUtJt7ivtqFIg2WGPXiHIclDIteghbJ9nK1axyXExiUfSV-kcw==" data-type="subscription">
-              <div class="sib-input sib-form-block">
-                <div class="form__entry entry_block">
-                  <div class="form__label-row">
-                    <div class="entry__field">
-                      <input class="input" type="text" id="EMAIL" name="EMAIL" autocomplete="off" value="" placeholder="Your email" data-required="true" required />
-                    </div>
-                  </div>
-                  <label class="entry__error entry__error--primary"></label>
-                </div>
-              </div>
-              <div class="sib-form-block">
-                <button class="sib-form-block__button sib-form-block__button-with-loader" form="sib-form" type="submit">
-                  <svg class="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512">
-                    <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z" />
-                  </svg>
-                  Subscribe for opening news
-                </button>
-              </div>
-              <input type="text" name="email_address_check" value="" class="input--hidden">
-              <input type="hidden" name="locale" value="en">
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="cta__btns reveal">
-      <a href="mailto:us@emoji.tw?subject=I%27d%20like%20to%20hear%20more%20about%20Taiwan%20Talent%20Hub" class="btn btn--ghost">Or email us directly</a>
-      <a href="#floors" class="btn btn--ghost">See spaces &amp; pricing</a>
-    </div>
-  </div>
-</section>
 
 </main>
 
@@ -561,14 +546,14 @@
         <a href="#floors">Space &amp; pricing</a>
         <a href="#partners">Partners</a>
         <a href="#faq">FAQ</a>
-        <a href="#contact">Newsletter</a>
+        <a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener">Follow us</a>
       </div>
       <div class="foot__col">
         <h3>Visit</h3>
         <p>No. 11, Sec. 1, Chongqing S. Rd,<br>Zhongzheng District, Taipei</p>
         <p>Diagonally across from Exit Z10,<br>Taipei Main Station underground mall</p>
         <p>Open daily (from soft opening)<br>11:00 – 03:00<br>Members: 24h split access</p>
-        <a href="https://www.google.com/maps/search/?api=1&amp;query=25.046198,121.51342" target="_blank" rel="noopener">Open in Google Maps →</a>
+        <a href="https://maps.app.goo.gl/phJPEkUbBwAXHtoE8" target="_blank" rel="noopener">Open in Google Maps →</a>
         <a href="tel:+886983665352">+886 983 665352</a>
         <a href="mailto:us@emoji.tw">us@emoji.tw</a>
       </div>

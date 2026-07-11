@@ -1,0 +1,656 @@
+/* =========================================================================
+   言文字——台灣人才聚落・創始會員計畫 — frontend logic
+   資料層改打後端 REST API（/api/*），後端以 Postgres 儲存。
+   多頁面：每個主題為獨立 view，由 go() 切換。
+   ========================================================================= */
+'use strict';
+
+/* ---------- 常數 ---------- */
+const PRICE = 35000;          // 創始會費（固定）
+const TERM_MONTHS = 18;       // 會籍期間（月）
+const HOURS = 200;            // 休憩額度（小時）
+const SLOTS = 100;            // 創始名額
+const TARGET = PRICE * SLOTS; // 預收會費總額 NT$3,500,000
+
+// 依 CIS：墨階色帶 + 唯一黃（標示最大占比）
+const FUND_USE = [
+  { name: '工程與家具', amount: 1500000, pct: 43, color: '#FFDE34', note: '二、三樓空間整備、膠囊設備、家具與燈光網路' },
+  { name: '開幕週轉',   amount: 1000000, pct: 29, color: '#1B1A17', note: '開幕初期人事、租金、水電與營運週轉' },
+  { name: '數位系統',   amount: 500000,  pct: 14, color: '#6E685E', note: '人臉辨識門禁、會員系統、預約與休憩計時系統' },
+  { name: '社群啟動',   amount: 500000,  pct: 14, color: '#A79F92', note: '開幕前社群活動、創始晚餐、國際連結與品牌推廣' },
+];
+
+/* ---------- 工具 ---------- */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const NT = n => 'NT$' + Number(n || 0).toLocaleString('en-US');
+const num = n => Number(n || 0).toLocaleString('en-US');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+const todayISO = () => new Date().toISOString().slice(0, 10);
+function fmtDate(d) {
+  if (!d) return '—';
+  const x = new Date(d); if (isNaN(x)) return d;
+  return `${x.getFullYear()}/${String(x.getMonth()+1).padStart(2,'0')}/${String(x.getDate()).padStart(2,'0')}`;
+}
+
+/* =========================================================================
+   i18n — 由路徑決定語系（/en/fellow、/ja/fellow，否則中文）。
+   只涵蓋前端「實際會執行到」的動態字串；靜態內容由各語系 index.html 提供。
+   ========================================================================= */
+const LANG = (location.pathname.match(/^\/(en|ja)\/fellow\b/) || [, 'zh'])[1];
+const I18N = {
+  zh: {
+    joined: n => `已加入 ${n} 名`,
+    srvErr: s => `伺服器錯誤（${s}）`,
+    buyErr: '購買暫時無法開始，請稍後再試。',
+    paid: '✓ 付款完成，歡迎成為創始會員！會籍自 <b>2026-11-01</b> 起算 18 個月（至 <b>2028-04-30</b>）；收據與創始會員證將以 Email 寄出。',
+    canceled: '已取消結帳，隨時歡迎再回來。',
+  },
+  en: {
+    joined: n => `${n} joined`,
+    srvErr: s => `Server error (${s})`,
+    buyErr: 'Checkout could not start. Please try again shortly.',
+    paid: '✓ Payment complete — welcome, Founding Member! Your 18-month membership runs <b>2026-11-01</b> → <b>2028-04-30</b>; your receipt and Founding Member certificate will be emailed to you.',
+    canceled: 'Checkout canceled — you are welcome back anytime.',
+  },
+  ja: {
+    joined: n => `${n} 名が参加`,
+    srvErr: s => `サーバーエラー（${s}）`,
+    buyErr: '決済を開始できませんでした。しばらくしてから再度お試しください。',
+    paid: '✓ お支払いが完了しました。創始会員へようこそ！会籍は <b>2026-11-01</b> から18か月間（<b>2028-04-30</b> まで）。領収書と創始会員証はメールでお送りします。',
+    canceled: '決済をキャンセルしました。いつでもお戻りください。',
+  },
+};
+const T = I18N[LANG] || I18N.zh;
+
+/* =========================================================================
+   API 資料層
+   ========================================================================= */
+const TOKEN_KEY = 'tth_token';
+let DB = { bond: { target_amount: TARGET, raised: 0, progress: 0, status: '' },
+           users: [], commitments: [], payments: [], updates: [] };
+let SESSION = null; // {role, userId}
+
+const getToken = () => localStorage.getItem(TOKEN_KEY) || '';
+const setToken = t => { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} };
+const clearToken = () => { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} };
+
+async function api(path, { method = 'GET', body } = {}) {
+  const res = await fetch('/api' + path, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(getToken() ? { Authorization: 'Bearer ' + getToken() } : {}) },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) throw new Error(data.error || T.srvErr(res.status));
+  return data;
+}
+
+async function fetchState() {
+  const s = await api('/state');
+  DB = { bond: s.bond, users: s.users || [], commitments: s.commitments || [], payments: s.payments || [], updates: s.updates || [] };
+  SESSION = { role: s.role, userId: s.me ? s.me.id : null };
+}
+async function refresh() { await fetchState(); renderProgress(); applyRole(); }
+
+// 公開訪客用：只讀進度與專案更新，無需登入、無 PII
+async function fetchPublic() {
+  try {
+    const s = await api('/public');
+    DB = { ...DB, bond: { ...DB.bond, raised: Number(s.raised) || 0 }, updates: s.updates || [] };
+    renderProgress();
+  } catch (e) { /* 後端未就緒時維持靜態預設值 */ }
+}
+
+/* 衍生計算（讀本機快取） */
+const userById = id => DB.users.find(u => u.id === id);
+const commitmentsOf = uid => DB.commitments.filter(c => c.user_id === uid);
+const paymentsOf = cid => DB.payments.filter(p => p.commitment_id === cid);
+const confirmedRaised = () => Number(DB.bond.raised || 0);
+// 已加入名額：以已確認會費金額換算人數（會費固定 NT$35,000）
+const memberCount = () => Math.min(SLOTS, Math.floor(confirmedRaised() / PRICE));
+
+/* =========================================================================
+   渲染：靜態區塊
+   ========================================================================= */
+function renderFundUse() {
+  const bar = $('#fundbar'), legend = $('#fund-legend'), tbody = $('#fund-table');
+  if (!bar) return;
+  bar.innerHTML = FUND_USE.map(f =>
+    `<span style="flex:${f.pct};background:${f.color}" title="${f.name} ${f.pct}%">${f.pct}%</span>`).join('');
+  legend.innerHTML = FUND_USE.map(f =>
+    `<div class="li"><span class="sw" style="background:${f.color}"></span>${f.name}<span class="amt">${NT(f.amount)}</span></div>`).join('');
+  tbody.innerHTML = FUND_USE.map(f =>
+    `<tr><td>${f.name}</td><td class="num">${NT(f.amount)}</td><td class="num">${f.pct}%</td><td>${f.note}</td></tr>`).join('');
+}
+
+function renderProgress() {
+  const count = memberCount();
+  const pct = Math.min(100, Math.round(count / SLOTS * 100));
+  if ($('#hero-fund-pct')) $('#hero-fund-pct').textContent = pct + '%';
+  if ($('#hero-fund-raised')) $('#hero-fund-raised').textContent = T.joined(count);
+  const bar = $('#hero-fund-bar');
+  if (!bar) return;
+  const fill = () => { bar.style.width = pct + '%'; };
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { fill(); io.disconnect(); } }), { threshold: .4 });
+    io.observe(bar.closest('.terms-card'));
+  } else fill();
+}
+
+/* =========================================================================
+   路由（多頁面）
+   ========================================================================= */
+const VIEWS = ['home','why-now','about','project','membership','risk'];
+function go(view, opts = {}) {
+  if (!VIEWS.includes(view)) view = 'home';
+  $$('.view').forEach(v => v.classList.remove('active'));
+  $('#view-' + view).classList.add('active');
+  setNavActive(view);
+  if (!opts.keepScroll) window.scrollTo({ top: 0, behavior: 'auto' });
+  closeMenu();
+  observeReveal();
+  // URL hash 與目前 view 同步，供共用導覽列深連結（/fellow#why-now）與分享
+  const targetHash = view === 'home' ? '' : '#' + view;
+  if (location.hash !== targetHash) history.replaceState(null, '', location.pathname + targetHash);
+}
+function setNavActive(view) {
+  $$('.nav-links a[data-go]').forEach(a => a.classList.toggle('active', a.dataset.go === view));
+}
+
+/* =========================================================================
+   成為創始會員
+   ========================================================================= */
+const CONTRACT_HTML = `
+<h4>言文字創始會員入會協議（摘要）</h4>
+<p>本協議由入會人（乙方）與發起方 徐愷 KK（甲方）就乙方加入「言文字——台灣人才聚落」創始會員計畫事宜訂立。乙方係甲方主動邀請之<strong>特定人</strong>；本計畫為<strong>會籍預售，非公開招攬，亦非任何金融商品之銷售</strong>。</p>
+<h4>第一條　會籍內容與期間</h4>
+<p>乙方取得創始會員會籍，期間 18 個月，內容包含：二、三樓會員限定空間進出（人臉辨識門禁）、三樓共享辦公與活動空間自由使用、社群活動與互助網絡資格，以及創始專屬權益（三樓創始牆名錄、創始晚餐邀請、續約鎖價保障）。</p>
+<h4>第二條　休憩額度與時數規則</h4>
+<p>乙方享有休憩額度 200 小時，可折抵二樓膠囊與遊樂室之計時休憩服務（每小時牌價新台幣 100 元）。額度於會籍期間內共用一池，會籍到期即歸零，不得轉讓、不得折換現金。</p>
+<h4>第三條　會費與付款</h4>
+<p>創始會費為新台幣 35,000 元整（固定，與一般年費同牌價），以匯款方式一次付清；甲方對帳確認入帳後，核發創始會員證並保留創始編號（001–100）。</p>
+<h4>第四條　會籍起算日</h4>
+<p>會籍自 2026 年 11 月 1 日正式開幕日起算；若開幕延後，自實際開幕日起算，會籍期間與休憩額度均不縮減。</p>
+<h4>第五條　條件式服務揭露</h4>
+<p>二樓膠囊與遊樂室之休憩服務，於主管機關書面確認完成前屬條件式服務；確認完成前，乙方之休憩額度得用於三樓空間，或依比例調整，細節依會員規章辦理。</p>
+<h4>第六條　退費</h4>
+<p>退費依會員規章辦理；會員規章正式條款由律師核定中，乙方於簽署正本前將取得完整文本。</p>
+<h4>第七條　性質聲明</h4>
+<p>本協議為會籍預售之服務契約，<strong>非投資、非存款、非任何金融商品</strong>；乙方支付會費所取得者為會籍與休憩額度，無任何收益、分潤或金錢報酬。創始會員證僅為管理與紀錄憑證，不得轉讓或交易。</p>
+<h4>第八條　個人資料</h4>
+<p>甲方依《個人資料保護法》第 8 條，為履約、會籍管理與法令遵循之目的蒐集、處理及利用乙方個人資料；乙方得依法行使查詢、更正、刪除等權利（詳見完整協議）。</p>
+<h4>第九條　準據法與管轄</h4>
+<p>本協議以中華民國法律為準據法，並以台灣台北地方法院為第一審管轄法院。</p>
+<p style="margin-top:1em;color:var(--faint)">※ 本摘要供線上確認之用；完整協議可於登入後之 Dashboard 下載 PDF。正式生效以雙方簽署（用印）之正本為準，正式條款以律師核定版為準。</p>`;
+
+function setupJoin() {
+  $('#contract-box').innerHTML = CONTRACT_HTML;
+  $('#join-form').addEventListener('submit', submitJoin);
+}
+
+// 登入者開啟「成為創始會員」時自動帶入既有資料（只填空白欄位）
+function prefillJoin() {
+  if (!SESSION || !SESSION.userId) return;
+  const u = userById(SESSION.userId); if (!u) return;
+  const fill = (id, v) => { const el = $(id); if (el && !el.value && v) el.value = v; };
+  fill('#f-name', u.name); fill('#f-email', u.email); fill('#f-phone', u.phone);
+}
+
+async function submitJoin(e) {
+  e.preventDefault();
+  const msg = $('#join-msg'); msg.className = 'form-msg';
+  if (!getToken()) { // 受邀制：送出前需先以邀請碼登入
+    msg.textContent = '創始會員為受邀制，請先以邀請碼或 Email 登入後送出。'; msg.classList.add('err');
+    $('#cover').classList.remove('hidden'); $('#login-input').focus();
+    return;
+  }
+  if (!$('#agree-contract').checked) { msg.textContent = '請先閱讀並同意入會協議與會員規章。'; msg.classList.add('err'); return; }
+  if (!$('#agree-privacy').checked) { msg.textContent = '請勾選同意個人資料之蒐集、處理與利用。'; msg.classList.add('err'); return; }
+  if (!$('#join-form').reportValidity()) return;
+
+  const btn = $('#join-form button[type=submit]'); btn.disabled = true;
+  try {
+    const { commitment } = await api('/commitments', { method: 'POST', body: {
+      amount: PRICE, term: TERM_MONTHS,
+      name: $('#f-name').value.trim(), email: $('#f-email').value.trim(), phone: $('#f-phone').value.trim(),
+      agree_member: $('#agree-member').checked,
+    }});
+    await refresh();
+    go('dashboard');
+    toast('已收到你的入會申請，協議已用印');
+    showRemittance(commitment);
+  } catch (err) {
+    msg.textContent = err.message; msg.classList.add('err');
+  } finally { btn.disabled = false; }
+}
+
+function showRemittance(c) {
+  if (!c) return;
+  const box = document.createElement('div');
+  box.className = 'fieldset'; box.style.marginTop = '24px';
+  box.innerHTML = `
+    <h3><span class="idx">$</span> 匯款資訊</h3>
+    <p class="tiny" style="margin-top:-8px">發起人將以 Email／LINE 通知匯款帳戶資訊；請於收到後 3 個工作天內完成匯款，並保留收據。發起方確認入帳後，將為你保留創始編號並核發創始會員證。</p>
+    <div class="table-wrap" style="margin-top:8px"><table class="led"><tbody>
+      <tr><td>會費</td><td class="num">${NT(c.amount)}</td></tr>
+      <tr><td>匯款備註</td><td class="num">${esc(c.cert_no)}</td></tr>
+    </tbody></table></div>`;
+  const host = $('#dash-content'); host.insertBefore(box, host.firstChild);
+}
+
+/* =========================================================================
+   Dashboard
+   ========================================================================= */
+function renderDashboard() {
+  const host = $('#dash-content');
+  if (!SESSION || !SESSION.userId) { host.innerHTML = emptyState('請先以會員身分登入。'); return; }
+  const u = userById(SESSION.userId);
+  const cs = commitmentsOf(u.id);
+  $('#dash-hello').textContent = `${u.name}，你好`;
+  if (!cs.length) {
+    host.innerHTML = `<div class="panel"><div class="panel-b" style="padding:40px;text-align:center">
+      <p>你目前還沒有入會紀錄。</p>
+      <button class="btn btn-seal" data-go="join">查看入會方式</button></div></div>`;
+    bindGo(host); return;
+  }
+
+  const c = cs[0];
+  const totalFee = cs.reduce((s, x) => s + x.amount, 0);
+  const allPays = cs.flatMap(x => paymentsOf(x.id));
+  const confirmed = cs.some(x => x.payment_status === '已付款');
+  const memActive = cs.some(x => x.membership_status === '已啟用');
+
+  const stat = (l, v, u2, m, accent = '') =>
+    `<div class="stat ${accent}"><div class="sl">${l}</div><div class="sv">${u2 ? `<span class="u">${u2}</span>` : ''}${v}</div>${m ? `<div class="sm">${m}</div>` : ''}</div>`;
+
+  host.innerHTML = `
+    <div class="dash-grid">
+      ${stat('創始會費', num(totalFee), 'NT$', '一次付清・與一般年費同價', 'accent')}
+      ${stat('會籍期間', TERM_MONTHS + '<span class="u"> 個月</span>', '', '自正式開幕日起算')}
+      ${stat('會籍起訖', `${fmtDate(c.start_date)}<span class="u"> 起</span>`, '', `至 ${fmtDate(c.maturity_date)}・開幕延後則順延`)}
+      ${stat('休憩額度', HOURS + '<span class="u"> 小時</span>', '', '共用一池・到期歸零・不可轉讓')}
+      ${stat('創始編號', esc(c.cert_no), '', '限量 100 名')}
+      ${stat('會員狀態', memActive ? '已啟用' : (confirmed ? '待開幕啟用' : '待入帳'), '', '創始會員 Founding Member')}
+      ${stat('創始權益', '3<span class="u"> 項</span>', '', '創始牆・創始晚餐・續約鎖價')}
+      ${stat('專案建置進度', DB.bond.progress + '<span class="u">%</span>', '', '見專案更新')}
+    </div>
+
+    <div class="dash-cols">
+      <div class="panel">
+        <div class="panel-h"><h3>會費收款紀錄</h3><span class="status-pill ${confirmed ? 'pill-ok' : 'pill-wait'}">${confirmed ? '已入帳' : '待確認入帳'}</span></div>
+        <div class="panel-b flush"><div class="table-wrap" style="border:0">
+          <table class="led"><thead><tr><th>項目</th><th>應收日</th><th class="num">金額</th><th>狀態</th></tr></thead>
+          <tbody>${allPays.sort((a, b) => a.due_date < b.due_date ? -1 : 1).map(p => `
+            <tr><td>${p.type}</td><td class="num">${p.due_date}</td><td class="num">${NT(p.amount)}</td>
+            <td><span class="status-pill ${p.status === '已付' ? 'pill-paid' : 'pill-due'}">${p.status === '已付' ? '已付' + (p.paid_date ? ` · ${p.paid_date}` : '') : '未付'}</span></td></tr>`).join('')}
+          </tbody></table>
+        </div></div>
+      </div>
+
+      <div>
+        <div class="member-card">
+          <div class="mc-k">Founding Member</div>
+          <div class="mc-t">創始會員・18 個月會籍＋200 小時休憩額度</div>
+          <div class="mc-st"><span class="status-pill ${memActive ? 'pill-ok' : 'pill-wait'}">${memActive ? '已啟用' : '待啟用'}</span></div>
+          <ul>
+            <li>二、三樓會員限定空間進出（人臉辨識門禁）</li>
+            <li>三樓共享辦公與活動空間自由使用</li>
+            <li>社群活動與互助網絡資格</li>
+            <li>二樓膠囊與遊樂室休憩，以額度折抵</li>
+            <li>創始牆名錄・創始晚餐・續約鎖價保障</li>
+          </ul>
+        </div>
+        <div class="dash-actions">
+          ${cs.map(x => `
+            <button class="btn btn-ink btn-sm" data-cert="${x.id}">${cs.length > 1 ? esc(x.cert_no) + ' 會員證' : '創始會員證'}</button>
+            <button class="btn btn-ghost btn-sm" data-agr="${x.id}">${cs.length > 1 ? esc(x.cert_no) + ' 協議' : '下載入會協議 PDF'}</button>`).join('')}
+          <button class="btn btn-ghost btn-sm" data-go="updates">專案更新</button>
+        </div>
+        <div class="panel" style="margin-top:16px">
+          <div class="panel-h"><h3>我的協議</h3></div>
+          <div class="panel-b"><div class="table-wrap" style="border:0"><table class="led"><tbody>
+            ${cs.map(x => `<tr><td>${esc(x.cert_no)}</td><td class="num">${NT(x.amount)}</td><td>${x.contract_status}</td></tr>`).join('')}
+          </tbody></table></div></div>
+        </div>
+      </div>
+    </div>`;
+
+  $$('[data-cert]', host).forEach(b => b.addEventListener('click', () => go('certificate', { certId: b.dataset.cert })));
+  $$('[data-agr]', host).forEach(b => b.addEventListener('click', () => go('agreement', { certId: b.dataset.agr })));
+  bindGo(host);
+}
+
+/* =========================================================================
+   創始會員證
+   ========================================================================= */
+function renderCertificate(certId) {
+  const host = $('#cert-content');
+  let c;
+  if (certId) c = DB.commitments.find(x => x.id === certId);
+  else if (SESSION && SESSION.userId) c = commitmentsOf(SESSION.userId)[0];
+  if (!c) { host.innerHTML = emptyState('尚無可顯示的會員證。'); return; }
+  const u = userById(c.user_id) || { name: '—' };
+  host.innerHTML = `
+  <div class="cert">
+    <div class="cert-in">
+      <div class="cert-top">言文字 Founding Member Certificate</div>
+      <h2>Founding Member</h2>
+      <div class="cert-cn">言文字——台灣人才聚落・創始會員證</div>
+      <div class="cert-doc">本會員證證明下列持有人依入會協議為言文字——台灣人才聚落創始會員</div>
+      <hr>
+      <div class="cert-rows">
+        <div class="cr wide"><div class="crl">持有人　Holder</div><div class="crv">${esc(u.name)}</div></div>
+        <div class="cr"><div class="crl">會費　Fee</div><div class="crv">${NT(c.amount)}</div></div>
+        <div class="cr"><div class="crl">休憩額度　Hours</div><div class="crv">200 小時</div></div>
+        <div class="cr"><div class="crl">會籍起日　From</div><div class="crv">${fmtDate(c.start_date)}</div></div>
+        <div class="cr"><div class="crl">會籍迄日　To</div><div class="crv">${fmtDate(c.maturity_date)}</div></div>
+        <div class="cr"><div class="crl">期間　Term</div><div class="crv">${c.term_years || TERM_MONTHS} 個月</div></div>
+        <div class="cr"><div class="crl">身分　Status</div><div class="crv">創始會員 Founding Member</div></div>
+        <div class="cr wide"><div class="crl">創始編號　Certificate No.</div><div class="crv">${esc(c.cert_no)}</div></div>
+      </div>
+      <div class="cert-foot">
+        <div class="cert-sign">
+          <div class="sn">徐愷 KK</div>
+          <div class="sl">發起人　Founder, Taiwan Talent Hub</div>
+        </div>
+        <div class="cert-seal"><div><span>台灣人才</span><b>聚落</b><span>FOUNDING</span></div></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================================
+   入會協議（可列印 / 另存 PDF）
+   ========================================================================= */
+function renderAgreement(certId) {
+  const host = $('#agreement-content');
+  let c;
+  if (certId) c = DB.commitments.find(x => x.id === certId);
+  else if (SESSION && SESSION.userId) c = commitmentsOf(SESSION.userId)[0];
+  if (!c) { host.innerHTML = emptyState('尚無可顯示的協議。'); return; }
+  const u = userById(c.user_id) || {};
+  host.innerHTML = `
+  <div class="agreement">
+    <h2>言文字創始會員入會協議</h2>
+    <div class="ag-en">Founding Membership Agreement・會籍預售契約</div>
+    <div class="ag-meta"><span>編號 ${esc(c.cert_no)}</span><span>簽署日 ${fmtDate(c.start_date)}</span><span>準據法 中華民國</span></div>
+    <div class="ag-parties">
+      <div class="ag-party"><b>甲方（發起方）</b>徐愷 KK<br>地址：台北市中正區重慶南路一段 11 號</div>
+      <div class="ag-party"><b>乙方（入會人）</b>${esc(u.name || '—')}<br>電話：${esc(u.phone || '—')}<br>Email：${esc(u.email || '—')}</div>
+    </div>
+    <p>雙方本於誠信，就乙方加入甲方推動之「言文字——台灣人才聚落」創始會員計畫事宜，訂立本協議。乙方係甲方主動邀請之特定人；本計畫為會籍預售，非公開招攬，亦非任何金融商品之銷售。</p>
+    <h4>第一條（會籍內容與期間）</h4>
+    <p>乙方取得創始會員會籍，期間 18 個月。會籍權益包含：二、三樓會員限定空間進出（人臉辨識門禁）、三樓共享辦公與活動空間自由使用、社群活動與互助網絡資格，以及創始專屬權益：三樓創始牆名錄、創始晚餐邀請、續約鎖價保障（未來牌價調漲不影響乙方首次續約價格）。</p>
+    <h4>第二條（休憩額度與時數規則）</h4>
+    <p>乙方享有休憩額度 200 小時，得折抵二樓膠囊與遊樂室之計時休憩服務（每小時牌價新台幣 100 元）。額度於會籍期間內共用一池，會籍到期即歸零，不得轉讓，亦不得折換現金。</p>
+    <h4>第三條（會費與付款）</h4>
+    <p>創始會費為新台幣 ${num(c.amount)} 元整（固定，與一般年費同牌價），乙方以匯款方式一次付清。甲方對帳確認入帳後，核發創始會員證並保留乙方之創始編號（001–100）。</p>
+    <h4>第四條（會籍起算日）</h4>
+    <p>會籍自 2026 年 11 月 1 日正式開幕日起算；若開幕延後，自實際開幕日起算，會籍期間與休憩額度均不縮減。系統顯示之起訖日（${fmtDate(c.start_date)} 至 ${fmtDate(c.maturity_date)}）將依實際開幕日調整。</p>
+    <h4>第五條（條件式服務揭露）</h4>
+    <p>二樓膠囊與遊樂室之休憩服務，於主管機關書面確認完成前屬條件式服務；確認完成前，乙方之休憩額度得用於三樓空間，或依比例調整，細節依會員規章辦理。乙方確認已知悉並同意上述安排。</p>
+    <h4>第六條（退費）</h4>
+    <p>退費依會員規章辦理。會員規章正式條款由律師核定中，乙方於簽署正本前將取得完整文本；正式權利義務以律師核定版為準。</p>
+    <h4>第七條（性質聲明）</h4>
+    <p>本協議為會籍預售之服務契約，非投資、非存款、非任何金融商品；乙方支付會費所取得者為會籍與休憩額度，無任何收益、分潤或金錢報酬。甲方核發之創始會員證僅為管理與紀錄憑證，不得轉讓、質押或交易，亦不得對外公開招攬或勸誘。</p>
+    <h4>第八條（個人資料之蒐集、處理及利用）</h4>
+    <p>甲方依《個人資料保護法》第 8 條告知：蒐集乙方姓名、身分證統一編號、聯絡方式、地址及帳務資料，目的為本協議之履行、會籍管理與法令遵循；利用期間至法令規定之保存期限屆滿，利用地區為中華民國。乙方得依法請求查詢、閱覽、複製、補正、停止利用或刪除其個人資料。</p>
+    <h4>第九條（契約審閱）</h4>
+    <p>乙方確認已於合理期間內審閱本協議全部條款並充分了解其內容。</p>
+    <h4>第十條（準據法與管轄）</h4>
+    <p>本協議以中華民國法律為準據法；因本協議所生爭議，雙方同意以台灣台北地方法院為第一審管轄法院。本協議未盡事宜，依會員規章及相關法令辦理。</p>
+    <div class="ag-sign">
+      <div class="col"><div class="sn">徐愷 KK</div><div class="ln">甲方　發起人簽章／用印</div></div>
+      <div class="ag-seal"><div><span>台灣人才</span><b>聚落</b><span>FOUNDING</span></div></div>
+      <div class="col"><div class="sn" style="color:var(--muted)">${esc(u.name || '')}</div><div class="ln">乙方　入會人簽章／用印</div></div>
+    </div>
+    <p class="ag-note" style="margin-top:24px">簽署日期：${fmtDate(c.start_date)}　·　本文件由系統依雙方約定產生，供留存與用印之用；正式生效以雙方簽署之正本為準，正式條款以律師核定版為準。</p>
+  </div>`;
+}
+
+/* =========================================================================
+   專案更新
+   ========================================================================= */
+function tagClass(t) { return t === '月報' ? 'tag-month' : t === '季報' ? 'tag-quarter' : 'tag-major'; }
+function renderUpdates() {
+  const list = $('#updates-list');
+  const ups = [...DB.updates].sort((a, b) => a.published_at < b.published_at ? 1 : -1);
+  list.innerHTML = ups.length ? ups.map(u => `
+    <article class="update">
+      <div class="um"><span class="tag ${tagClass(u.type)}">${esc(u.type)}</span><span class="ud">${esc(u.published_at)}</span></div>
+      <h3>${esc(u.title)}</h3>
+      <p class="ubody">${esc(u.content)}</p>
+    </article>`).join('') : emptyState('尚無專案更新。');
+}
+
+/* =========================================================================
+   後台
+   ========================================================================= */
+function renderAdmin() {
+  const raised = confirmedRaised();
+  const paid = DB.commitments.filter(c => c.payment_status === '已付款');
+  const joined = new Set(paid.map(c => c.user_id)).size;
+  const pending = DB.commitments.filter(c => c.payment_status !== '已付款').reduce((s, c) => s + c.amount, 0);
+  $('#admin-kpis').innerHTML = `
+    <div class="kpi"><div class="kl">已收會費</div><div class="kv"><span class="u">NT$</span>${num(raised)}</div></div>
+    <div class="kpi"><div class="kl">創始名額</div><div class="kv">${joined}<span class="u">／${SLOTS} 名</span></div></div>
+    <div class="kpi"><div class="kl">待入帳</div><div class="kv"><span class="u">NT$</span>${num(pending)}</div></div>
+    <div class="kpi"><div class="kl">入會人數</div><div class="kv">${new Set(DB.commitments.map(c => c.user_id)).size}<span class="u">人</span></div></div>
+    <div class="kpi"><div class="kl">專案建置進度</div><div class="kv"><input id="bond-progress" class="mono" type="number" min="0" max="100" value="${Number(DB.bond.progress) || 0}" style="width:76px;background:transparent;border:1px solid var(--line);border-radius:6px;color:inherit;font:inherit;padding:2px 8px"><span class="u">%</span></div>
+      <button class="btn btn-ghost btn-sm" id="bond-progress-save" style="margin-top:8px">儲存進度</button></div>`;
+  $('#bond-progress-save').addEventListener('click', () =>
+    adminDo(() => api('/admin/bond', { method: 'POST', body: { progress: Number($('#bond-progress').value) } }), '已更新建置進度'));
+  renderAdminInvites();
+  renderAdminCommitments();
+  renderAdminPayments();
+  renderAdminUpdates();
+}
+
+async function adminDo(fn, okMsg) {
+  try { await fn(); await refresh(); renderAdmin(); if (okMsg) toast(okMsg); }
+  catch (err) { toast(err.message); }
+}
+
+function renderAdminInvites() {
+  const host = $('#admin-invites');
+  host.innerHTML = `
+    <div class="inline-form">
+      <div class="row">
+        <input id="ai-name" placeholder="姓名">
+        <input id="ai-email" placeholder="Email">
+        <input id="ai-phone" placeholder="電話">
+      </div>
+      <div class="admin-bar"><button class="btn btn-seal btn-sm" id="ai-add">新增邀請（自動產生邀請碼）</button>
+      <span class="tiny">邀請連結：分享給受邀者，對方以邀請碼登入。</span></div>
+    </div>
+    <div class="table-wrap"><table class="led">
+      <thead><tr><th>姓名</th><th>Email / 電話</th><th>邀請碼</th><th>狀態</th><th>邀請連結</th></tr></thead>
+      <tbody>${DB.users.map(u => `
+        <tr><td>${esc(u.name)}</td>
+          <td>${esc(u.email || '')}<br><span class="tiny">${esc(u.phone || '')}</span></td>
+          <td class="mono">${esc(u.invite_code)}</td>
+          <td>${esc(u.status)}</td>
+          <td><button class="copy-btn" data-copy="${esc(location.origin + location.pathname + '?code=' + u.invite_code)}">複製連結</button></td>
+        </tr>`).join('')}</tbody>
+    </table></div>`;
+  $('#ai-add').addEventListener('click', () => {
+    const name = $('#ai-name').value.trim();
+    if (!name) { toast('請輸入姓名'); return; }
+    adminDo(() => api('/admin/invites', { method: 'POST', body: {
+      name, email: $('#ai-email').value.trim(), phone: $('#ai-phone').value.trim() } }), '已新增邀請');
+  });
+  bindCopy(host);
+}
+
+function renderAdminCommitments() {
+  const host = $('#admin-commitments');
+  host.innerHTML = `
+    <div class="table-wrap"><table class="led">
+      <thead><tr><th>會員</th><th class="num">會費</th><th class="num">會籍</th><th>協議</th><th>付款</th><th>會員</th><th>會籍迄日</th><th>操作</th></tr></thead>
+      <tbody>${DB.commitments.map(c => { const u = userById(c.user_id) || { name: '—' }; return `
+        <tr><td>${esc(u.name)}<br><span class="tiny mono">${esc(c.cert_no)}</span></td>
+          <td class="num">${NT(c.amount)}</td>
+          <td class="num">${c.term_years} 個月</td>
+          <td>${c.contract_status}</td>
+          <td><span class="status-pill ${c.payment_status === '已付款' ? 'pill-ok' : 'pill-wait'}">${c.payment_status}</span></td>
+          <td>${c.membership_status}</td>
+          <td class="num">${c.maturity_date}</td>
+          <td>${c.payment_status === '已付款'
+              ? '<span class="tiny">已完成</span>'
+              : `<button class="btn btn-seal btn-sm" data-confirm="${c.id}">確認入帳</button>`}</td>
+        </tr>`; }).join('')}</tbody>
+    </table></div>
+    <p class="tiny" style="margin-top:12px">「確認入帳」＝手動對帳後標記為已付款，同時保留創始編號、核發創始會員證，會籍於正式開幕日啟用。</p>`;
+  $$('[data-confirm]', host).forEach(b => b.addEventListener('click', () =>
+    adminDo(() => api('/admin/commitments/' + b.dataset.confirm + '/confirm', { method: 'POST' }), '已確認入帳並核發創始會員證')));
+}
+
+function renderAdminPayments() {
+  const host = $('#admin-payments');
+  const pays = DB.payments;
+  const feeDue = pays.reduce((s, p) => s + p.amount, 0);
+  const feePaid = pays.filter(p => p.status === '已付').reduce((s, p) => s + p.amount, 0);
+  host.innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><div class="kl">應收會費合計</div><div class="kv"><span class="u">NT$</span>${num(feeDue)}</div></div>
+      <div class="kpi"><div class="kl">已收會費</div><div class="kv"><span class="u">NT$</span>${num(feePaid)}</div></div>
+      <div class="kpi"><div class="kl">未收會費</div><div class="kv"><span class="u">NT$</span>${num(feeDue - feePaid)}</div></div>
+      <div class="kpi"><div class="kl">收款筆數</div><div class="kv">${pays.filter(p => p.status === '已付').length}<span class="u">／${pays.length}</span></div></div>
+    </div>
+    <div class="table-wrap"><table class="led">
+      <thead><tr><th>會員</th><th>項目</th><th>應收日</th><th class="num">金額</th><th>狀態</th><th>操作</th></tr></thead>
+      <tbody>${pays.slice().sort((a, b) => a.due_date < b.due_date ? -1 : 1).map(p => {
+        const c = DB.commitments.find(x => x.id === p.commitment_id) || {}; const u = userById(c.user_id) || { name: '—' };
+        return `<tr><td>${esc(u.name)}</td><td>${p.type}</td><td class="num">${p.due_date}</td>
+          <td class="num">${NT(p.amount)}</td>
+          <td><span class="status-pill ${p.status === '已付' ? 'pill-paid' : 'pill-due'}">${p.status}${p.paid_date ? ` · ${p.paid_date}` : ''}</span></td>
+          <td><button class="btn btn-ghost btn-sm" data-pay="${p.id}">${p.status === '已付' ? '改未付' : '標記已付'}</button></td>
+        </tr>`; }).join('')}</tbody>
+    </table></div>`;
+  $$('[data-pay]', host).forEach(b => b.addEventListener('click', () =>
+    adminDo(() => api('/admin/payments/' + b.dataset.pay + '/toggle', { method: 'POST' }), '已更新收款狀態')));
+}
+
+function renderAdminUpdates() {
+  const host = $('#admin-updates');
+  host.innerHTML = `
+    <div class="inline-form">
+      <div class="row">
+        <input id="au-title" placeholder="標題">
+        <select id="au-type"><option>月報</option><option>季報</option><option>重大事項</option><option>活動通知</option><option>財務摘要</option></select>
+        <input id="au-date" type="date" value="${todayISO()}">
+      </div>
+      <textarea id="au-content" placeholder="內容（可換行）"></textarea>
+      <div><button class="btn btn-seal btn-sm" id="au-add">發布更新</button></div>
+    </div>
+    <div class="table-wrap"><table class="led">
+      <thead><tr><th>類型</th><th>標題</th><th>發布時間</th><th>操作</th></tr></thead>
+      <tbody>${[...DB.updates].sort((a, b) => a.published_at < b.published_at ? 1 : -1).map(u => `
+        <tr><td><span class="tag ${tagClass(u.type)}">${esc(u.type)}</span></td><td>${esc(u.title)}</td>
+        <td class="num">${esc(u.published_at)}</td>
+        <td><button class="btn btn-ghost btn-sm" data-del="${u.id}">刪除</button></td></tr>`).join('')}</tbody>
+    </table></div>`;
+  $('#au-add').addEventListener('click', () => {
+    const title = $('#au-title').value.trim(); if (!title) { toast('請輸入標題'); return; }
+    adminDo(() => api('/admin/updates', { method: 'POST', body: {
+      title, type: $('#au-type').value, content: $('#au-content').value.trim(), date: $('#au-date').value || todayISO() } }), '已發布專案更新');
+  });
+  $$('[data-del]', host).forEach(b => b.addEventListener('click', () =>
+    adminDo(() => api('/admin/updates/' + b.dataset.del, { method: 'DELETE' }), '已刪除')));
+}
+
+/* =========================================================================
+   共用 UI
+   ========================================================================= */
+function emptyState(t) { return `<div class="panel"><div class="panel-b" style="padding:40px;text-align:center;color:var(--muted)">${esc(t)}</div></div>`; }
+function bindGo(root) { $$('[data-go]', root).forEach(b => b.addEventListener('click', () => go(b.dataset.go))); }
+function bindCopy(root) {
+  $$('.copy-btn', root).forEach(b => b.addEventListener('click', () => {
+    const t = b.dataset.copy;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('已複製邀請連結')).catch(() => prompt('複製此連結：', t));
+  }));
+}
+let toastT;
+function toast(msg) { const t = $('#toast'); $('#toast-msg').textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
+
+function applyRole() {
+  const role = SESSION ? SESSION.role : null;
+  const show = (sel, on) => $$(sel).forEach(el => el.style.display = on ? '' : 'none');
+  show('.role-participant', role === 'participant');
+  show('.role-admin', role === 'admin');
+  // 公開訪客（role === null）也看得到「成為創始會員」CTA
+  show('.role-invited', role === 'invited' || role === 'participant' || role === null);
+  // 登入／登出切換
+  const authed = !!SESSION;
+  const lo = $('#logout-btn'); if (lo) lo.style.display = authed ? '' : 'none';
+  const li = $('#login-open'); if (li) li.style.display = authed ? 'none' : '';
+}
+
+let revealIO;
+function observeReveal() {
+  if (!('IntersectionObserver' in window)) return;
+  if (!revealIO) revealIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); revealIO.unobserve(e.target); } }), { threshold: .12 });
+  $$('.view.active .section-head, .view.active .prose, .view.active .reveal').forEach(el => { if (!el.classList.contains('in')) revealIO.observe(el); });
+}
+function closeMenu() { const m = document.getElementById('navLinks'); if (m) m.classList.remove('open'); }
+
+/* =========================================================================
+   啟動
+   ========================================================================= */
+function enterApp() {
+  document.body.classList.add('authed');
+  $('#cover').classList.add('hidden');
+  applyRole();
+  go(SESSION && SESSION.role === 'admin' ? 'admin' : 'home');
+}
+
+/* =========================================================================
+   購買（Stripe Checkout 導轉）
+   ========================================================================= */
+async function startCheckout(btn) {
+  if (btn) btn.disabled = true;
+  try {
+    const { url } = await api('/checkout', { method: 'POST', body: { lang: LANG } });
+    location.href = url;               // 導向 Stripe 代管結帳頁
+  } catch (e) {
+    toast(e.message || T.buyErr);
+    if (btn) btn.disabled = false;
+  }
+}
+
+// 從 Stripe 返回：顯示付款結果橫幅（自包含樣式，CIS 唯一黃／墨）
+function showPurchaseResult() {
+  const p = new URLSearchParams(location.search);
+  const paid = p.get('paid') === '1', canceled = p.get('canceled') === '1';
+  if (!paid && !canceled) return;
+  history.replaceState(null, '', location.pathname); // 清掉 query，避免重整重複顯示
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:300;padding:14px 52px 14px 20px;'
+    + 'font-size:.95rem;line-height:1.6;text-align:center;box-shadow:0 6px 20px -10px rgba(0,0,0,.5);'
+    + (paid ? 'background:#FFDE34;color:#1B1A17;' : 'background:#1B1A17;color:#EDE9E0;');
+  bar.innerHTML = (paid ? T.paid : T.canceled)
+    + '<button aria-label="關閉" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);'
+    + 'background:none;border:0;font-size:1.4rem;line-height:1;cursor:pointer;color:inherit">×</button>';
+  document.body.appendChild(bar);
+  bar.querySelector('button').addEventListener('click', () => bar.remove());
+}
+
+async function init() {
+  document.body.classList.add('js');
+  showPurchaseResult();
+  document.addEventListener('click', e => {
+    const buy = e.target.closest('[data-buy]');
+    if (buy) { e.preventDefault(); startCheckout(buy); }
+  });
+  // 手機漢堡選單由共用 nav.js 處理（共用導覽列）
+  bindGo(document);
+  await fetchPublic();   // 只更新首頁「已加入 N 名」進度
+  // 深連結：/fellow#why-now 進站即開對應 view；並監聽 hash 變化（導覽下拉點選）
+  const hv = location.hash.slice(1);
+  go(VIEWS.includes(hv) ? hv : 'home');
+  addEventListener('hashchange', () => { const v = location.hash.slice(1); go(VIEWS.includes(v) ? v : 'home'); });
+}
+
+document.addEventListener('DOMContentLoaded', init);
