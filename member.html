@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>會員專區 · 言文字——台灣人才聚落</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<style>
+  /* member 專頁：沿用 CIS token，僅補版面 */
+  .m-wrap{max-width:760px;margin:0 auto;padding:120px 24px 96px}
+  .m-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:40px 36px}
+  .m-hi{font-family:var(--serif);font-size:1.7rem;font-weight:500;margin-bottom:.2em}
+  .m-sub{color:var(--muted);margin-bottom:2rem}
+  .m-row{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+  .m-row b{font-weight:500}
+  .m-row span{color:var(--ink-soft)}
+  .m-sec-title{font-family:var(--serif);font-size:1.15rem;margin:2.4rem 0 .8rem}
+  .m-upd{padding:14px 0;border-top:1px solid var(--line)}
+  .m-upd h4{font-weight:500;font-size:1rem;margin-bottom:.2em}
+  .m-upd time{color:var(--muted);font-size:.82rem}
+  .m-upd p{color:var(--ink-soft);font-size:.94rem;margin-top:.4em;white-space:pre-wrap}
+  .m-empty{color:var(--muted);padding:14px 0;border-top:1px solid var(--line)}
+  .m-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:2.4rem}
+  .m-google{display:inline-flex;align-items:center;gap:.7em}
+  .m-google svg{width:20px;height:20px}
+  .m-center{text-align:center}
+  .m-note{color:var(--muted);font-size:.85rem;margin-top:1.2rem}
+  .m-top{position:fixed;top:0;left:0;right:0;background:var(--paper);border-bottom:1px solid var(--line);z-index:10}
+  .m-top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .m-brand b{font-family:var(--serif);font-weight:700;font-size:1.1rem}
+  .m-brand span{color:var(--muted);font-size:.8rem;margin-left:.6em}
+</style>
+</head>
+<body>
+<header class="m-top">
+  <div class="wrap">
+    <a class="m-brand" href="/"><b>言文字</b><span>會員專區</span></a>
+    <a href="/" class="btn btn--ghost" style="padding:.55em 1.1em">← 回首頁</a>
+  </div>
+</header>
+
+<main class="m-wrap">
+  <div class="m-card" id="card">
+    <p class="m-center" style="color:var(--muted)">載入中…</p>
+  </div>
+</main>
+
+<script>
+  // fellow 後端網址：本地測試指向 localhost:8080，正式指向 fellow.emoji.tw
+  const FELLOW = /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+    ? 'http://localhost:8080' : 'https://fellow.emoji.tw';
+  const KEY = 'tth_token';
+  const card = document.getElementById('card');
+  const esc = s => (s == null ? '' : String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  // 1) 從 Google 導回時，token 夾在網址 fragment，讀出後即從網址移除
+  const hash = new URLSearchParams(location.hash.slice(1));
+  if (hash.get('token')) {
+    localStorage.setItem(KEY, hash.get('token'));
+    history.replaceState(null, '', location.pathname);
+  }
+  const token = localStorage.getItem(KEY);
+
+  const loginBtn = redirect =>
+    `<a class="btn btn--solid m-google" href="${FELLOW}/auth/google?redirect=${encodeURIComponent(redirect)}">
+       <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.8-6.8C35.6 2.4 30.1 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.3 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.1 5.3-4.6 6.9l7.1 5.5c4.1-3.8 6.5-9.4 6.5-16z"/><path fill="#FBBC05" d="M10.5 28.3c-.5-1.4-.8-2.9-.8-4.3s.3-3 .8-4.3l-7.9-6.1C1 16.9 0 20.3 0 24s1 7.1 2.6 10.4l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.1 0 11.3-2 15-5.5l-7.1-5.5c-2 1.3-4.6 2.1-7.9 2.1-6.4 0-11.7-3.7-13.5-9.3l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+       使用 Google 登入
+     </a>`;
+
+  function renderLoggedOut() {
+    card.innerHTML = `
+      <div class="m-center">
+        <h1 class="m-hi">會員登入</h1>
+        <p class="m-sub">登入後可查看你的會籍狀態與會員專屬動態。</p>
+        ${loginBtn(location.origin + '/member.html')}
+        <p class="m-note">使用 Google 帳號一鍵登入，我們只讀取你的姓名與 Email。</p>
+      </div>`;
+  }
+
+  function renderMember(data) {
+    const me = data.me || {};
+    const c = (data.commitments || [])[0];
+    const membership = c
+      ? `<div class="m-row"><b>會籍狀態</b><span>${esc(c.membership_status || '—')}</span></div>
+         <div class="m-row"><b>會員編號</b><span>${esc(c.cert_no || '—')}</span></div>
+         <div class="m-row"><b>會籍期間</b><span>${esc(c.start_date)} – ${esc(c.maturity_date)}</span></div>`
+      : `<div class="m-row"><b>會籍狀態</b><span>尚未加入</span></div>
+         <div class="m-empty">你目前尚未成為創始會員。
+           <a href="https://fellow.emoji.tw/" style="text-decoration:underline;text-underline-offset:3px">前往加入創始會員 →</a></div>`;
+
+    const updates = (data.updates || []).map(u => `
+      <div class="m-upd"><h4>${esc(u.title)}</h4><time>${esc(u.published_at)}｜${esc(u.type)}</time>
+        ${u.content ? `<p>${esc(u.content)}</p>` : ''}</div>`).join('')
+      || `<div class="m-empty">目前尚無會員動態。</div>`;
+
+    card.innerHTML = `
+      <h1 class="m-hi">歡迎，${esc(me.name || '會員')}</h1>
+      <p class="m-sub">${esc(me.email || '')}</p>
+      <div>${membership}</div>
+      <h3 class="m-sec-title">會員動態</h3>
+      <div>${updates}</div>
+      <div class="m-actions">
+        <button class="btn btn--ghost" id="logout">登出</button>
+      </div>`;
+    document.getElementById('logout').onclick = () => {
+      localStorage.removeItem(KEY); location.reload();
+    };
+  }
+
+  async function main() {
+    if (!token) return renderLoggedOut();
+    try {
+      const r = await fetch(FELLOW + '/api/state', { headers: { authorization: 'Bearer ' + token } });
+      if (r.status === 401) { localStorage.removeItem(KEY); return renderLoggedOut(); }
+      if (!r.ok) throw new Error('state ' + r.status);
+      renderMember(await r.json());
+    } catch (e) {
+      card.innerHTML = `<p class="m-center" style="color:var(--muted)">
+        暫時無法連線會員系統，請稍後再試。<br>
+        <button class="btn btn--ghost" style="margin-top:1.2rem" onclick="location.reload()">重新整理</button></p>`;
+    }
+  }
+  main();
+</script>
+</body>
+</html>
