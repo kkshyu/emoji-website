@@ -271,7 +271,7 @@
   .cta__form .sib-notification__icon{width:20px;height:20px}
 
   footer{background:var(--ink-surface);color:var(--on-ink-soft);padding:72px 0 40px}
-  .foot__top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:44px;padding-bottom:44px;border-bottom:1px solid rgba(237,233,224,.12)}
+  .foot__top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:44px;padding-bottom:44px;border-bottom:1px solid rgba(237,233,224,.12)}
   .foot__brand b{display:block;font-family:var(--serif);color:var(--on-ink);font-size:1.28rem;font-weight:700;letter-spacing:.1em}
   .foot__brand span{font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:var(--on-ink-soft)}
   .foot__brand p{margin-top:16px;font-size:.9rem;font-weight:300;max-width:34ch;line-height:1.8}

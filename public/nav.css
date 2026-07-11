@@ -34,6 +34,8 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
 .site-nav__menu a{font-size:.86rem;color:#3A362E;padding:9px 13px;border-radius:7px;white-space:nowrap;text-decoration:none}
 .site-nav__menu a[aria-current=page]{background:rgba(255,222,52,.22);color:#1B1A17}
 .site-nav__lang .site-nav__dd-top{font-size:.85rem;color:#8C857A}
+.site-nav__globe{width:19px;height:19px;display:block;flex:0 0 auto}
+.site-nav__lang-label{display:none}          /* 桌機：只留地球 icon */
 .site-nav__lang .site-nav__menu{left:auto;right:0;transform:translateY(4px);min-width:132px}
 /* 點擊展開（JS 加 .open）：桌機與觸控通用 */
 .site-nav__dd.open>.site-nav__menu{opacity:1;visibility:visible;transform:translate(-50%,0)}
@@ -70,6 +72,7 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
   .site-nav__menu{position:static;transform:none;box-shadow:none;border:0;border-radius:0;background:transparent;
     min-width:0;padding:0 0 0 14px;opacity:1;visibility:visible;max-height:0;overflow:hidden;transition:max-height .28s ease}
   .site-nav__lang .site-nav__menu{right:auto}
+  .site-nav__lang-label{display:inline}       /* 手機：icon 旁補語言文字，整列較清楚 */
   .site-nav__dd.open>.site-nav__menu{max-height:70vh;transform:none;padding:2px 0 8px 14px}
   .site-nav__menu a{padding:12px 0;border-bottom:1px solid rgba(27,26,23,.07);border-radius:0}
   .site-nav .btn{margin-top:16px;width:100%}

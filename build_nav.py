@@ -23,6 +23,7 @@ L = {
    prog={'fellow':'創始会員プログラム','partner':'パートナープログラム','startup':'スタートアップ支援'}),
 }
 LANG_ORDER = [('zh','中文'),('en','English'),('ja','日本語')]
+LANGARIA = {'zh':'切換語言', 'en':'Change language', 'ja':'言語を切り替え'}
 
 def hreflang(lc): return 'zh-Hant' if lc=='zh' else lc
 
@@ -58,7 +59,11 @@ def build(lang, ptype):
       </div>
       <a href="/member.html">{d['member']}</a>
       <div class="site-nav__dd site-nav__lang">
-        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">{d['ltop']} <i class="site-nav__caret" aria-hidden="true">▾</i></button>
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false" aria-label="{LANGARIA[lang]}">
+          <svg class="site-nav__globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><ellipse cx="12" cy="12" rx="4" ry="9"/></svg>
+          <span class="site-nav__lang-label">{d['ltop']}</span>
+          <i class="site-nav__caret" aria-hidden="true">▾</i>
+        </button>
         <div class="site-nav__menu">
 {litems}
         </div>

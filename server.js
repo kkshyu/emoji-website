@@ -15,7 +15,8 @@ const PORT = process.env.PORT || 8080;
 const PRICE = 35000;                    // 創始會費（固定）
 const TARGET = 3500000;                 // 預收會費總額（100 名 × NT$35,000）
 const MIN_TERM = 18, MAX_TERM = 18;     // 會籍期間固定 18 個月（term 以月計）
-const ADMIN_CODE = process.env.ADMIN_CODE || 'KK-ADMIN';
+// 超級管理員：以 Google 帳號（email）認定，非代碼。超管可於後台指派其他管理員（users.is_admin）。
+const SUPER_ADMIN_EMAIL = (process.env.SUPER_ADMIN_EMAIL || 'us@twouring.com').toLowerCase();
 const SECRET = process.env.APP_SECRET || 'dev-insecure-secret-change-me';
 // 受邀制會籍預售：限定特定受邀者、名額上限 100 名，售罄不補
 const MAX_PARTICIPANTS = Number(process.env.MAX_PARTICIPANTS || 100);
@@ -23,7 +24,6 @@ const MAX_PARTICIPANTS = Number(process.env.MAX_PARTICIPANTS || 100);
 const PII_KEY = require('crypto').createHash('sha256').update(process.env.PII_KEY || SECRET).digest();
 
 if (SECRET === 'dev-insecure-secret-change-me') console.warn('[warn] APP_SECRET 未設定，使用不安全的預設值，請於 Zeabur 設定 APP_SECRET。');
-if (ADMIN_CODE === 'KK-ADMIN') console.warn('[warn] ADMIN_CODE 使用預設值 KK-ADMIN，請於 Zeabur 設定更安全的後台代碼。');
 
 /* ---------- Stripe（開放購買；未設金鑰時 /api/checkout 回 503） ---------- */
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS users (
   invite_code TEXT UNIQUE,
   id_no TEXT, address TEXT, bank TEXT,
   status TEXT, can_view BOOLEAN DEFAULT true,
+  is_admin BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 CREATE TABLE IF NOT EXISTS commitments (
@@ -144,6 +145,8 @@ function genPayments(c) {
 
 async function migrate() {
   await q(SCHEMA_SQL);
+  // 既有 DB 補欄位：管理員旗標（超管以 Google email 認定，其餘管理員存此旗標）
+  await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false`);
   // Founding rebrand：既有資料的舊編號一次改過（冪等，無舊資料時不影響）
   await q(`UPDATE commitments SET cert_no = replace(replace(cert_no,'TTHB-','TTHM-'),'TTHF-','TTHM-') WHERE cert_no LIKE 'TTHB-%' OR cert_no LIKE 'TTHF-%'`);
   // 創始會員計畫改版：舊版專案參數一次改過（冪等）
@@ -182,7 +185,7 @@ function verifyToken(token) {
 }
 
 /* ---------- SELECT 片段（日期格式化成 YYYY/MM/DD） ---------- */
-const SEL_USER = `id,name,email,phone,invite_code,id_no,address,bank,status,can_view,to_char(created_at,'YYYY/MM/DD') AS created_at`;
+const SEL_USER = `id,name,email,phone,invite_code,id_no,address,bank,status,can_view,is_admin,to_char(created_at,'YYYY/MM/DD') AS created_at`;
 const SEL_C = `id,user_id,amount::bigint,interest_rate,term_years,
   to_char(start_date,'YYYY/MM/DD') AS start_date,
   to_char(maturity_date,'YYYY/MM/DD') AS maturity_date,
@@ -228,6 +231,10 @@ function adminOnly(req, res, next) {
   if (req.auth.role !== 'admin') return res.status(403).json({ error: '需要後台權限。' });
   next();
 }
+function superOnly(req, res, next) {
+  if (req.auth.super !== true) return res.status(403).json({ error: '需要超級管理員權限。' });
+  next();
+}
 const wrap = fn => (req, res) => fn(req, res).catch(e => {
   console.error('[api error]', e.message);
   res.status(500).json({ error: '伺服器處理失敗。' });
@@ -248,10 +255,8 @@ app.get('/api/health', (req, res) =>
 
 app.post('/api/login', rateLimit, requireDb, wrap(async (req, res) => {
   const code = (req.body.code || '').trim();
-  if (!code) return res.status(400).json({ error: '請輸入邀請碼或 Email。' });
-  if (code.toUpperCase() === ADMIN_CODE.toUpperCase())
-    return res.json({ token: signToken({ role: 'admin', sub: null }), role: 'admin' });
-
+  if (!code) return res.status(400).json({ error: '請輸入邀請碼。' });
+  // 後台管理不再用登入代碼：管理員一律走 Google 登入（超管 email 或被指派 is_admin）。
   const lv = code.toLowerCase();
   // 安全：登入僅接受「不可猜測的邀請碼」。email 屬可知資訊，不能當憑證
   // （否則知道受邀者 email 即可冒名登入、讀取其會籍與個資）。
@@ -313,8 +318,12 @@ app.get('/auth/google/callback', wrap(async (req, res) => {
   } else if (info.name) {
     await q(`UPDATE users SET name=$2 WHERE id=$1 AND (name IS NULL OR name='')`, [u.id, info.name]);
   }
+  // 管理權限：超管以 email 認定；其餘管理員讀 users.is_admin（由超管指派）
+  const isSuper = email === SUPER_ADMIN_EMAIL;
+  const isAdmin = isSuper || (await q(`SELECT is_admin FROM users WHERE id=$1`, [u.id])).rows[0]?.is_admin === true;
   const n = (await q(`SELECT COUNT(*)::int AS n FROM commitments WHERE user_id=$1`, [u.id])).rows[0].n;
-  const token = signToken({ role: n > 0 ? 'participant' : 'invited', sub: u.id });
+  const role = isAdmin ? 'admin' : (n > 0 ? 'participant' : 'invited');
+  const token = signToken({ role, sub: u.id, super: isSuper });
   // token 以 URL fragment 帶回官網（不進伺服器存取記錄）；官網讀取後即從網址移除
   const sep = redirect.includes('#') ? '&' : '#';
   res.redirect(redirect + sep + 'token=' + encodeURIComponent(token));
@@ -334,7 +343,7 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
     const users = (await q(`SELECT ${SEL_USER} FROM users ORDER BY created_at`)).rows.map(pubUser);
     const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments ORDER BY created_at`)).rows);
     const payments = numify((await q(`SELECT ${SEL_P} FROM payments`)).rows);
-    return res.json({ role: 'admin', me: null, bond, users, commitments, payments, updates });
+    return res.json({ role: 'admin', super: req.auth.super === true, me: null, bond, users, commitments, payments, updates });
   }
   const me = pubUser((await q(`SELECT ${SEL_USER} FROM users WHERE id=$1`, [req.auth.sub])).rows[0]);
   if (!me) return res.status(401).json({ error: '帳號不存在，請重新登入。' });
@@ -390,6 +399,14 @@ app.post('/api/commitments', auth, requireDb, wrap(async (req, res) => {
 
   const row = numify((await q(`SELECT ${SEL_C} FROM commitments WHERE id=$1`, [id])).rows)[0];
   res.json({ commitment: row });
+}));
+
+/* ---- 超管：指派／取消其他管理員（以 user id；對象需已於系統有帳號，通常先以 Google 登入過） ---- */
+app.post('/api/admin/users/:id/admin', auth, adminOnly, superOnly, requireDb, wrap(async (req, res) => {
+  const makeAdmin = req.body.admin === true;
+  const r = await q(`UPDATE users SET is_admin=$2 WHERE id=$1 RETURNING id,email`, [req.params.id, makeAdmin]);
+  if (!r.rows[0]) return res.status(404).json({ error: '找不到使用者。' });
+  res.json({ ok: true, id: r.rows[0].id, is_admin: makeAdmin });
 }));
 
 app.post('/api/admin/invites', auth, adminOnly, requireDb, wrap(async (req, res) => {
