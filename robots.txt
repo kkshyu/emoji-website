@@ -4,4 +4,4 @@ User-agent: *
 Allow: /
 
 # 正式網址以 emoji 子網域為準
-Sitemap: https://emoji.taiwantalenthub.com/sitemap.xml
+Sitemap: https://www.emoji.tw/sitemap.xml
