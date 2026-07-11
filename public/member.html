@@ -43,6 +43,10 @@
   .m-top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
   .m-brand b{font-family:var(--serif);font-weight:700;font-size:1.1rem}
   .m-brand span{color:var(--muted);font-size:.8rem;margin-left:.6em}
+  .m-wrap{min-height:calc(100vh - 64px - 88px)}   /* 讓頁尾貼底，卡片不再孤懸空頁 */
+  .m-foot{border-top:1px solid var(--line);padding:28px 24px;text-align:center;color:var(--muted);font-size:.8rem}
+  .m-foot a{color:var(--ink-soft);text-decoration:none}
+  .m-foot a:hover{text-decoration:underline;text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -58,6 +62,11 @@
     <p class="m-center" style="color:var(--muted)">載入中…</p>
   </div>
 </main>
+
+<footer class="m-foot">
+  言文字——台灣人才聚落 · <a href="/">回首頁</a> · <a href="mailto:us@emoji.tw">us@emoji.tw</a><br>
+  © 2026 言文字 Taiwan Talent Hub
+</footer>
 
 <script>
   // 後端與官網同源（www.emoji.tw），一律走相對路徑
