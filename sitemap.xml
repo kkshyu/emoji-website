@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 正式網址以 www 為準（apex taiwantalenthub.com 會跳轉至 www） -->
+<!-- 正式網址以 emoji.taiwantalenthub.com 為準 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.taiwantalenthub.com/</loc>
+    <loc>https://emoji.taiwantalenthub.com/</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.taiwantalenthub.com/en/</loc>
+    <loc>https://emoji.taiwantalenthub.com/en/</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

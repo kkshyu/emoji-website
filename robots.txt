@@ -1,7 +1,7 @@
-# 台灣人才聚落 Taiwan Talent Hub
+# 言文字——台灣人才聚落 Taiwan Talent Hub
 # 允許所有爬蟲（含 AI／答案引擎）索引
 User-agent: *
 Allow: /
 
-# 正式網址以 www 為準（apex 會跳轉至 www）
-Sitemap: https://www.taiwantalenthub.com/sitemap.xml
+# 正式網址以 emoji 子網域為準
+Sitemap: https://emoji.taiwantalenthub.com/sitemap.xml
