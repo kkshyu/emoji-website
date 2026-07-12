@@ -30,7 +30,9 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
 .site-nav__menu{position:absolute;top:calc(100% + 10px);left:50%;transform:translate(-50%,4px);min-width:184px;
   display:flex;flex-direction:column;background:#FFFFFF;border:1px solid rgba(27,26,23,.12);border-radius:12px;
   box-shadow:0 16px 38px -14px rgba(27,26,23,.32);padding:7px;opacity:0;visibility:hidden;
-  transition:opacity .18s ease,transform .18s ease;z-index:81}
+  transition:opacity .18s ease,transform .18s ease,visibility 0s linear .15s;z-index:81}
+/* 橋接 trigger 與選單間的 10px 空隙，滑鼠穿越時 hover 不中斷 */
+.site-nav__menu::before{content:"";position:absolute;left:-8px;right:-8px;top:-12px;height:12px}
 .site-nav__menu a{font-size:.86rem;color:#3A362E;padding:9px 13px;border-radius:7px;white-space:nowrap;text-decoration:none}
 .site-nav__menu a[aria-current=page]{background:rgba(255,222,52,.22);color:#1B1A17}
 .site-nav__lang .site-nav__dd-top{font-size:.85rem;color:#6B6558}
@@ -38,12 +40,12 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
 .site-nav__lang-label{display:none}          /* 桌機：只留地球 icon */
 .site-nav__lang .site-nav__menu{left:auto;right:0;transform:translateY(4px);min-width:132px}
 /* 點擊展開（JS 加 .open）：桌機與觸控通用 */
-.site-nav__dd.open>.site-nav__menu{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.site-nav__dd.open>.site-nav__menu{opacity:1;visibility:visible;transform:translate(-50%,0);transition-delay:0s}
 .site-nav__lang.open>.site-nav__menu{transform:translateY(0)}
 .site-nav__dd.open .site-nav__caret{transform:rotate(180deg)}
 /* 桌機（可 hover）：滑鼠移入或鍵盤 focus 即顯示 */
 @media (hover:hover) and (min-width:901px){
-  .site-nav__dd:hover>.site-nav__menu,.site-nav__dd:focus-within>.site-nav__menu{opacity:1;visibility:visible;transform:translate(-50%,0)}
+  .site-nav__dd:hover>.site-nav__menu,.site-nav__dd:focus-within>.site-nav__menu{opacity:1;visibility:visible;transform:translate(-50%,0);transition-delay:0s}
   .site-nav__lang:hover>.site-nav__menu,.site-nav__lang:focus-within>.site-nav__menu{transform:translateY(0)}
   .site-nav__dd:hover .site-nav__caret,.site-nav__dd:focus-within .site-nav__caret{transform:rotate(180deg)}
   .site-nav__menu a:hover{background:rgba(255,222,52,.22);color:#1B1A17}
@@ -71,6 +73,7 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
   /* 手機：子選單改「摺疊/點擊展開」手風琴，不用 hover */
   .site-nav__menu{position:static;transform:none;box-shadow:none;border:0;border-radius:0;background:transparent;
     min-width:0;padding:0 0 0 14px;opacity:1;visibility:visible;max-height:0;overflow:hidden;transition:max-height .28s ease}
+  .site-nav__menu::before{display:none}       /* 手機無 hover，橋接區反而會擋到上一列的點擊 */
   .site-nav__lang .site-nav__menu{right:auto}
   .site-nav__lang-label{display:inline}       /* 手機：icon 旁補語言文字，整列較清楚 */
   .site-nav__lang .site-nav__dd-top{justify-content:flex-start;gap:10px}  /* 手機：地球＋語言靠左，與其他項對齊 */
