@@ -168,12 +168,21 @@ function ensureMenuDoc(d) {
     MENU_SEEDED = false;
     return fromDb;
   }
-  if (window.MENU_DATA) {
+  const seed = window.__MENU_SEED || window.MENU_DATA;
+  if (seed) {
     MENU_SEEDED = true;
-    return MenuLib.fromSeedRows(window.MENU_DATA);
+    return MenuLib.fromSeedRows(seed);
   }
   MENU_SEEDED = false;
   return fromDb;
+}
+
+// IG 產生器讀 window.MENU_DATA；每次 MENU_DOC 有更新都要同步，確保帶入的是目前顯示中的清單（含未存檔編輯）。
+function syncWindowMenuData() {
+  const items = (MENU_DOC && MENU_DOC.items && MENU_DOC.items.length)
+    ? MENU_DOC.items
+    : MenuLib.fromSeedRows(window.__MENU_SEED || window.MENU_DATA || []).items;
+  window.MENU_DATA = MenuLib.sortItems(items);
 }
 
 /* ---------- 各分頁 ---------- */
@@ -397,6 +406,7 @@ function render(d){
       MENU_DIRTY_TOASTED = true;
     }
   }
+  syncWindowMenuData();
   if (d.me && d.me.name) try { localStorage.setItem('tth_name', d.me.name); } catch (e) {}
   logoutBtn.style.display='';
   const x = derived(d);
@@ -509,6 +519,7 @@ function paintMenu(){
   const panel = document.querySelector('[data-panel="menu"]');
   if (!panel) return;
   const savedSearch = document.getElementById('mi-search')?.value || '';
+  syncWindowMenuData();
   panel.innerHTML = tabMenu(DATA);
   bindMenu();
   const searchEl = document.getElementById('mi-search');

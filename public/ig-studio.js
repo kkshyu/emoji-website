@@ -21,7 +21,7 @@
     // product
     p_eyebrow: '本週精選',
     p_zh: '美式咖啡', p_en: 'AMERICANO', p_note: '', p_desc: '深烘豆現萃，醇厚回甘。',
-    p_unit: '單杯', p_price: 170, p_emo: 150,
+    p_unit: '單杯', p_price: 170, p_emo: 150, p_alcohol: false,
     // event
     e_title: '七月社群沙龍', e_when: '7/20 (六) 19:00', e_place: '言文字三樓',
     e_desc: '一晚，把台灣做事的人聚在一起。自由入場，飲品另計。',
@@ -160,7 +160,7 @@
     product: () => `
       <label>從菜單帶入
         <select data-menu>${['<option value="">— 手動輸入 —</option>']
-          .concat(MENU().map((m, i) => `<option value="${i}">${H(m.cat)}｜${H(m.zh)} $${m.price}</option>`)).join('')}</select></label>
+          .concat(MENU().map((m, i) => `<option value="${i}">${H(m.cat)}｜${H(m.zh)} $${m.price}${m.published ? '' : '（未發布）'}</option>`)).join('')}</select></label>
       <label>小標<input data-k="p_eyebrow" value="${H(state.p_eyebrow)}"></label>
       <label>品名（中）<input data-k="p_zh" value="${H(state.p_zh)}"></label>
       <label>品名（英）<input data-k="p_en" value="${H(state.p_en)}"></label>
@@ -197,6 +197,7 @@
     if (menu) menu.addEventListener('change', e => {
       const m = MENU()[e.target.value]; if (!m) return;
       Object.assign(state, { p_zh: m.zh, p_en: m.en, p_note: m.note || '', p_price: m.price, p_emo: m.emo });
+      if ('p_alcohol' in state) state.p_alcohol = !!m.alcohol;
       renderForm(); renderPreview();
     });
   }
