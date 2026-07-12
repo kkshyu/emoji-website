@@ -13,15 +13,15 @@ L = {
  'zh': dict(base='', about='關於聚落', floors='系統', proglabel='聚落計畫',
    menu='菜單', brand='企業識別', member='會員登入', member_authed='會員專區', cta='追蹤我們', ltop='中文', mopen='開啟選單', mclose='關閉選單',
    baria='言文字｜台灣人才聚落 首頁', bsub='台灣人才聚落',
-   prog={'fellow':'創始會員計畫','partner':'社群夥伴計畫','startup':'新創陪跑計畫'}),
+   prog={'fellow':'創始會員計畫','partner':'社群合作','startup':'新創支援（探索）'}),
  'en': dict(base='/en', about='About', floors='Access', proglabel='Programs',
    menu='Menu', brand='Brand', member='Member login', member_authed='Member area', cta='Follow us', ltop='English', mopen='Open menu', mclose='Close menu',
    baria='Emoji - Taiwan Talent Hub home', bsub='Emoji - Taiwan Talent Hub',
-   prog={'fellow':'Founding Member','partner':'Community Partner Program','startup':'Startup Program'}),
+   prog={'fellow':'Founding Member','partner':'Community Collaboration','startup':'Startup Support (Exploratory)'}),
  'ja': dict(base='/ja', about='ハブについて', floors='システム', proglabel='プログラム',
    menu='メニュー', brand='ブランド', member='会員ログイン', member_authed='会員エリア', cta='フォローする', ltop='日本語', mopen='メニューを開く', mclose='メニューを閉じる',
    baria='言文字｜台湾タレントハブ ホーム', bsub='台湾タレントハブ',
-   prog={'fellow':'創始会員プログラム','partner':'コミュニティパートナー','startup':'スタートアップ支援'}),
+   prog={'fellow':'創始会員プログラム','partner':'コミュニティ連携','startup':'スタートアップ支援（探索）'}),
 }
 LANG_ORDER = [('zh','中文'),('en','English'),('ja','日本語')]
 LANGARIA = {'zh':'切換語言', 'en':'Change language', 'ja':'言語を切り替え'}
