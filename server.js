@@ -10,6 +10,11 @@ const crypto = require('crypto');
 const express = require('express');
 const { Pool } = require('pg');
 const Stripe = require('stripe');
+const {
+  endsAtAfterActivation, deriveMemberAccess, pickEntitlementForQr,
+  applyLazyAutoActivate,
+} = require('./lib/entitlements');
+const { signAccessToken, verifyAccessToken } = require('./lib/access-token');
 
 const PORT = process.env.PORT || 8080;
 const PRICE = 35000;                    // 創始會費（固定）
@@ -18,12 +23,16 @@ const MIN_TERM = 18, MAX_TERM = 18;     // 會籍期間固定 18 個月（term �
 // 超級管理員：以 Google 帳號（email）認定，非代碼。超管可於後台指派其他管理員（users.is_admin）。
 const SUPER_ADMIN_EMAIL = (process.env.SUPER_ADMIN_EMAIL || 'us@twouring.com').toLowerCase();
 const SECRET = process.env.APP_SECRET || 'dev-insecure-secret-change-me';
+const ACCESS_QR_SECRET = process.env.ACCESS_QR_SECRET || '';
+const ACCESS_DOOR_SECRET = process.env.ACCESS_DOOR_SECRET || '';
 // 受邀制會籍預售：限定特定受邀者、名額上限 100 名，售罄不補
 const MAX_PARTICIPANTS = Number(process.env.MAX_PARTICIPANTS || 100);
 // 個資加密金鑰（身分證字號等敏感欄位 at-rest 加密）；建議獨立設 PII_KEY，預設沿用 APP_SECRET 衍生
 const PII_KEY = require('crypto').createHash('sha256').update(process.env.PII_KEY || SECRET).digest();
 
 if (SECRET === 'dev-insecure-secret-change-me') console.warn('[warn] APP_SECRET 未設定，使用不安全的預設值，請於 Zeabur 設定 APP_SECRET。');
+if (!ACCESS_QR_SECRET) console.warn('[warn] ACCESS_QR_SECRET 未設定，進出 QR 停用。');
+if (!ACCESS_DOOR_SECRET) console.warn('[warn] ACCESS_DOOR_SECRET 未設定，access/scan 停用。');
 
 /* ---------- Stripe（開放購買；未設金鑰時 /api/checkout 回 503） ---------- */
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
@@ -151,6 +160,28 @@ CREATE TABLE IF NOT EXISTS event_regs (
   created_at TIMESTAMPTZ DEFAULT now(),
   UNIQUE (event_id, user_id)
 );
+CREATE TABLE IF NOT EXISTS entitlements (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+  plan TEXT NOT NULL,
+  source TEXT,
+  source_id TEXT,
+  purchased_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  activated_at TIMESTAMPTZ,
+  starts_at TIMESTAMPTZ,
+  ends_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (source, source_id)
+);
+CREATE INDEX IF NOT EXISTS entitlements_user_idx ON entitlements(user_id);
+CREATE TABLE IF NOT EXISTS access_scans (
+  id TEXT PRIMARY KEY,
+  entitlement_id TEXT REFERENCES entitlements(id) ON DELETE CASCADE,
+  user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+  token_iat INT,
+  scanned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (entitlement_id, token_iat)
+);
 CREATE TABLE IF NOT EXISTS site_content (
   key TEXT PRIMARY KEY,
   value TEXT,
@@ -172,6 +203,8 @@ async function migrate() {
   await q(`DELETE FROM updates WHERE id IN ('up1','up2','up3')`);
   const { rows } = await q('SELECT COUNT(*)::int AS n FROM bonds');
   if (rows[0].n === 0) await seedBond();
+  const paid = (await q(`SELECT ${SEL_C} FROM commitments WHERE payment_status='已付款'`)).rows;
+  for (const c of paid) await ensureFoundingEntitlement(c);
 }
 
 async function seedBond() {
@@ -209,7 +242,79 @@ const SEL_UPD = `id,title,content,type,to_char(published_at,'YYYY/MM/DD') AS pub
 const SEL_EVENT = `id,title,description,location,capacity,status,
   to_char(starts_at,'YYYY/MM/DD HH24:MI') AS starts_at,
   starts_at AS starts_at_iso`;
+const SEL_ENT = `id,user_id,plan,source,source_id,
+  purchased_at, activated_at, starts_at, ends_at`;
 const numify = rows => rows.map(r => ({ ...r, amount: r.amount != null ? Number(r.amount) : r.amount }));
+const FLOOR_PLANS = ['day_4h', 'day_12h', 'month', 'quarter', 'year'];
+
+function rowToEnt(r) {
+  if (!r) return null;
+  return {
+    ...r,
+    purchased_at: r.purchased_at ? new Date(r.purchased_at) : null,
+    activated_at: r.activated_at ? new Date(r.activated_at) : null,
+    starts_at: r.starts_at ? new Date(r.starts_at) : null,
+    ends_at: r.ends_at ? new Date(r.ends_at) : null,
+  };
+}
+
+async function loadEntitlements(userId) {
+  return (await q(
+    `SELECT ${SEL_ENT} FROM entitlements WHERE user_id=$1 ORDER BY purchased_at`,
+    [userId]
+  )).rows.map(rowToEnt);
+}
+
+async function persistLazyActivations(ents, now = new Date()) {
+  const out = [];
+  for (const e of ents) {
+    const { changed, entitlement } = applyLazyAutoActivate(e, now);
+    if (!changed) { out.push(e); continue; }
+    const r = await q(
+      `UPDATE entitlements SET activated_at=$2, starts_at=$3, ends_at=$4
+       WHERE id=$1 AND activated_at IS NULL
+       RETURNING ${SEL_ENT}`,
+      [e.id, entitlement.activated_at, entitlement.starts_at, entitlement.ends_at]
+    );
+    out.push(r.rows[0] ? rowToEnt(r.rows[0]) : (await loadEntitlements(e.user_id)).find(x => x.id === e.id) || entitlement);
+  }
+  return out;
+}
+
+async function memberAccessFor(userId, now = new Date()) {
+  let ents = await loadEntitlements(userId);
+  ents = await persistLazyActivations(ents, now);
+  return deriveMemberAccess(ents, now);
+}
+
+function accessSummary(access) {
+  return [
+    ...(access.activeEntitlements || []).map(e => e.plan),
+    ...(access.pending || []).map(e => e.plan + '（待啟用）'),
+  ].join('、') || '—';
+}
+
+async function ensureFoundingEntitlement(commitment) {
+  // commitment: { id, user_id, start_date, maturity_date, payment_status, membership_status }
+  if (commitment.payment_status !== '已付款') return null;
+  const starts = new Date(String(commitment.start_date).replace(/\//g, '-') + 'T00:00:00.000Z');
+  const maturityDay = String(commitment.maturity_date).replace(/\//g, '-');
+  const maturityStart = new Date(maturityDay + 'T00:00:00.000Z');
+  // maturity_date 是會籍末日；ends_at 為末日次日 00:00 UTC，採半開區間 [starts, ends)。
+  const endsExclusive = new Date(maturityStart.getTime() + 24 * 3600 * 1000);
+  const id = uid('en_');
+  const r = await q(
+    `INSERT INTO entitlements
+      (id,user_id,plan,source,source_id,purchased_at,activated_at,starts_at,ends_at)
+     VALUES ($1,$2,'founding','commitment',$3,now(),$4,$4,$5)
+     ON CONFLICT (source, source_id) DO UPDATE SET
+       starts_at=EXCLUDED.starts_at, ends_at=EXCLUDED.ends_at,
+       activated_at=COALESCE(entitlements.activated_at, EXCLUDED.activated_at)
+     RETURNING ${SEL_ENT}`,
+    [id, commitment.user_id, commitment.id, starts, endsExclusive]
+  );
+  return rowToEnt(r.rows[0]);
+}
 
 /* ---------- app ---------- */
 const app = express();
@@ -241,6 +346,13 @@ function auth(req, res, next) {
   const p = verifyToken(t);
   if (!p) return res.status(401).json({ error: '請先登入。' });
   req.auth = p; next();
+}
+function doorAuth(req, res, next) {
+  const h = req.headers.authorization || '';
+  const t = h.startsWith('Bearer ') ? h.slice(7) : '';
+  if (!ACCESS_DOOR_SECRET || t !== ACCESS_DOOR_SECRET)
+    return res.status(401).json({ error: '門禁憑證無效。' });
+  next();
 }
 function adminOnly(req, res, next) {
   if (req.auth.role !== 'admin') return res.status(403).json({ error: '需要後台權限。' });
@@ -332,24 +444,115 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
   if (req.auth.role === 'admin') {
     const users = (await q(`SELECT ${SEL_USER} FROM users ORDER BY created_at`)).rows.map(pubUser);
     const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments ORDER BY created_at`)).rows);
+    const entitlements = (await q(`SELECT ${SEL_ENT} FROM entitlements`)).rows.map(rowToEnt);
+    for (const u of users) {
+      const access = await memberAccessFor(u.id);
+      u.access_active = access.active;
+      u.access_summary = accessSummary(access);
+    }
     // 活動 + 每場報名人數（後台總覽用）
     const events = (await q(
       `SELECT ${SEL_EVENT}, (SELECT COUNT(*)::int FROM event_regs r WHERE r.event_id=e.id) AS reg_count
        FROM events e ORDER BY starts_at DESC NULLS LAST, created_at DESC`)).rows;
     const content = await readContent();
     const me = users.find(u => u.id === req.auth.sub) || null;  // 管理員自己：供會員頁顯示姓名
-    return res.json({ role: 'admin', super: req.auth.super === true, me, bond, users, commitments, events, content, updates });
+    return res.json({ role: 'admin', super: req.auth.super === true, me, bond, users, commitments, entitlements, events, content, updates });
   }
   const me = pubUser((await q(`SELECT ${SEL_USER} FROM users WHERE id=$1`, [req.auth.sub])).rows[0]);
   if (!me) return res.status(401).json({ error: '帳號不存在，請重新登入。' });
   const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments WHERE user_id=$1 ORDER BY created_at`, [me.id])).rows);
+  const access = await memberAccessFor(me.id);
   // 會員專區：報名中的活動 + 我是否已報名（供報名/取消按鈕）
   const events = (await q(
     `SELECT ${SEL_EVENT},
        (SELECT COUNT(*)::int FROM event_regs r WHERE r.event_id=e.id) AS reg_count,
        EXISTS (SELECT 1 FROM event_regs r WHERE r.event_id=e.id AND r.user_id=$1) AS registered
      FROM events e WHERE status='報名中' ORDER BY starts_at ASC NULLS LAST`, [me.id])).rows;
-  res.json({ role: commitments.length ? 'participant' : 'invited', me, bond, users: [me], commitments, events, updates });
+  res.json({
+    role: commitments.length ? 'participant' : 'invited',
+    me, bond, users: [me], commitments, events, updates,
+    access: {
+      active: access.active,
+      entitlements: access.entitlements,
+      pending: access.pending,
+      activeEntitlements: access.activeEntitlements,
+    },
+  });
+}));
+
+app.get('/api/me/access-qr', auth, requireDb, wrap(async (req, res) => {
+  if (!ACCESS_QR_SECRET) return res.status(503).json({ error: '進出 QR 尚未開通（未設定 ACCESS_QR_SECRET）。' });
+  if (!req.auth.sub) return res.status(403).json({ error: '請以會員身分登入。' });
+  const now = new Date();
+  let ents = await persistLazyActivations(await loadEntitlements(req.auth.sub), now);
+  const pick = pickEntitlementForQr(ents, now);
+  if (!pick) return res.status(403).json({ error: '目前無法進出二三樓（無有效或待啟用權益）。', code: 'NO_ENTITLEMENT' });
+  const pending = !pick.activated_at;
+  const token = signAccessToken({
+    sub: req.auth.sub,
+    ent: pick.id,
+    plan: pick.plan,
+    floors: ['2', '3'],
+    pending_activation: pending,
+  }, ACCESS_QR_SECRET, { ttlSec: 45 });
+  const payload = verifyAccessToken(token, ACCESS_QR_SECRET);
+  res.json({
+    token,
+    exp: payload.exp,
+    pending_activation: pending,
+    plan: pick.plan,
+    entitlement_id: pick.id,
+  });
+}));
+
+app.post('/api/access/verify', wrap(async (req, res) => {
+  if (!ACCESS_QR_SECRET) return res.status(503).json({ error: '未設定 ACCESS_QR_SECRET。' });
+  const token = String((req.body && req.body.token) || '');
+  const p = verifyAccessToken(token, ACCESS_QR_SECRET);
+  if (!p) return res.status(401).json({ ok: false, error: '無效或過期的 QR。' });
+  res.json({ ok: true, claims: p });
+}));
+
+app.post('/api/access/scan', doorAuth, requireDb, wrap(async (req, res) => {
+  if (!ACCESS_QR_SECRET) return res.status(503).json({ error: '未設定 ACCESS_QR_SECRET。' });
+  const token = String((req.body && req.body.token) || '');
+  const p = verifyAccessToken(token, ACCESS_QR_SECRET);
+  if (!p) return res.status(401).json({ ok: false, error: '無效或過期的 QR。' });
+
+  const ent = rowToEnt((await q(`SELECT ${SEL_ENT} FROM entitlements WHERE id=$1`, [p.ent])).rows[0]);
+  if (!ent || ent.user_id !== p.sub)
+    return res.status(400).json({ ok: false, error: '權益不符。' });
+
+  const now = new Date();
+  // 冪等：同一 token_iat + entitlement 只記一次
+  const scanId = uid('as_');
+  const ins = await q(
+    `INSERT INTO access_scans (id,entitlement_id,user_id,token_iat,scanned_at)
+     VALUES ($1,$2,$3,$4,now())
+     ON CONFLICT (entitlement_id, token_iat) DO NOTHING
+     RETURNING id`,
+    [scanId, ent.id, ent.user_id, p.iat]
+  );
+
+  let activated = false;
+  if (!ent.activated_at && ent.plan !== 'founding') {
+    const ends = endsAtAfterActivation(ent.plan, now);
+    const upd = await q(
+      `UPDATE entitlements SET activated_at=$2, starts_at=$2, ends_at=$3
+       WHERE id=$1 AND activated_at IS NULL
+       RETURNING ${SEL_ENT}`,
+      [ent.id, now, ends]
+    );
+    activated = !!upd.rows[0];
+  }
+
+  res.json({
+    ok: true,
+    door: 'open',
+    activated,
+    duplicate: !ins.rows[0],
+    access: await memberAccessFor(ent.user_id, now),
+  });
 }));
 
 // 公開唯讀：進度、專案更新、報名中活動、首頁公告（無 PII，供未登入者瀏覽）
@@ -411,7 +614,27 @@ app.post('/api/admin/commitments/:id/confirm', auth, adminOnly, requireDb, wrap(
   const r = await q(`UPDATE commitments SET payment_status='已付款', membership_status='已啟用' WHERE id=$1 RETURNING user_id`, [req.params.id]);
   if (!r.rows[0]) return res.status(404).json({ error: '找不到參與紀錄。' });
   await q(`UPDATE users SET status='已參與' WHERE id=$1`, [r.rows[0].user_id]);
+  const c = (await q(`SELECT ${SEL_C} FROM commitments WHERE id=$1`, [req.params.id])).rows[0];
+  await ensureFoundingEntitlement(c);
   res.json({ ok: true });
+}));
+
+app.post('/api/admin/entitlements', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const userId = (req.body.user_id || '').trim();
+  const plan = req.body.plan;
+  if (!userId || !FLOOR_PLANS.includes(plan))
+    return res.status(400).json({ error: '需要 user_id 與合法 plan（day_4h／day_12h／month／quarter／year）。' });
+  const u = (await q(`SELECT id FROM users WHERE id=$1`, [userId])).rows[0];
+  if (!u) return res.status(404).json({ error: '找不到使用者。' });
+  const id = uid('en_');
+  const sourceId = req.body.source_id || id;
+  await q(
+    `INSERT INTO entitlements (id,user_id,plan,source,source_id,purchased_at)
+     VALUES ($1,$2,$3,'admin',$4,now())`,
+    [id, userId, plan, sourceId]
+  );
+  const row = rowToEnt((await q(`SELECT ${SEL_ENT} FROM entitlements WHERE id=$1`, [id])).rows[0]);
+  res.json({ entitlement: row });
 }));
 
 app.post('/api/admin/updates', auth, adminOnly, requireDb, wrap(async (req, res) => {
