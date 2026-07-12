@@ -83,6 +83,9 @@
 </main>
 <div class="a-toast" id="toast"></div>
 
+<script src="/vendor/html-to-image.js"></script>
+<script src="/menu-data.js"></script>
+<script src="/ig-studio.js"></script>
 <script>
 'use strict';
 const KEY = 'tth_token';
@@ -308,6 +311,7 @@ const TABS = [
   { id:'events',      label:'活動',     render:tabEvents },
   { id:'updates',     label:'最新消息', render:tabUpdates },
   { id:'content',     label:'網站內容', render:tabContent },
+  { id:'ig',          label:'IG 貼文',  render:()=>`<div class="a-sec"><h2>IG 貼文產生器</h2><p class="hint">填資訊、上傳照片，即時預覽並下載可直接發布的 IG 貼文圖片（方形／直式）。</p><div id="ig-studio"></div></div>` },
   { id:'admins',      label:'管理員',   render:tabAdmins, super:true },
 ];
 
@@ -398,6 +402,10 @@ function bind(d, x){
 
   // 管理員
   document.querySelectorAll('[data-admin]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/users/'+b.dataset.admin+'/admin',{method:'POST',body:{admin:b.dataset.on==='1'}}),'已更新管理權限'));
+
+  // IG 貼文產生器（掛載一次）
+  const igHost = document.getElementById('ig-studio');
+  if (igHost && window.IGStudio && !igHost.dataset.mounted){ igHost.dataset.mounted='1'; window.IGStudio.mount(igHost); }
 }
 
 function resetEventForm(){
