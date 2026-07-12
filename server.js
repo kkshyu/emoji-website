@@ -296,21 +296,23 @@ app.get('/auth/google/callback', wrap(async (req, res) => {
   if (!pool || !dbReady) return res.status(503).send('資料庫尚未就緒，請稍後再試。');
   // upsert：以已驗證 email 為鍵（Google 保證 email_verified 時為本人所有）
   const email = String(info.email).toLowerCase();
-  let u = (await q(`SELECT id FROM users WHERE lower(email)=$1 LIMIT 1`, [email])).rows[0];
+  let u = (await q(`SELECT id, name FROM users WHERE lower(email)=$1 LIMIT 1`, [email])).rows[0];
   if (!u) {
     const id = uid('u_');
+    const name = info.name || info.email;
     await q(`INSERT INTO users (id,name,email,status,created_at) VALUES ($1,$2,$3,'已查看',now())`,
-      [id, info.name || info.email, info.email]);
-    u = { id };
+      [id, name, info.email]);
+    u = { id, name };
   } else if (info.name) {
     await q(`UPDATE users SET name=$2 WHERE id=$1 AND (name IS NULL OR name='')`, [u.id, info.name]);
+    if (!u.name) u.name = info.name;
   }
   // 管理權限：超管以 email 認定；其餘管理員讀 users.is_admin（由超管指派）
   const isSuper = email === SUPER_ADMIN_EMAIL;
   const isAdmin = isSuper || (await q(`SELECT is_admin FROM users WHERE id=$1`, [u.id])).rows[0]?.is_admin === true;
   const n = (await q(`SELECT COUNT(*)::int AS n FROM commitments WHERE user_id=$1`, [u.id])).rows[0].n;
   const role = isAdmin ? 'admin' : (n > 0 ? 'participant' : 'invited');
-  const token = signToken({ role, sub: u.id, super: isSuper });
+  const token = signToken({ role, sub: u.id, super: isSuper, name: u.name || info.name || '' });
   // token 以 URL fragment 帶回官網（不進伺服器存取記錄）；官網讀取後即從網址移除
   const sep = redirect.includes('#') ? '&' : '#';
   res.redirect(redirect + sep + 'token=' + encodeURIComponent(token));

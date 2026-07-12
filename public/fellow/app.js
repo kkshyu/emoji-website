@@ -76,7 +76,7 @@ let SESSION = null; // {role, userId}
 
 const getToken = () => localStorage.getItem(TOKEN_KEY) || '';
 const setToken = t => { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} };
-const clearToken = () => { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} };
+const clearToken = () => { try { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem('tth_name'); } catch (e) {} };
 
 async function api(path, { method = 'GET', body } = {}) {
   const res = await fetch('/api' + path, {
@@ -94,6 +94,7 @@ async function fetchState() {
   const s = await api('/state');
   DB = { bond: s.bond, users: s.users || [], commitments: s.commitments || [], payments: s.payments || [], updates: s.updates || [] };
   SESSION = { role: s.role, userId: s.me ? s.me.id : null };
+  if (s.me && s.me.name) try { localStorage.setItem('tth_name', s.me.name); } catch (e) {}
 }
 async function refresh() { await fetchState(); renderProgress(); applyRole(); }
 

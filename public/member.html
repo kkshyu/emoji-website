@@ -155,8 +155,9 @@
       <div class="m-actions">
         <button class="btn btn--ghost" id="logout">登出</button>
       </div>`;
+    if (me.name) try { localStorage.setItem('tth_name', me.name); } catch (e) {}
     document.getElementById('logout').onclick = () => {
-      localStorage.removeItem(KEY); location.reload();
+      localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); location.reload();
     };
     card.querySelectorAll('[data-reg]').forEach(b => b.onclick = () => regEvent(b.dataset.reg, 'POST', b));
     card.querySelectorAll('[data-unreg]').forEach(b => b.onclick = () => regEvent(b.dataset.unreg, 'DELETE', b));
@@ -178,7 +179,7 @@
     if (!token) return renderLoggedOut();
     try {
       const r = await fetch(FELLOW + '/api/state', { headers: { authorization: 'Bearer ' + token } });
-      if (r.status === 401) { localStorage.removeItem(KEY); return renderLoggedOut(); }
+      if (r.status === 401) { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); return renderLoggedOut(); }
       if (!r.ok) throw new Error('state ' + r.status);
       renderMember(await r.json());
     } catch (e) {

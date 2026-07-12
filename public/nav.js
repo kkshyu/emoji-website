@@ -1,10 +1,51 @@
-/* 全站共用導覽列行為：滾動陰影、手機漢堡選單、下拉 Esc 收合。
+/* 全站共用導覽列行為：滾動陰影、手機漢堡選單、下拉 Esc 收合、登入態文案。
    桌機下拉以 CSS hover/focus-within 處理，本檔僅補行為層。零相依。 */
 (function () {
   'use strict';
   var nav = document.getElementById('nav');
   var toggle = document.getElementById('navToggle');
   var links = document.getElementById('navLinks');
+
+  // 已登入時導覽列顯示會員名稱（token payload / 快取 / /api/state）
+  var member = document.getElementById('navMember');
+  if (member) {
+    try {
+      var token = localStorage.getItem('tth_token');
+      if (token) {
+        var show = function (name) {
+          if (!name) return;
+          try { localStorage.setItem('tth_name', name); } catch (e) {}
+          member.textContent = name;
+        };
+        var fromTok = (function () {
+          try {
+            var b64 = token.split('.')[0].replace(/-/g, '+').replace(/_/g, '/');
+            while (b64.length % 4) b64 += '=';
+            var bin = atob(b64), bytes = new Uint8Array(bin.length);
+            for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            var p = JSON.parse(new TextDecoder().decode(bytes));
+            return (p && p.name) || '';
+          } catch (e) { return ''; }
+        })();
+        var cached = localStorage.getItem('tth_name') || '';
+        if (fromTok || cached) {
+          show(fromTok || cached);
+        } else {
+          member.textContent = member.getAttribute('data-label-authed') || member.textContent;
+          fetch('/api/state', { headers: { authorization: 'Bearer ' + token } })
+            .then(function (r) {
+              if (r.status === 401) {
+                try { localStorage.removeItem('tth_token'); localStorage.removeItem('tth_name'); } catch (e) {}
+                return null;
+              }
+              return r.ok ? r.json() : null;
+            })
+            .then(function (d) { if (d && d.me && d.me.name) show(d.me.name); })
+            .catch(function () {});
+        }
+      }
+    } catch (e) { /* private mode 等略過 */ }
+  }
 
   if (nav) {
     addEventListener('scroll', function () {

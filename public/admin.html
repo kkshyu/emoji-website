@@ -119,7 +119,7 @@ async function api(path, { method='GET', body } = {}) {
   return d;
 }
 
-logoutBtn.onclick = () => { localStorage.removeItem(KEY); location.reload(); };
+logoutBtn.onclick = () => { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); location.reload(); };
 
 function renderLogin(msg){
   logoutBtn.style.display='none';
@@ -320,6 +320,7 @@ const TABS = [
 
 function render(d){
   DATA = d;
+  if (d.me && d.me.name) try { localStorage.setItem('tth_name', d.me.name); } catch (e) {}
   logoutBtn.style.display='';
   const x = derived(d);
   const tabs = TABS.filter(t => !t.super || d.super);
@@ -346,6 +347,10 @@ function bindNav(){
     TAB=b.dataset.tab;
     document.querySelectorAll('[data-tab]').forEach(n=>n.classList.toggle('on',n.dataset.tab===TAB));
     document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('on',p.dataset.panel===TAB));
+    // IG 分頁原先在 display:none 時掛載會得到負／零縮放；切入後重算預覽尺寸
+    if (TAB === 'ig' && window.IGStudio && typeof window.IGStudio.resize === 'function') {
+      requestAnimationFrame(() => window.IGStudio.resize());
+    }
   });
 }
 
@@ -452,7 +457,7 @@ async function main(){
     if (d.role !== 'admin') return renderLogin('此 Google 帳號沒有管理員權限。請以超管或已授權的管理員帳號登入。');
     render(d);
   } catch(e){
-    if (String(e.message).includes('登入') || String(e.message).includes('401')) { localStorage.removeItem(KEY); return renderLogin(); }
+    if (String(e.message).includes('登入') || String(e.message).includes('401')) { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); return renderLogin(); }
     app.innerHTML = `<p class="a-center">暫時無法連線：${esc(e.message)}<br><button class="btn btn--ghost btn-sm" style="margin-top:1rem" onclick="location.reload()">重新整理</button></p>`;
   }
 }
