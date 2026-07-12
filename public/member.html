@@ -215,6 +215,19 @@
       tempFail: '暫時無法連線，請稍後再試。',
       sysFail: '暫時無法連線會員系統，請稍後再試。',
       reload: '重新整理',
+      nextEvent: '下一場活動',
+      viewEvent: '查看活動',
+      statusLabel: '目前狀態',
+      statusActive: (plan) => `${plan}進行中`,
+      statusPending: '待首次進場啟用',
+      statusExpired: '會籍已到期',
+      statusNone: '尚未有會籍',
+      plansFallback: '權益',
+      renewUpgrade: '續訂／升級',
+      buyMembership: '購買會籍',
+      planDetails: '方案說明',
+      planSoon: '即將開放，請洽現場',
+      daysLeft: (n) => `還有 ${n} 天`,
       locale: 'zh-TW',
     },
     en: {
@@ -299,6 +312,19 @@
       tempFail: 'Temporarily unavailable. Please try again.',
       sysFail: 'Could not reach the member system. Please try again.',
       reload: 'Reload',
+      nextEvent: 'Next event',
+      viewEvent: 'View event',
+      statusLabel: 'Current status',
+      statusActive: (plan) => `${plan} active`,
+      statusPending: 'Activates on first entry',
+      statusExpired: 'Membership expired',
+      statusNone: 'No membership yet',
+      plansFallback: 'Plan',
+      renewUpgrade: 'Renew / upgrade',
+      buyMembership: 'Buy membership',
+      planDetails: 'Plan details',
+      planSoon: 'Coming soon — ask on-site',
+      daysLeft: (n) => `${n} days left`,
       locale: 'en-US',
     },
     ja: {
@@ -383,6 +409,19 @@
       tempFail: '一時的に利用できません。しばらくしてから再度お試しください。',
       sysFail: '会員システムに接続できません。しばらくしてから再度お試しください。',
       reload: '再読み込み',
+      nextEvent: '次のイベント',
+      viewEvent: 'イベントを見る',
+      statusLabel: '現在のステータス',
+      statusActive: (plan) => `${plan}利用中`,
+      statusPending: '初回入場で有効化',
+      statusExpired: '会籍期限切れ',
+      statusNone: 'まだ会籍がありません',
+      plansFallback: 'プラン',
+      renewUpgrade: '更新／アップグレード',
+      buyMembership: '会籍を購入',
+      planDetails: 'プラン詳細',
+      planSoon: '近日公開・現地にてご確認ください',
+      daysLeft: (n) => `残り${n}日`,
       locale: 'ja-JP',
     },
   };
@@ -434,6 +473,124 @@
   }
 
   const QR_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 17h3v4h-4v-3h4M18 14h3v3"></path></svg>';
+
+  // sync with lib/member-ui.js
+  const EXPIRING_WITHIN_DAYS = 30;
+  function parseTime(v) {
+    if (!v) return null;
+    const d = new Date(v);
+    return Number.isNaN(+d) ? null : d;
+  }
+  function pickNextEvent(events, now = new Date()) {
+    const list = Array.isArray(events) ? events : [];
+    const upcoming = list
+      .map((e) => ({ e, t: parseTime(e.starts_at) }))
+      .filter((x) => x.t && x.t > now)
+      .sort((a, b) => a.t - b.t);
+    const registered = upcoming.find((x) => x.e.registered);
+    if (registered) return registered.e;
+    return upcoming.length ? upcoming[0].e : null;
+  }
+  function expiringPointsSummary(lots, now = new Date(), withinDays = EXPIRING_WITHIN_DAYS) {
+    const horizon = new Date(+now + withinDays * 86400000);
+    const hits = (Array.isArray(lots) ? lots : [])
+      .filter((l) => l && l.available !== false)
+      .map((l) => ({ rem: Number(l.remaining) || 0, exp: parseTime(l.expires_at) }))
+      .filter((x) => x.rem > 0 && x.exp && x.exp > now && x.exp <= horizon);
+    if (!hits.length) return null;
+    const points = hits.reduce((s, x) => s + x.rem, 0);
+    const soonest = hits.map((x) => x.exp).sort((a, b) => a - b)[0];
+    return { points, soonest: soonest.toISOString() };
+  }
+  /** @param {{ active: boolean, planLabel: string, pending: boolean, hadEntitlement: boolean }} s */
+  function membershipStatusTitle(s, T) {
+    if (s.active) return T.statusActive(s.planLabel || T.plansFallback || '');
+    if (s.pending) return T.statusPending;
+    if (s.hadEntitlement) return T.statusExpired;
+    return T.statusNone;
+  }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    return d.toLocaleDateString(T.locale, {
+      timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+  }
+
+  function renderNotice(events) {
+    const ev = pickNextEvent(events);
+    if (!ev) return '';
+    return `<section class="m-notice" aria-label="${esc(T.nextEvent)}">
+      <div>
+        <div class="m-eyebrow" style="letter-spacing:.14em">${esc(T.nextEvent)}</div>
+        <div style="font-family:var(--serif);font-size:1.05rem;font-weight:600;margin-top:2px">${esc(ev.title)}</div>
+        <div class="m-note" style="margin:2px 0 0">${esc(ev.starts_at || T.timeTbd)}${ev.location ? ' · ' + esc(ev.location) : ''}${ev.registered ? ' · ' + esc(T.registered) : ''}</div>
+      </div>
+      <a class="btn btn--solid" href="#m-events" style="padding:.55em 1em;font-size:.82rem">${esc(T.viewEvent)}</a>
+    </section>`;
+  }
+
+  function renderStatus(data) {
+    const access = data.access || {};
+    const activeEntitlements = Array.isArray(access.activeEntitlements) ? access.activeEntitlements : [];
+    const pending = Array.isArray(access.pending) ? access.pending : [];
+    const entitlements = Array.isArray(access.entitlements) ? access.entitlements : [];
+    const c = (data.commitments || [])[0];
+    const active = !!access.active;
+    const primaryEnt = activeEntitlements[0] || pending[0] || null;
+    const planLabel = primaryEnt ? planName(primaryEnt.plan) : (c ? planName('founding') : '');
+    const hadEntitlement = entitlements.length > 0 || !!c;
+    const title = membershipStatusTitle({ active, planLabel, pending: pending.length > 0, hadEntitlement }, T);
+
+    let startsAt = null, endsAt = null;
+    if (activeEntitlements[0] && activeEntitlements[0].starts_at && activeEntitlements[0].ends_at) {
+      startsAt = parseTime(activeEntitlements[0].starts_at);
+      endsAt = parseTime(activeEntitlements[0].ends_at);
+    } else if (c && c.start_date && c.maturity_date) {
+      startsAt = parseTime(c.start_date);
+      endsAt = parseTime(c.maturity_date);
+    }
+
+    const now = new Date();
+    let progressHtml = '';
+    let leftMeta = '';
+    if (startsAt && endsAt && endsAt > startsAt) {
+      const pct = Math.min(100, Math.max(0, ((now - startsAt) / (endsAt - startsAt)) * 100));
+      const daysLeft = Math.max(0, Math.ceil((endsAt - now) / 86400000));
+      progressHtml = `<div class="m-progress"><i style="width:${pct.toFixed(1)}%"></i></div>`;
+      leftMeta = daysLeft > 0 ? T.daysLeft(daysLeft) : T.statusExpired;
+    } else if (pending.length) {
+      leftMeta = T.pendingActivate;
+    }
+
+    const periodText = startsAt && endsAt ? `${fmtDate(startsAt)} – ${fmtDate(endsAt)}` : '';
+    const rightMeta = [planLabel, periodText].filter(Boolean).join(' · ');
+    const metaHtml = (leftMeta || rightMeta)
+      ? `<div class="m-meta"><span>${esc(leftMeta)}</span><span>${esc(rightMeta)}</span></div>`
+      : '';
+
+    const certLine = c && c.cert_no ? ` · No. ${esc(c.cert_no)}` : '';
+    const primaryLabel = (!active && !pending.length && !hadEntitlement) ? T.buyMembership : T.renewUpgrade;
+
+    const plansDrawerRows = ['founding', 'day_4h', 'day_12h', 'month', 'quarter', 'year'].map((id) => {
+      if (id === 'founding') {
+        return `<div class="m-row"><b>${esc(T.plans.founding)}</b><span><a href="${FELLOW_PATH}" style="text-decoration:underline;text-underline-offset:3px">${esc(T.joinFounder)}</a></span></div>`;
+      }
+      return `<div class="m-row"><b>${esc(T.plans[id])}</b><span class="m-note" style="margin:0">${esc(T.planSoon)}</span></div>`;
+    }).join('');
+
+    return `<section class="m-panel" aria-label="${esc(T.statusLabel)}">
+      <div class="m-eyebrow">${esc(T.statusLabel)}${certLine}</div>
+      <div style="font-family:var(--serif);font-size:1.2rem;font-weight:600;margin:.2em 0 .7em">${esc(title)}</div>
+      ${progressHtml}
+      ${metaHtml}
+      <div class="m-btn-row">
+        <a class="btn btn--solid" href="${FELLOW_PATH}">${esc(primaryLabel)}</a>
+        <button type="button" class="btn btn--ghost" id="m-plans-toggle">${esc(T.planDetails)}</button>
+      </div>
+      <div class="m-drawer" id="m-plans-drawer" hidden>${plansDrawerRows}</div>
+    </section>`;
+  }
 
   function renderAccessChip(data) {
     const access = data.access || {};
@@ -575,22 +732,17 @@
       </div>`;
   }
 
+  function renderFoundingLine(c) {
+    if (c) {
+      return `<p class="m-quiet">${esc(T.badgeName)}${c.cert_no ? ' · No. ' + esc(c.cert_no) : ''}</p>`;
+    }
+    return `<p class="m-quiet">${esc(T.notFounder)}
+      <a href="${FELLOW_PATH}" style="text-decoration:underline;text-underline-offset:3px">${esc(T.joinFounder)}</a></p>`;
+  }
+
   function renderMember(data) {
     const me = data.me || {};
     const c = (data.commitments || [])[0];
-    const badge = c
-      ? `<div class="m-badge" title="${T.badgeTitle}">
-           <span class="m-seal">創</span>
-           <span class="m-bt"><b>${T.badgeName}</b> Founding Member<small>${esc(c.cert_no || '')}${c.membership_status ? '　·　' + esc(c.membership_status) : ''}</small></span>
-         </div>`
-      : '';
-    const membership = c
-      ? `<div class="m-row"><b>${T.memStatus}</b><span>${esc(c.membership_status || '—')}</span></div>
-         <div class="m-row"><b>${T.memNo}</b><span>${esc(c.cert_no || '—')}</span></div>
-         <div class="m-row"><b>${T.memPeriod}</b><span>${esc(c.start_date)} – ${esc(c.maturity_date)}</span></div>`
-      : `<div class="m-row"><b>${T.memStatus}</b><span>${T.notJoined}</span></div>
-         <div class="m-empty">${T.notFounder}
-           <a href="${FELLOW_PATH}" style="text-decoration:underline;text-underline-offset:3px">${T.joinFounder}</a></div>`;
 
     const updates = (data.updates || []).map(u => `
       <div class="m-upd"><h4>${esc(u.title)}</h4><time>${esc(u.published_at)}｜${esc(u.type)}</time>
@@ -620,13 +772,18 @@
         ${renderAccessChip(data)}
       </div>
       ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin">${T.goAdmin}</a></div>` : ''}
-      ${badge}
+      ${renderNotice(data.events)}
+      ${renderStatus(data)}
       ${renderPoints(data)}
-      <div>${membership}</div>
-      <h3 class="m-sec-title">${T.eventsTitle}</h3>
-      <div>${events}</div>
-      <h3 class="m-sec-title">${T.updatesTitle}</h3>
-      <div>${updates}</div>
+      <div class="m-quiet" id="m-events">
+        <h3 class="m-sec-title">${T.eventsTitle}</h3>
+        <div>${events}</div>
+      </div>
+      <div class="m-quiet">
+        <h3 class="m-sec-title">${T.updatesTitle}</h3>
+        <div>${updates}</div>
+      </div>
+      ${renderFoundingLine(c)}
       <div class="m-actions">
         <button class="btn btn--ghost" id="logout">${T.logout}</button>
       </div>`;
@@ -644,6 +801,9 @@
       if (chip.dataset.blocked === '1') { showToast(T.needPlan); return; }
       openQrOverlay();
     };
+    const plansToggle = document.getElementById('m-plans-toggle');
+    const plansDrawer = document.getElementById('m-plans-drawer');
+    if (plansToggle && plansDrawer) plansToggle.onclick = () => { plansDrawer.hidden = !plansDrawer.hidden; };
     if (qrOverlayEl && !qrOverlayEl.hidden) startQrRefresh(true);
   }
 
