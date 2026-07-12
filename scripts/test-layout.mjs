@@ -195,11 +195,33 @@ test('system zh page structure', () => {
   assert.match(html, /href="\/partner"/);
   assert.match(html, /href="\/space"/);
   assert.match(html, /NT\$\s*4,000|NT\$4,000/);
-  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜/i);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|共居|居住|入住/i);
 });
 
 test('resolvePublicHtml resolves system zh', () => {
   assert.ok(resolvePublicHtml(PUB, '/system').endsWith('system.html'));
+});
+
+test('system en page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'en', 'system.html'), 'utf8');
+  assert.match(html, /lang="en"/);
+  assert.match(html, /id="membership"/);
+  assert.match(html, /href="\/en\/fellow"/);
+  assert.match(html, /href="\/en\/partner"/);
+  assert.match(html, /href="\/en\/space"/);
+  assert.match(html, /canonical" href="https:\/\/www\.emoji\.tw\/en\/system"/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|共居|居住|入住/i);
+});
+
+test('system ja page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'ja', 'system.html'), 'utf8');
+  assert.match(html, /lang="ja"/);
+  assert.match(html, /id="membership"/);
+  assert.match(html, /href="\/ja\/fellow"/);
+  assert.match(html, /href="\/ja\/partner"/);
+  assert.match(html, /href="\/ja\/space"/);
+  assert.match(html, /canonical" href="https:\/\/www\.emoji\.tw\/ja\/system"/);
+  assert.doesNotMatch(html, /旅館|hotel|宿泊|ホテル|過夜|共居|居住|入住/i);
 });
 
 test('about en page structure', () => {
