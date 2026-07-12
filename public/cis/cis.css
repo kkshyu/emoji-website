@@ -216,7 +216,7 @@
 .cis-logo-card--ink img{
   max-width:42%;
   max-height:220px;
-  filter:brightness(0) invert(1);
+  /* reverse SVG 已是紙色；勿再 invert */
 }
 .cis-logo-card figcaption{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center}
 .cis-logo-card--ink figcaption{color:var(--on-ink-soft)}
@@ -357,7 +357,7 @@
   background:var(--ink-surface);
   border-bottom-color:transparent;
 }
-.cis-dl__preview--ink img{filter:brightness(0) invert(1);max-height:120px;max-width:36%}
+.cis-dl__preview--ink img{max-height:120px;max-width:36%}
 .cis-dl__preview--wide img{max-width:94%;max-height:120px}
 .cis-dl__meta{padding:16px 18px 18px}
 .cis-dl__meta b{display:block;font-family:var(--serif);font-size:1.02rem;letter-spacing:.04em;margin-bottom:4px}
