@@ -57,51 +57,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <link rel="stylesheet" href="/nav.css">
+<link rel="stylesheet" href="/space-dir.css">
 <script defer src="/nav.js"></script>
-<!-- Markdown Parser -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<!-- Menu Rendering Library -->
 <script src="/menu-lib.js"></script>
+<script src="/space-dir.js"></script>
 <style>
-  /* ja 版：日本語グリフのため JP フォントを優先 */
-  :root{
-    --serif:"Noto Serif JP","Noto Serif TC",serif;
-    --latin:"Cormorant Garamond","Noto Serif JP",serif;
-    --sans:"Noto Sans JP","Noto Sans TC",system-ui,-apple-system,sans-serif;
-  }
-
-  .space-hero { padding: 80px 0 60px; text-align: center; border-bottom: 1px solid var(--line); }
+  .space-hero { padding: 80px 0 48px; text-align: center; border-bottom: 1px solid var(--line); }
   .space-hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; margin-bottom: 20px; }
   .space-hero .eyebrow { margin-bottom: 16px; }
-
+  .space-hero .lede { max-width: 36rem; margin: 0 auto; color: var(--ink-soft); font-size: 1.08rem; line-height: 1.8; }
   .hero-media { max-width: 960px; margin: 40px auto 0; }
   .hero-media img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 6px; background: var(--paper); box-sizing: border-box; }
   .hero-media[hidden] { display: none; }
-
-  .floor-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; padding: 28px 0 56px; }
-  .floor-nav a { font-size: .78rem; letter-spacing: .06em; color: var(--muted); text-decoration: none; padding: 7px 16px; border: 1px solid var(--line); border-radius: var(--radius-sm); transition: color .2s, background .2s, border-color .2s; }
-  .floor-nav a:hover, .floor-nav a:focus-visible { color: var(--ink); background: var(--paper-alt); border-color: var(--ink); }
-
-  .floor-section { padding: 80px 0; border-bottom: 1px solid var(--line); }
-  .floor-section:nth-child(even) { background-color: var(--paper-alt); }
-  .floor-header { margin-bottom: 40px; }
-  .floor-num { font-family: var(--latin); font-size: 4rem; color: var(--ink); line-height: 1; font-weight: 600; opacity: .88; margin-bottom: 10px; }
-  .floor-title { font-size: 2rem; margin-bottom: 10px; }
-
-  .floor-media { max-width: 800px; margin: 0 0 32px; }
   .floor-media img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 6px; background: var(--paper); box-sizing: border-box; }
-  .floor-media[hidden] { display: none; }
-
-  .md-content { max-width: 800px; line-height: 1.8; color: var(--ink-soft); font-size: 1.1rem; }
+  .md-content { line-height: 1.8; color: var(--ink-soft); font-size: 1.08rem; }
   .md-content h2, .md-content h3 { color: var(--ink); margin-top: 1.5em; margin-bottom: 0.5em; }
   .md-content p { margin-bottom: 1em; }
   .md-content ul, .md-content ol { margin-bottom: 1em; padding-left: 20px; }
   .md-content li { margin-bottom: 0.5em; }
-
-  /* 菜單共用樣式 (来自 menu/index.html) */
-  .menu-body { padding: 80px 0; background: var(--paper); border-bottom: 1px solid var(--line); }
-  .menu-empty { padding: 40px 24px; text-align: center; color: var(--muted); font-family: var(--serif); font-size: 1.3rem; }
-  .menu-group { margin-bottom: 52px; max-width: 800px; }
+  .menu-empty { padding: 24px 0; text-align: center; color: var(--muted); font-family: var(--serif); font-size: 1.2rem; }
+  .menu-group { margin-bottom: 52px; }
   .menu-group__head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1.5px solid var(--ink); }
   .menu-group__zh { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; letter-spacing: .04em; }
   .menu-group__en { font-family: var(--latin); font-size: .9rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
@@ -115,9 +91,7 @@
   .menu-item__price { flex: 0 0 auto; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .menu-item__price .now { font-family: var(--latin); font-size: 1.12rem; font-weight: 600; color: var(--ink); }
   .menu-item__price .orig { display: block; margin-top: 2px; font-size: .78rem; color: var(--muted); }
-  .menu-item__price .orig s { text-decoration-color: var(--muted); }
-  .menu-notice { margin-top: 8px; padding: 16px 20px; background: var(--paper-alt); border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: .86rem; color: var(--ink-soft); font-weight: 400; max-width: 800px; }
-
+  .menu-notice { margin-top: 8px; padding: 16px 20px; background: var(--paper-alt); border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: .86rem; color: var(--ink-soft); }
   @media(max-width: 640px) {
     .menu-item__en { display: block; margin-left: 0; margin-top: 2px; }
   }
@@ -133,92 +107,32 @@
   <section class="space-hero">
     <div class="wrap">
       <span class="eyebrow reveal">Taiwan Talent Hub</span>
-      <h1 class="reveal">4フロアからなる<em class="swash">リアルな拠点</em>。</h1>
-      <p class="md-content" style="margin:0 auto">台湾でもっとも人材密度の高い拠点をつくり、普段は出会えない人どうしが、台北駅のそばで出会えるように。</p>
+      <h1 class="reveal">四層の<em class="swash">リアルな拠点</em></h1>
+      <p class="lede reveal">台湾で最も人材密度の高いハブ。普段は出会えない人と、台北駅のそばで出会う。</p>
       <figure class="hero-media" id="media-hero" hidden>
-        <img src="" alt="台湾タレントハブの外観">
+        <img src="" alt="言文字｜台湾タレントハブ 外観">
       </figure>
     </div>
   </section>
 
-  <nav class="floor-nav" aria-label="フロアナビゲーション">
-    <a href="#f1">1F</a>
-    <a href="#menu">メニュー</a>
-    <a href="#f2">2F</a>
-    <a href="#f3">3F</a>
-    <a href="#f4">4F</a>
-  </nav>
-
-  <!-- 1F -->
-  <section class="floor-section" id="f1">
-    <div class="wrap">
-      <div class="floor-header">
-        <div class="floor-num">1F</div>
-        <h2 class="floor-title serif">Emoji · Café &amp; Bar</h2>
-      </div>
-      <figure class="floor-media" id="media-1f" hidden>
-        <img src="" alt="1F Emoji Café &amp; Bar">
-      </figure>
-      <div class="md-content" id="render-1f">
-        <p class="menu-empty">読み込み中…</p>
-      </div>
-    </div>
+  <section class="space-dir" id="directory" aria-label="フロア図">
+    <div id="space-dir-root"></div>
   </section>
 
-  <!-- Menu -->
-  <section class="menu-body" id="menu">
-    <div class="wrap">
-      <h2 class="serif" style="margin-bottom: 30px; font-size: 2rem;">フード＆ドリンク メニュー</h2>
-      <div id="render-menu">
-        <p class="menu-empty">読み込み中…</p>
+  <section class="space-panel wrap" id="floor-detail" hidden>
+    <div class="space-panel__inner">
+      <div class="space-panel__head">
+        <span class="space-panel__no" data-panel-no>1F</span>
+        <h2 class="space-panel__title" data-panel-title>Emoji · Café &amp; Bar</h2>
+        <button type="button" class="space-panel__close" data-space-close>閉じる</button>
       </div>
-    </div>
-  </section>
-
-  <!-- 2F -->
-  <section class="floor-section" id="f2">
-    <div class="wrap">
-      <div class="floor-header">
-        <div class="floor-num">2F</div>
-        <h2 class="floor-title serif">メンバープラザ</h2>
-      </div>
-      <figure class="floor-media" id="media-2f" hidden>
-        <img src="" alt="2F Member Plaza">
+      <figure class="floor-media" data-panel-media hidden>
+        <img src="" alt="">
       </figure>
-      <div class="md-content" id="render-2f">
-        <p class="menu-empty">読み込み中…</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 3F -->
-  <section class="floor-section" id="f3">
-    <div class="wrap">
-      <div class="floor-header">
-        <div class="floor-num">3F</div>
-        <h2 class="floor-title serif">タレントラウンジ</h2>
-      </div>
-      <figure class="floor-media" id="media-3f" hidden>
-        <img src="" alt="3F Talent Lounge">
-      </figure>
-      <div class="md-content" id="render-3f">
-        <p class="menu-empty">読み込み中…</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4F -->
-  <section class="floor-section" id="f4">
-    <div class="wrap">
-      <div class="floor-header">
-        <div class="floor-num">4F</div>
-        <h2 class="floor-title serif">サポートフロア</h2>
-      </div>
-      <figure class="floor-media" id="media-4f" hidden>
-        <img src="" alt="4F サポートフロア">
-      </figure>
-      <div class="md-content" id="render-4f">
-        <p class="menu-empty">読み込み中…</p>
+      <div class="md-content" data-panel-md></div>
+      <div class="space-panel__menu" data-panel-menu hidden>
+        <h3 class="space-panel__menu-title" data-panel-menu-title>メニュー Menu</h3>
+        <div data-panel-menu-body></div>
       </div>
     </div>
   </section>
@@ -229,49 +143,28 @@
 
 <script>
 (function() {
-  var htmlLang = (document.documentElement.getAttribute('lang') || 'ja').toLowerCase();
-  var LANG = htmlLang.indexOf('en') === 0 ? 'en' : (htmlLang.indexOf('zh') === 0 ? 'zh' : 'ja');
-  var FLOORS = [1, 2, 3, 4];
-  var PENDING_TEXT = '準備中です。';
-  var FAIL_TEXT = 'データを読み込めませんでした。';
+  var htmlLang = (document.documentElement.getAttribute('lang') || 'zh').toLowerCase();
+  var LANG = htmlLang.indexOf('en') === 0 ? 'en' : (htmlLang.indexOf('ja') === 0 ? 'ja' : 'zh');
+  var FAIL_TEXT = { zh: '無法載入資料。', en: 'Could not load content.', ja: '読み込めませんでした。' }[LANG];
+  var EMPTY_MENU = { zh: '目前尚未提供菜單資料。', en: 'Menu coming soon.', ja: 'メニュー準備中。' }[LANG];
+  var ORIG_LABEL = { zh: '原價', en: 'Was', ja: '定価' }[LANG];
 
   var CAT_LABEL = {
-    COFFEE: { zh: 'コーヒー', en: 'Coffee' },
-    BEVERAGE: { zh: 'ドリンク', en: 'Beverage' },
-    ALCOHOL: { zh: 'アルコール', en: 'Alcohol' },
-    FOOD: { zh: 'フード', en: 'Food' },
-    SNACK: { zh: 'スナック', en: 'Snack' },
+    COFFEE: { zh: '咖啡', en: 'Coffee', ja: 'コーヒー' },
+    BEVERAGE: { zh: '飲品', en: 'Beverage', ja: 'ドリンク' },
+    ALCOHOL: { zh: '酒精飲品', en: 'Alcohol', ja: 'アルコール' },
+    FOOD: { zh: '餐點', en: 'Food', ja: 'フード' },
+    SNACK: { zh: '點心', en: 'Snack', ja: 'おやつ' },
   };
   var esc = function (s) {
     return (s == null ? '' : String(s)).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
     });
   };
-  var money = function (n) { return 'NT$' + Number(n || 0).toLocaleString('ja-JP'); };
+  var money = function (n) { return 'NT$' + Number(n || 0).toLocaleString('zh-TW'); };
 
-  function renderMenuItem(item) {
-    var showOrig = item.emo > 0 && item.emo !== item.price;
-    var priceHtml = showOrig
-      ? '<span class="now">' + money(item.emo) + '</span><span class="orig">定価 <s>' + money(item.price) + '</s></span>'
-      : '<span class="now">' + money(item.price) + '</span>';
-    return (
-      '<li class="menu-item">' +
-        '<div class="menu-item__names">' +
-          '<span class="menu-item__zh">' + esc(item.zh) + '</span>' +
-          (item.en ? '<span class="menu-item__en">' + esc(item.en) + '</span>' : '') +
-          (item.note ? '<div class="menu-item__note">' + esc(item.note) + '</div>' : '') +
-        '</div>' +
-        '<div class="menu-item__price">' + priceHtml + '</div>' +
-      '</li>'
-    );
-  }
-
-  function renderMenu(items) {
-    var root = document.getElementById('render-menu');
-    if (!items || !items.length) {
-      root.innerHTML = '<p class="menu-empty">現在、メニュー情報を準備中です。</p>';
-      return;
-    }
+  function menuHtml(items) {
+    if (!items || !items.length) return '<p class="menu-empty">' + EMPTY_MENU + '</p>';
     var hasAlcohol = items.some(function (it) { return it.alcohol; });
     var byCat = {};
     var order = [];
@@ -280,69 +173,70 @@
       byCat[it.cat].push(it);
     });
     var html = order.map(function (cat) {
-      var label = CAT_LABEL[cat] || { zh: cat, en: '' };
+      var label = CAT_LABEL[cat] || { zh: cat, en: '', ja: cat };
+      var title = LANG === 'en' ? label.en : (LANG === 'ja' ? label.ja : label.zh);
+      var sub = LANG === 'zh' ? label.en : '';
       return (
         '<section class="menu-group">' +
           '<div class="menu-group__head">' +
-            '<h3 class="menu-group__zh">' + esc(label.zh) + '</h3>' +
-            '<span class="menu-group__en">' + esc(label.en) + '</span>' +
+            '<h3 class="menu-group__zh">' + esc(title) + '</h3>' +
+            (sub ? '<span class="menu-group__en">' + esc(sub) + '</span>' : '') +
           '</div>' +
-          '<ul class="menu-list">' + byCat[cat].map(renderMenuItem).join('') + '</ul>' +
+          '<ul class="menu-list">' + byCat[cat].map(function (item) {
+            var showOrig = item.emo > 0 && item.emo !== item.price;
+            var priceHtml = showOrig
+              ? '<span class="now">' + money(item.emo) + '</span><span class="orig">' + ORIG_LABEL + ' <s>' + money(item.price) + '</s></span>'
+              : '<span class="now">' + money(item.price) + '</span>';
+            return (
+              '<li class="menu-item">' +
+                '<div class="menu-item__names">' +
+                  '<span class="menu-item__zh">' + esc(item.zh) + '</span>' +
+                  (item.en ? '<span class="menu-item__en">' + esc(item.en) + '</span>' : '') +
+                  (item.note ? '<div class="menu-item__note">' + esc(item.note) + '</div>' : '') +
+                '</div>' +
+                '<div class="menu-item__price">' + priceHtml + '</div>' +
+              '</li>'
+            );
+          }).join('') + '</ul>' +
         '</section>'
       );
     }).join('');
     if (hasAlcohol) {
-      html += '<p class="menu-notice">18歳未満の飲酒はできません。飲酒運転は絶対にしないでください。</p>';
+      html += '<p class="menu-notice">未滿十八歲禁止飲酒。禁止酒駕。 / No alcohol under 18. Don\'t drink and drive.</p>';
     }
-    root.innerHTML = html;
+    return html;
   }
 
-  function setImg(figId, url) {
-    var fig = document.getElementById(figId);
-    if (!fig || !url) return;
-    var img = fig.querySelector('img');
-    if (img) img.src = url;
-    fig.hidden = false;
-  }
-
-  function floorMarkdown(content, floor) {
-    var v = String((content['space_' + floor + 'f_' + LANG]) || '').trim();
-    if (v) return v;
-    if (LANG === 'zh') return String(content['space_' + floor + 'f'] || '').trim();
-    return '';
-  }
+  var dir = new SpaceDir({
+    lang: LANG,
+    root: document.getElementById('space-dir-root'),
+    panel: document.getElementById('floor-detail'),
+  });
 
   fetch('/api/public')
-    .then(r => r.ok ? r.json() : null)
-    .then(d => {
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
       var content = (d && d.content) || {};
-
-      FLOORS.forEach(function (f) {
-        var el = document.getElementById('render-' + f + 'f');
-        if (el) {
-          var md = floorMarkdown(content, f);
-          el.innerHTML = md ? marked.parse(md) : '<p class="menu-empty">' + PENDING_TEXT + '</p>';
-        }
-        setImg('media-' + f + 'f', content['space_' + f + 'f_image']);
-      });
-      setImg('media-hero', content['space_hero_image']);
-
-      var rawMenu = content.menu;
-      if (rawMenu && window.MenuLib) {
-        var doc = window.MenuLib.parseMenuDoc(rawMenu);
-        var items = window.MenuLib.sortItems(window.MenuLib.publishedOnly(doc));
-        renderMenu(items);
-      } else {
-        renderMenu([]);
+      var hero = document.getElementById('media-hero');
+      var heroUrl = String(content.space_hero_image || '').trim();
+      if (hero && heroUrl) {
+        hero.querySelector('img').src = heroUrl;
+        hero.hidden = false;
       }
+      var items = [];
+      if (content.menu && window.MenuLib) {
+        var doc = window.MenuLib.parseMenuDoc(content.menu);
+        items = window.MenuLib.sortItems(window.MenuLib.publishedOnly(doc));
+      }
+      dir.setData(content, menuHtml(items));
+      dir.openFromHash();
     })
-    .catch(err => {
+    .catch(function (err) {
       console.error(err);
-      ['render-1f','render-2f','render-3f','render-4f','render-menu'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) el.innerHTML = '<p class="menu-empty">' + FAIL_TEXT + '</p>';
-      });
+      dir.setData({}, '<p class="menu-empty">' + FAIL_TEXT + '</p>');
     });
+
+  window.addEventListener('hashchange', function () { dir.openFromHash(); });
 })();
 </script>
 </body>
