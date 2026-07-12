@@ -21,7 +21,7 @@
 <script defer src="/nav.js"></script>
 <style>
   /* member 專頁：沿用 CIS token，僅補版面；頂欄改共用 site-nav */
-  .m-wrap{max-width:760px;margin:0 auto;padding:48px 24px 96px;min-height:calc(100vh - 70px)}
+  .m-wrap{max-width:440px;margin:0 auto;padding:24px 18px 96px;min-height:calc(100vh - 70px)}
   .m-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     box-shadow:var(--shadow);padding:40px 36px}
   .m-hi{font-family:var(--serif);font-size:1.7rem;font-weight:500;margin-bottom:.2em}
@@ -64,6 +64,47 @@
   .m-badge .m-bt{line-height:1.25}
   .m-badge .m-bt b{font-family:var(--serif);font-weight:700;letter-spacing:.04em}
   .m-badge .m-bt small{display:block;color:var(--muted);font-size:.76rem;letter-spacing:.02em}
+  .m-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .m-eyebrow{font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .m-chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;padding:5px 7px 5px 10px;
+    border:1px solid var(--ink);border-radius:999px;background:var(--card);font-size:.82rem;font-weight:600;
+    cursor:pointer;font-family:inherit;color:inherit}
+  .m-chip:disabled{opacity:.55;cursor:default}
+  .m-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);border:1px solid var(--ink)}
+  .m-chip .dot.on{background:var(--accent)}
+  .m-chip .qr-ico{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--paper);
+    display:grid;place-items:center}
+  .m-notice{border:1px solid var(--ink);border-radius:14px;padding:12px 14px;background:rgba(255,222,52,.22);
+    margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .m-panel{border:1.5px solid var(--ink);border-radius:16px;padding:16px;background:var(--card);
+    position:relative;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}
+  .m-panel::after{content:"";position:absolute;right:-16px;top:-16px;width:80px;height:80px;border-radius:50%;
+    background:var(--accent);opacity:.22;pointer-events:none}
+  .m-panel--wallet::after{display:none}
+  .m-progress{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:8px}
+  .m-progress>i{display:block;height:100%;background:var(--ink);border-radius:99px}
+  .m-meta{display:flex;justify-content:space-between;gap:10px;font-size:.82rem;color:var(--muted);margin-bottom:14px}
+  .m-stat-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:8px;margin-bottom:12px}
+  .m-stat{border:1px solid var(--line);border-radius:12px;padding:14px 12px;text-align:center;background:var(--paper)}
+  .m-stat--hi{border-style:dashed;border-color:var(--ink);background:rgba(255,222,52,.12)}
+  .m-stat b{display:block;font-size:1.75rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1;margin:4px 0}
+  .m-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .m-btn-row .btn{justify-content:center;width:100%;box-sizing:border-box}
+  .m-quiet{opacity:.75;margin:22px 0}
+  .m-overlay{position:fixed;inset:0;background:rgba(27,26,23,.9);color:var(--paper);z-index:80;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+  .m-overlay[hidden]{display:none!important}
+  .m-overlay .x{position:absolute;top:16px;right:18px;border:0;background:transparent;color:inherit;
+    font-size:1.6rem;cursor:pointer;opacity:.7}
+  .m-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;
+    background:var(--ink);color:var(--paper);padding:.75em 1.2em;border-radius:var(--radius-sm);
+    font-size:.9rem;max-width:min(420px,92vw);box-shadow:var(--shadow)}
+  .m-toast[hidden]{display:none!important}
+  .m-drawer{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px;background:var(--paper)}
+  .m-drawer[hidden]{display:none!important}
+  @media (prefers-reduced-motion:reduce){
+    .m-chip .dot.on{animation:none}
+  }
 </style>
 </head>
 <body>
@@ -74,6 +115,13 @@
     <p class="m-center" style="color:var(--muted)">載入中…</p>
   </div>
 </main>
+
+<div class="m-toast" id="m-toast" hidden role="status" aria-live="polite"></div>
+<div class="m-overlay" id="m-qr-overlay" hidden aria-modal="true" role="dialog" aria-label="QR">
+  <button type="button" class="x" id="m-qr-close" aria-label="Close">×</button>
+  <p class="m-note" id="m-qr-overlay-meta"></p>
+  <img id="m-qr-overlay-img" alt="" width="220" height="220" style="border-radius:12px;background:#fff;padding:12px">
+</div>
 
 <!--SITE_FOOTER-->
 
@@ -100,6 +148,10 @@
       generating: '產生中…',
       noQrYet: '尚無有效或待啟用權益，因此目前無法進出二三樓。',
       accessLabel: '進出二三樓狀態',
+      activeShort: 'Active',
+      pendingShort: '待啟用',
+      inactiveShort: '未開通',
+      needPlan: '尚無可用方案，請先加入會員方案。',
       accessTitle: '進出二三樓',
       accessNote: '會員 QR 每 30 秒自動更新，必要時可複製下方 token 備用。',
       activeOn: 'Active（可進出二三樓）',
@@ -118,14 +170,17 @@
       redeemEnt: '娛樂室 1h（10 點）',
       needActive: '需為 Active 會員（可進出二三樓）才能兌換淋浴／膠囊／娛樂室。',
       orderPaid: (id) => `${id} 訂單`,
-      orderRemain: (n) => `剩餘本金 ${n} 點`,
+      orderRemain: (n) => `剩餘可退 ${n} 點`,
       refund: '退款',
       noOrders: '尚無已付款購點訂單。',
       walletLabel: '點數錢包',
       walletTitle: '點數錢包',
-      walletNote: '每點 NT$10。購買本金無效期可退；加贈／會籍贈點預設一年、不退現。效期近者優先扣除。',
+      walletNote: '每點 NT$10。購買點數無使用期限、可退款；加贈／會籍贈點預設一年、不退現。效期近者優先扣除。',
       ptsUnit: (n) => `${n} 點`,
       expiring: '即將到期',
+      ptsAvailable: '可用點數',
+      ptsExpiring: '即將到期',
+      ptsUnitLabel: '點',
       buyPts: '購買點數',
       redeemSvc: '兌換服務',
       ordersRefund: '購點訂單／退款',
@@ -163,6 +218,26 @@
       tempFail: '暫時無法連線，請稍後再試。',
       sysFail: '暫時無法連線會員系統，請稍後再試。',
       reload: '重新整理',
+      nextEvent: '下一場活動',
+      viewEvent: '查看活動',
+      statusLabel: '目前狀態',
+      statusActive: (plan) => `${plan}進行中`,
+      statusPending: '待首次進場啟用',
+      statusExpired: '會籍已到期',
+      statusNone: '尚未有會籍',
+      plansFallback: '權益',
+      renewUpgrade: '續訂／升級',
+      buyMembership: '購買會籍',
+      planDetails: '方案說明',
+      planSoon: '即將開放，請洽現場',
+      daysLeft: (n) => `還有 ${n} 天`,
+      editProfile: '編輯資料',
+      nameLabel: '姓名',
+      saveName: '儲存',
+      nameReadonly: '姓名資料由 Google 帳號提供，目前僅供檢視、無法在此修改。',
+      redeemOk: '兌換成功',
+      regOk: '已完成報名',
+      unregOk: '已取消報名',
       locale: 'zh-TW',
     },
     en: {
@@ -180,6 +255,10 @@
       generating: 'Generating…',
       noQrYet: 'No active or pending entitlement — 2F/3F access is unavailable.',
       accessLabel: '2F/3F access status',
+      activeShort: 'Active',
+      pendingShort: 'Pending',
+      inactiveShort: 'Inactive',
+      needPlan: 'No active plan yet — join a membership plan first.',
       accessTitle: '2F / 3F access',
       accessNote: 'Member QR refreshes every 30 seconds. Copy the token below if needed.',
       activeOn: 'Active (2F/3F access)',
@@ -198,7 +277,7 @@
       redeemEnt: 'Play room 1h (10 pts)',
       needActive: 'Active membership (2F/3F access) is required to redeem shower / capsule / play room.',
       orderPaid: (id) => `Order ${id}`,
-      orderRemain: (n) => `Principal left: ${n} pts`,
+      orderRemain: (n) => `Refundable left: ${n} pts`,
       refund: 'Refund',
       noOrders: 'No paid point orders yet.',
       walletLabel: 'Points wallet',
@@ -206,6 +285,9 @@
       walletNote: 'NT$10 per point. Purchased principal has no expiry and is refundable; bonus / membership gift points expire in one year and are non-refundable. Nearest expiry is spent first.',
       ptsUnit: (n) => `${n} pts`,
       expiring: 'Expiring soon',
+      ptsAvailable: 'Available points',
+      ptsExpiring: 'Expiring soon',
+      ptsUnitLabel: 'pts',
       buyPts: 'Buy points',
       redeemSvc: 'Redeem services',
       ordersRefund: 'Orders / refunds',
@@ -243,6 +325,26 @@
       tempFail: 'Temporarily unavailable. Please try again.',
       sysFail: 'Could not reach the member system. Please try again.',
       reload: 'Reload',
+      nextEvent: 'Next event',
+      viewEvent: 'View event',
+      statusLabel: 'Current status',
+      statusActive: (plan) => `${plan} active`,
+      statusPending: 'Activates on first entry',
+      statusExpired: 'Membership expired',
+      statusNone: 'No membership yet',
+      plansFallback: 'Plan',
+      renewUpgrade: 'Renew / upgrade',
+      buyMembership: 'Buy membership',
+      planDetails: 'Plan details',
+      planSoon: 'Coming soon — ask on-site',
+      daysLeft: (n) => `${n} days left`,
+      editProfile: 'Edit profile',
+      nameLabel: 'Name',
+      saveName: 'Save',
+      nameReadonly: 'Your name comes from your Google account — view only for now.',
+      redeemOk: 'Redeemed',
+      regOk: 'Registered',
+      unregOk: 'Registration cancelled',
       locale: 'en-US',
     },
     ja: {
@@ -260,6 +362,10 @@
       generating: '生成中…',
       noQrYet: '有効または保留中の権利がないため、現在 2F/3F に入れません。',
       accessLabel: '2F/3F 入退室ステータス',
+      activeShort: 'Active',
+      pendingShort: '保留中',
+      inactiveShort: '未有効',
+      needPlan: '有効なプランがありません。先に会員プランに加入してください。',
       accessTitle: '2F / 3F 入退室',
       accessNote: '会員 QR は30秒ごとに自動更新されます。必要なら下の token をコピーしてください。',
       activeOn: 'Active（2F/3F 利用可）',
@@ -278,7 +384,7 @@
       redeemEnt: 'プレイルーム 1h（10 pt）',
       needActive: 'シャワー／カプセル／プレイルームの交換には Active 会員（2F/3F 利用可）が必要です。',
       orderPaid: (id) => `注文 ${id}`,
-      orderRemain: (n) => `残元本 ${n} pt`,
+      orderRemain: (n) => `返金可能の残り ${n} pt`,
       refund: '返金',
       noOrders: '支払い済みのポイント注文はまだありません。',
       walletLabel: 'ポイントウォレット',
@@ -286,6 +392,9 @@
       walletNote: '1ポイント NT$10。購入元本は期限なし・返金可。ボーナス／会籍付与は原則1年・現金返金不可。期限の近いものから優先消化。',
       ptsUnit: (n) => `${n} pt`,
       expiring: 'まもなく失効',
+      ptsAvailable: '利用可能ポイント',
+      ptsExpiring: 'まもなく失効',
+      ptsUnitLabel: 'pt',
       buyPts: 'ポイント購入',
       redeemSvc: 'サービス交換',
       ordersRefund: '注文／返金',
@@ -323,12 +432,41 @@
       tempFail: '一時的に利用できません。しばらくしてから再度お試しください。',
       sysFail: '会員システムに接続できません。しばらくしてから再度お試しください。',
       reload: '再読み込み',
+      nextEvent: '次のイベント',
+      viewEvent: 'イベントを見る',
+      statusLabel: '現在のステータス',
+      statusActive: (plan) => `${plan}利用中`,
+      statusPending: '初回入場で有効化',
+      statusExpired: '会籍期限切れ',
+      statusNone: 'まだ会籍がありません',
+      plansFallback: 'プラン',
+      renewUpgrade: '更新／アップグレード',
+      buyMembership: '会籍を購入',
+      planDetails: 'プラン詳細',
+      planSoon: '近日公開・現地にてご確認ください',
+      daysLeft: (n) => `残り${n}日`,
+      editProfile: 'プロフィールを編集',
+      nameLabel: '氏名',
+      saveName: '保存',
+      nameReadonly: '氏名は Google アカウントから取得されており、現時点では閲覧のみでここでは編集できません。',
+      redeemOk: '交換しました',
+      regOk: '申込みが完了しました',
+      unregOk: '申込みを取消しました',
       locale: 'ja-JP',
     },
   };
   const T = I18N[LANG] || I18N.zh;
   const card = document.getElementById('card');
   const esc = s => (s == null ? '' : String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let toastTimer = null;
+  function showToast(msg) {
+    const el = document.getElementById('m-toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.hidden = true; }, 3200);
+  }
   let qrTimer = null;
   let qrEnabled = false;
 
@@ -364,35 +502,158 @@
     return `${esc(planName(e.plan))}${range ? '：' + esc(range) : ''}`;
   }
 
-  function renderAccess(data) {
+  const QR_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 17h3v4h-4v-3h4M18 14h3v3"></path></svg>';
+
+  // sync with lib/member-ui.js
+  const EXPIRING_WITHIN_DAYS = 30;
+  function parseTime(v) {
+    if (!v) return null;
+    const d = new Date(v);
+    return Number.isNaN(+d) ? null : d;
+  }
+  function pickNextEvent(events, now = new Date()) {
+    const list = Array.isArray(events) ? events : [];
+    const upcoming = list
+      .map((e) => ({ e, t: parseTime(e.starts_at) }))
+      .filter((x) => x.t && x.t > now)
+      .sort((a, b) => a.t - b.t);
+    const registered = upcoming.find((x) => x.e.registered);
+    if (registered) return registered.e;
+    return upcoming.length ? upcoming[0].e : null;
+  }
+  function expiringPointsSummary(lots, now = new Date(), withinDays = EXPIRING_WITHIN_DAYS) {
+    const horizon = new Date(+now + withinDays * 86400000);
+    const hits = (Array.isArray(lots) ? lots : [])
+      .filter((l) => l && l.available !== false)
+      .map((l) => ({ rem: Number(l.remaining) || 0, exp: parseTime(l.expires_at) }))
+      .filter((x) => x.rem > 0 && x.exp && x.exp > now && x.exp <= horizon);
+    if (!hits.length) return null;
+    const points = hits.reduce((s, x) => s + x.rem, 0);
+    const soonest = hits.map((x) => x.exp).sort((a, b) => a - b)[0];
+    return { points, soonest: soonest.toISOString() };
+  }
+  /** @param {{ active: boolean, planLabel: string, pending: boolean, hadEntitlement: boolean }} s */
+  function membershipStatusTitle(s, T) {
+    if (s.active) return T.statusActive(s.planLabel || T.plansFallback || '');
+    if (s.pending) return T.statusPending;
+    if (s.hadEntitlement) return T.statusExpired;
+    return T.statusNone;
+  }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    return d.toLocaleDateString(T.locale, {
+      timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+  }
+
+  function renderNotice(events) {
+    const ev = pickNextEvent(events);
+    if (!ev) return '';
+    return `<section class="m-notice" aria-label="${esc(T.nextEvent)}">
+      <div>
+        <div class="m-eyebrow" style="letter-spacing:.14em">${esc(T.nextEvent)}</div>
+        <div style="font-family:var(--serif);font-size:1.05rem;font-weight:600;margin-top:2px">${esc(ev.title)}</div>
+        <div class="m-note" style="margin:2px 0 0">${esc(ev.starts_at || T.timeTbd)}${ev.location ? ' · ' + esc(ev.location) : ''}${ev.registered ? ' · ' + esc(T.registered) : ''}</div>
+      </div>
+      <a class="btn btn--solid" href="#m-events" style="padding:.55em 1em;font-size:.82rem">${esc(T.viewEvent)}</a>
+    </section>`;
+  }
+
+  function renderStatus(data) {
     const access = data.access || {};
     const activeEntitlements = Array.isArray(access.activeEntitlements) ? access.activeEntitlements : [];
     const pending = Array.isArray(access.pending) ? access.pending : [];
-    const canIssueQr = activeEntitlements.length > 0 || pending.length > 0;
-    const rows = [
-      ...activeEntitlements.map(e => `<li>${entitlementLine(e, false)}</li>`),
-      ...pending.map(e => `<li>${entitlementLine(e, true)}</li>`),
-    ].join('') || `<li>${T.noFloorAccess}</li>`;
-    const qr = canIssueQr
-      ? `<div class="m-qr" id="m-qr">
-           <b>${T.qrTitle}</b>
-           <img id="m-qr-img" alt="${T.qrAlt}" width="200" height="200">
-           <p class="m-note" id="m-qr-meta">${T.qrMaking}</p>
-           <code class="m-token" id="m-qr-token">${T.generating}</code>
-         </div>`
-      : `<p class="m-note">${T.noQrYet}</p>`;
-    return `<section class="m-access" aria-label="${T.accessLabel}">
-      <div class="m-access-head">
-        <div>
-          <h3>${T.accessTitle}</h3>
-          <p class="m-note" style="margin-top:0">${T.accessNote}</p>
-        </div>
-        <span class="m-pill${access.active ? ' on' : ''}">${access.active ? T.activeOn : T.activeOff}</span>
+    const entitlements = Array.isArray(access.entitlements) ? access.entitlements : [];
+    const c = (data.commitments || [])[0];
+    const active = !!access.active;
+    const primaryEnt = activeEntitlements[0] || pending[0] || null;
+    const planLabel = primaryEnt ? planName(primaryEnt.plan) : (c ? planName('founding') : '');
+    const hadEntitlement = entitlements.length > 0 || !!c;
+    const title = membershipStatusTitle({ active, planLabel, pending: pending.length > 0, hadEntitlement }, T);
+
+    let startsAt = null, endsAt = null;
+    if (activeEntitlements[0] && activeEntitlements[0].starts_at && activeEntitlements[0].ends_at) {
+      startsAt = parseTime(activeEntitlements[0].starts_at);
+      endsAt = parseTime(activeEntitlements[0].ends_at);
+    } else if (c && c.start_date && c.maturity_date) {
+      startsAt = parseTime(c.start_date);
+      endsAt = parseTime(c.maturity_date);
+    }
+
+    const now = new Date();
+    let progressHtml = '';
+    let leftMeta = '';
+    if (startsAt && endsAt && endsAt > startsAt) {
+      const pct = Math.min(100, Math.max(0, ((now - startsAt) / (endsAt - startsAt)) * 100));
+      const daysLeft = Math.max(0, Math.ceil((endsAt - now) / 86400000));
+      progressHtml = `<div class="m-progress"><i style="width:${pct.toFixed(1)}%"></i></div>`;
+      leftMeta = daysLeft > 0 ? T.daysLeft(daysLeft) : T.statusExpired;
+    } else if (pending.length) {
+      leftMeta = T.pendingActivate;
+    }
+
+    const periodText = startsAt && endsAt ? `${fmtDate(startsAt)} – ${fmtDate(endsAt)}` : '';
+    const rightMeta = [planLabel, periodText].filter(Boolean).join(' · ');
+    const metaHtml = (leftMeta || rightMeta)
+      ? `<div class="m-meta"><span>${esc(leftMeta)}</span><span>${esc(rightMeta)}</span></div>`
+      : '';
+
+    const certLine = c && c.cert_no ? ` · No. ${esc(c.cert_no)}` : '';
+    const primaryLabel = (!active && !pending.length && !hadEntitlement) ? T.buyMembership : T.renewUpgrade;
+
+    const plansDrawerRows = ['founding', 'day_4h', 'day_12h', 'month', 'quarter', 'year'].map((id) => {
+      if (id === 'founding') {
+        return `<div class="m-row"><b>${esc(T.plans.founding)}</b><span><a href="${FELLOW_PATH}" style="text-decoration:underline;text-underline-offset:3px">${esc(T.joinFounder)}</a></span></div>`;
+      }
+      return `<div class="m-row"><b>${esc(T.plans[id])}</b><span class="m-note" style="margin:0">${esc(T.planSoon)}</span></div>`;
+    }).join('');
+
+    return `<section class="m-panel" aria-label="${esc(T.statusLabel)}">
+      <div class="m-eyebrow">${esc(T.statusLabel)}${certLine}</div>
+      <div style="font-family:var(--serif);font-size:1.2rem;font-weight:600;margin:.2em 0 .7em">${esc(title)}</div>
+      ${progressHtml}
+      ${metaHtml}
+      <div class="m-btn-row">
+        <button type="button" class="btn btn--solid" id="m-plans-primary">${esc(primaryLabel)}</button>
+        <button type="button" class="btn btn--ghost" id="m-plans-toggle">${esc(T.planDetails)}</button>
       </div>
-      <ul class="m-access-list">${rows}</ul>
-      ${qr}
+      <div class="m-drawer" id="m-plans-drawer" hidden>${plansDrawerRows}</div>
     </section>`;
   }
+
+  function renderAccessChip(data) {
+    const access = data.access || {};
+    const activeEntitlements = Array.isArray(access.activeEntitlements) ? access.activeEntitlements : [];
+    const pending = Array.isArray(access.pending) ? access.pending : [];
+    const canIssue = activeEntitlements.length || pending.length;
+    const active = !!access.active;
+    const label = active ? T.activeShort : (pending.length ? T.pendingShort : T.inactiveShort);
+    return `<button type="button" class="m-chip" id="m-access-chip" aria-label="${esc(T.accessLabel)}"${canIssue ? '' : ' data-blocked="1"'}>
+      <span class="dot${active ? ' on' : ''}"></span>
+      <span>${esc(label)}</span>
+      <span class="qr-ico">${QR_ICON}</span>
+    </button>`;
+  }
+
+  function openQrOverlay() {
+    const ov = document.getElementById('m-qr-overlay');
+    if (!ov) return;
+    ov.hidden = false;
+    startQrRefresh(true);
+  }
+  function closeQrOverlay() {
+    const ov = document.getElementById('m-qr-overlay');
+    if (ov) ov.hidden = true;
+    stopQrRefresh();
+  }
+  const qrOverlayEl = document.getElementById('m-qr-overlay');
+  const qrCloseBtn = document.getElementById('m-qr-close');
+  if (qrCloseBtn) qrCloseBtn.onclick = closeQrOverlay;
+  if (qrOverlayEl) qrOverlayEl.addEventListener('click', e => { if (e.target === qrOverlayEl) closeQrOverlay(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && qrOverlayEl && !qrOverlayEl.hidden) closeQrOverlay();
+  });
 
   function stopQrRefresh() {
     qrEnabled = false;
@@ -413,22 +674,19 @@
   }
 
   async function refreshQr() {
-    const img = document.getElementById('m-qr-img');
-    const meta = document.getElementById('m-qr-meta');
-    const tokenEl = document.getElementById('m-qr-token');
-    if (!img || !meta || !tokenEl || !qrEnabled) return;
+    const img = document.getElementById('m-qr-overlay-img');
+    const meta = document.getElementById('m-qr-overlay-meta');
+    if (!img || !meta || !qrEnabled) return;
     try {
       const r = await fetch(FELLOW + '/api/me/access-qr', { headers: { authorization: 'Bearer ' + token } });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) {
         img.style.display = 'none';
-        tokenEl.textContent = '';
         meta.textContent = d.error || T.qrFail;
         return;
       }
       img.style.display = '';
       img.src = await qrDataUrl(d.token);
-      tokenEl.textContent = d.token || '';
       const exp = d.exp ? fmtTime(d.exp * 1000) : '';
       meta.textContent = `${planName(d.plan)}${d.pending_activation ? T.qrPending : ''}${exp ? T.qrUntil + exp : ''}`;
     } catch (e) {
@@ -449,6 +707,8 @@
     const points = data.points || { balance: 0, lots: [] };
     const orders = Array.isArray(data.point_orders) ? data.point_orders : [];
     const active = !!(data.access && data.access.active);
+    const balance = Number(points.balance) || 0;
+    const expiring = expiringPointsSummary(points.lots || []);
     const packs = [
       { id: 'small', label: T.packSmall, pay: 500 },
       { id: 'mid', label: T.packMid, pay: 1000 },
@@ -458,15 +718,13 @@
     const packBtns = packs.map(p =>
       `<button class="btn btn--ghost" type="button" data-pack="${p.id}">${esc(p.label)}（NT$${p.pay}）</button>`
     ).join(' ');
-    const soon = (points.lots || []).filter(l => l.available && l.expires_at).slice(0, 3)
-      .map(l => `<li>${esc(T.ptsLot(l.type, l.remaining, fmtTime(l.expires_at)))}</li>`).join('');
     const redeem = active
-      ? `<div class="m-actions" style="margin-top:1rem">
+      ? `<div class="m-actions" style="margin-top:0">
            <button class="btn btn--solid" type="button" data-redeem="shower">${T.redeemShower}</button>
            <button class="btn btn--ghost" type="button" data-redeem="capsule" data-hours="1">${T.redeemCapsule}</button>
            <button class="btn btn--ghost" type="button" data-redeem="entertainment" data-hours="1">${T.redeemEnt}</button>
          </div>`
-      : `<p class="m-note">${T.needActive}</p>`;
+      : `<p class="m-note" style="margin-top:0">${T.needActive}</p>`;
     const orderRows = orders.filter(o => o.status === 'paid').map(o => {
       const purchaseLot = (points.lots || []).find(l => l.type === 'purchase' && l.source_id === o.id);
       const rem = purchaseLot ? purchaseLot.remaining : 0;
@@ -475,21 +733,30 @@
           ${rem > 0 ? `<button class="btn btn--ghost" type="button" data-refund="${esc(o.id)}" data-max="${rem}" style="margin-left:.5em;padding:.35em .8em">${T.refund}</button>` : ''}
         </span></div>`;
     }).join('') || `<div class="m-empty">${T.noOrders}</div>`;
-    return `<section class="m-access" aria-label="${T.walletLabel}" style="margin-top:1.4rem">
-      <div class="m-access-head">
-        <div>
-          <h3>${T.walletTitle}</h3>
-          <p class="m-note" style="margin-top:0">${T.walletNote}</p>
-        </div>
-        <span class="m-pill on">${T.ptsUnit(Number(points.balance) || 0)}</span>
+    return `<section class="m-panel m-panel--wallet" aria-label="${esc(T.walletLabel)}">
+      <div class="m-head" style="margin-bottom:12px">
+        <h3 style="font-family:var(--serif);font-size:1.15rem;margin:0">${esc(T.walletTitle)}</h3>
+        <button type="button" class="btn btn--ghost" id="m-points-ledger-toggle" style="padding:.4em .9em;font-size:.8rem;flex:0 0 auto">${esc(T.ordersRefund)}</button>
       </div>
-      ${soon ? `<ul class="m-access-list"><li><b>${T.expiring}</b></li>${soon}</ul>` : ''}
-      <h4 class="m-sec-title" style="margin-top:1.2rem;font-size:1rem">${T.buyPts}</h4>
-      <div class="m-actions" style="margin-top:.6rem">${packBtns}</div>
-      <h4 class="m-sec-title" style="margin-top:1.2rem;font-size:1rem">${T.redeemSvc}</h4>
-      ${redeem}
-      <h4 class="m-sec-title" style="margin-top:1.2rem;font-size:1rem">${T.ordersRefund}</h4>
-      ${orderRows}
+      <div class="m-stat-grid">
+        <div class="m-stat m-stat--hi"${expiring ? '' : ' style="grid-column:1/-1"'}>
+          <span class="m-eyebrow" style="letter-spacing:.05em">${esc(T.ptsAvailable)}</span>
+          <b>${balance}</b>
+          <span class="m-note" style="margin:0">${esc(T.ptsUnitLabel)}</span>
+        </div>
+        ${expiring ? `<div class="m-stat">
+          <span class="m-eyebrow" style="letter-spacing:.05em">${esc(T.ptsExpiring)}</span>
+          <b>${expiring.points}</b>
+          <span class="m-note" style="margin:0">${esc(fmtTime(expiring.soonest))}</span>
+        </div>` : ''}
+      </div>
+      <div class="m-btn-row">
+        <button type="button" class="btn btn--solid" data-open-buy>${esc(T.buyPts)}</button>
+        <button type="button" class="btn btn--ghost" data-open-redeem>${esc(T.redeemSvc)}</button>
+      </div>
+      <div class="m-drawer" id="m-buy-drawer" hidden>${packBtns}</div>
+      <div class="m-drawer" id="m-redeem-drawer" hidden>${redeem}</div>
+      <div class="m-drawer" id="m-ledger-drawer" hidden>${orderRows}</div>
     </section>`;
   }
 
@@ -504,22 +771,17 @@
       </div>`;
   }
 
+  function renderFoundingLine(c) {
+    if (c) {
+      return `<p class="m-quiet">${esc(T.badgeName)}${c.cert_no ? ' · No. ' + esc(c.cert_no) : ''}</p>`;
+    }
+    return `<p class="m-quiet">${esc(T.notFounder)}
+      <a href="${FELLOW_PATH}" style="text-decoration:underline;text-underline-offset:3px">${esc(T.joinFounder)}</a></p>`;
+  }
+
   function renderMember(data) {
     const me = data.me || {};
     const c = (data.commitments || [])[0];
-    const badge = c
-      ? `<div class="m-badge" title="${T.badgeTitle}">
-           <span class="m-seal">創</span>
-           <span class="m-bt"><b>${T.badgeName}</b> Founding Member<small>${esc(c.cert_no || '')}${c.membership_status ? '　·　' + esc(c.membership_status) : ''}</small></span>
-         </div>`
-      : '';
-    const membership = c
-      ? `<div class="m-row"><b>${T.memStatus}</b><span>${esc(c.membership_status || '—')}</span></div>
-         <div class="m-row"><b>${T.memNo}</b><span>${esc(c.cert_no || '—')}</span></div>
-         <div class="m-row"><b>${T.memPeriod}</b><span>${esc(c.start_date)} – ${esc(c.maturity_date)}</span></div>`
-      : `<div class="m-row"><b>${T.memStatus}</b><span>${T.notJoined}</span></div>
-         <div class="m-empty">${T.notFounder}
-           <a href="${FELLOW_PATH}" style="text-decoration:underline;text-underline-offset:3px">${T.joinFounder}</a></div>`;
 
     const updates = (data.updates || []).map(u => `
       <div class="m-upd"><h4>${esc(u.title)}</h4><time>${esc(u.published_at)}｜${esc(u.type)}</time>
@@ -540,20 +802,39 @@
         <div class="act">${btn}</div></div>`;
     }).join('') || `<div class="m-empty">${T.noEvents}</div>`;
 
-    const access = data.access || {};
-    const canIssueQr = !!(access.active || (access.activeEntitlements || []).length || (access.pending || []).length);
     card.innerHTML = `
-      <h1 class="m-hi">${T.welcome(esc(me.name))}</h1>
-      <p class="m-sub">${esc(me.email || '')}</p>
+      <div class="m-head">
+        <div>
+          <h1 class="m-hi">${T.welcome(esc(me.name))}</h1>
+          <p class="m-sub" style="margin-bottom:0">${esc(me.email || '')}</p>
+          <button type="button" class="btn btn--ghost" id="m-profile-toggle" style="margin-top:.6rem;padding:.35em .9em;font-size:.78rem">${esc(T.editProfile)}</button>
+        </div>
+        ${renderAccessChip(data)}
+      </div>
+      <div class="m-drawer" id="m-profile-drawer" hidden>
+        <label style="display:block;font-size:.8rem;color:var(--muted);margin-bottom:10px">Email
+          <input type="text" value="${esc(me.email || '')}" readonly disabled
+            style="display:block;width:100%;margin-top:.35em;padding:.6em .75em;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink-soft);box-sizing:border-box">
+        </label>
+        <label style="display:block;font-size:.8rem;color:var(--muted)">${esc(T.nameLabel)}
+          <input type="text" id="m-profile-name" value="${esc(me.name || '')}" readonly
+            style="display:block;width:100%;margin-top:.35em;padding:.6em .75em;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink-soft);box-sizing:border-box">
+        </label>
+        <button type="button" class="btn btn--ghost" id="m-profile-save" style="margin-top:12px;padding:.45em 1em;font-size:.82rem">${esc(T.saveName)}</button>
+      </div>
       ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin">${T.goAdmin}</a></div>` : ''}
-      ${badge}
-      ${renderAccess(data)}
+      ${renderNotice(data.events)}
+      ${renderStatus(data)}
       ${renderPoints(data)}
-      <div>${membership}</div>
-      <h3 class="m-sec-title">${T.eventsTitle}</h3>
-      <div>${events}</div>
-      <h3 class="m-sec-title">${T.updatesTitle}</h3>
-      <div>${updates}</div>
+      <div class="m-quiet" id="m-events">
+        <h3 class="m-sec-title">${T.eventsTitle}</h3>
+        <div>${events}</div>
+      </div>
+      <div class="m-quiet">
+        <h3 class="m-sec-title">${T.updatesTitle}</h3>
+        <div>${updates}</div>
+      </div>
+      ${renderFoundingLine(c)}
       <div class="m-actions">
         <button class="btn btn--ghost" id="logout">${T.logout}</button>
       </div>`;
@@ -566,7 +847,32 @@
     card.querySelectorAll('[data-pack]').forEach(b => b.onclick = () => buyPack(b.dataset.pack, b));
     card.querySelectorAll('[data-redeem]').forEach(b => b.onclick = () => redeemService(b.dataset.redeem, Number(b.dataset.hours || 1), b));
     card.querySelectorAll('[data-refund]').forEach(b => b.onclick = () => refundPoints(b.dataset.refund, Number(b.dataset.max), b));
-    startQrRefresh(canIssueQr);
+    const chip = document.getElementById('m-access-chip');
+    if (chip) chip.onclick = () => {
+      if (chip.dataset.blocked === '1') { showToast(T.needPlan); return; }
+      openQrOverlay();
+    };
+    const profileToggle = document.getElementById('m-profile-toggle');
+    const profileDrawer = document.getElementById('m-profile-drawer');
+    if (profileToggle && profileDrawer) profileToggle.onclick = () => { profileDrawer.hidden = !profileDrawer.hidden; };
+    const profileSave = document.getElementById('m-profile-save');
+    if (profileSave) profileSave.onclick = () => showToast(T.nameReadonly);
+    const plansToggle = document.getElementById('m-plans-toggle');
+    const plansPrimary = document.getElementById('m-plans-primary');
+    const plansDrawer = document.getElementById('m-plans-drawer');
+    const togglePlansDrawer = () => { if (plansDrawer) plansDrawer.hidden = !plansDrawer.hidden; };
+    if (plansToggle) plansToggle.onclick = togglePlansDrawer;
+    if (plansPrimary) plansPrimary.onclick = togglePlansDrawer;
+    const buyToggle = card.querySelector('[data-open-buy]');
+    const buyDrawer = document.getElementById('m-buy-drawer');
+    if (buyToggle && buyDrawer) buyToggle.onclick = () => { buyDrawer.hidden = !buyDrawer.hidden; };
+    const redeemToggle = card.querySelector('[data-open-redeem]');
+    const redeemDrawer = document.getElementById('m-redeem-drawer');
+    if (redeemToggle && redeemDrawer) redeemToggle.onclick = () => { redeemDrawer.hidden = !redeemDrawer.hidden; };
+    const ledgerToggle = document.getElementById('m-points-ledger-toggle');
+    const ledgerDrawer = document.getElementById('m-ledger-drawer');
+    if (ledgerToggle && ledgerDrawer) ledgerToggle.onclick = () => { ledgerDrawer.hidden = !ledgerDrawer.hidden; };
+    if (qrOverlayEl && !qrOverlayEl.hidden) startQrRefresh(true);
   }
 
   async function buyPack(packId, btn) {
@@ -578,10 +884,10 @@
         body: JSON.stringify({ pack_id: packId, lang: LANG }),
       });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) { alert(d.error || T.buyFail); btn.disabled = false; return; }
+      if (!r.ok) { showToast(d.error || T.buyFail); btn.disabled = false; return; }
       location.href = d.url;
     } catch (e) {
-      alert(T.netFail);
+      showToast(T.netFail);
       btn.disabled = false;
     }
   }
@@ -596,10 +902,11 @@
         body: JSON.stringify(body),
       });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) { alert(d.error || T.redeemFail); btn.disabled = false; return; }
+      if (!r.ok) { showToast(d.error || T.redeemFail); btn.disabled = false; return; }
+      showToast(T.redeemOk);
       await main();
     } catch (e) {
-      alert(T.netFail);
+      showToast(T.netFail);
       btn.disabled = false;
     }
   }
@@ -608,7 +915,7 @@
     const raw = prompt(T.refundPrompt(max), String(max));
     if (raw == null) return;
     const n = Number(raw);
-    if (!Number.isInteger(n) || n < 1 || n > max) { alert(T.refundBad(max)); return; }
+    if (!Number.isInteger(n) || n < 1 || n > max) { showToast(T.refundBad(max)); return; }
     btn.disabled = true;
     try {
       const r = await fetch(FELLOW + '/api/me/points/refunds', {
@@ -617,11 +924,11 @@
         body: JSON.stringify({ point_order_id: orderId, principal_points: n }),
       });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) { alert(d.error || T.refundFail); btn.disabled = false; return; }
-      alert(T.refundOk(d.refund?.refund_twd || n * 10));
+      if (!r.ok) { showToast(d.error || T.refundFail); btn.disabled = false; return; }
+      showToast(T.refundOk(d.refund?.refund_twd || n * 10));
       await main();
     } catch (e) {
-      alert(T.netFail);
+      showToast(T.netFail);
       btn.disabled = false;
     }
   }
@@ -649,9 +956,10 @@
         method, headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
       });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) { alert(d.error || T.opFail); btn.disabled = false; return; }
+      if (!r.ok) { showToast(d.error || T.opFail); btn.disabled = false; return; }
+      showToast(method === 'DELETE' ? T.unregOk : T.regOk);
       main();
-    } catch (e) { alert(T.tempFail); btn.disabled = false; }
+    } catch (e) { showToast(T.tempFail); btn.disabled = false; }
   }
 
   async function main() {

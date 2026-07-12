@@ -95,3 +95,14 @@ test('source pages use markers', () => {
   assert.match(member, /SITE_FOOTER/);
   assert.doesNotMatch(member, /m-top|m-foot/);
 });
+
+test('member page has redesign markers', () => {
+  const member = fs.readFileSync(path.join(PUB, 'member.html'), 'utf8');
+  assert.match(member, /m-access-chip|m-chip/);
+  assert.match(member, /m-qr-overlay/);
+  assert.match(member, /m-notice/);
+  assert.match(member, /m-panel--wallet|ptsAvailable|walletTitle/);
+  assert.match(member, /m-toast/);
+  assert.doesNotMatch(member, /申購|本金|持倉|贖回/);
+  assert.doesNotMatch(member, /Principal left|残元本/);
+});
