@@ -6,8 +6,10 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 const express = require('express');
+const multer = require('multer');
 const { Pool } = require('pg');
 const Stripe = require('stripe');
 const {
@@ -20,6 +22,8 @@ const {
   addYears, isLotAvailable, availableBalance, planDebit, planRefund, redeemPointsFor,
 } = require('./lib/points');
 const { sendPage, layoutMiddleware } = require('./lib/layout');
+const { SPACE_SEED, missingSpaceSeedKeys } = require('./lib/space-content');
+const { assertSpaceImageFile, buildSafeSpaceFilename } = require('./lib/space-upload');
 
 const PORT = process.env.PORT || 8080;
 const PRICE = 35000;                    // 創始會費（固定）
@@ -270,6 +274,7 @@ async function migrate() {
   if (rows[0].n === 0) await seedBond();
   const paid = (await q(`SELECT ${SEL_C} FROM commitments WHERE payment_status='已付款'`)).rows;
   for (const c of paid) await ensureFoundingEntitlement(c);
+  await seedSpaceContent();
 }
 
 async function seedBond() {
@@ -278,6 +283,21 @@ async function seedBond() {
      VALUES ('b1','Taiwan Talent Hub',$1,0,$2,$3,'預售中',42) ON CONFLICT (id) DO NOTHING`,
     [TARGET, MIN_TERM, MAX_TERM]
   );
+}
+
+// 空間介紹（menu 頁四樓文案）：既有內容不覆蓋，僅補缺漏的語系鍵值
+async function seedSpaceContent() {
+  const content = await readContent();
+  const miss = missingSpaceSeedKeys(content);
+  for (const key of miss) {
+    const value = SPACE_SEED[key];
+    if (!value) continue;
+    await q(
+      `INSERT INTO site_content (key,value,updated_at) VALUES ($1,$2,now())
+       ON CONFLICT (key) DO NOTHING`,
+      [key, value]
+    );
+  }
 }
 
 /* ---------- token (HMAC) ---------- */
@@ -1224,6 +1244,28 @@ app.get('/api/admin/events/:id/regs', auth, adminOnly, requireDb, wrap(async (re
   res.json({ regs: rows });
 }));
 
+/* ---- 前台管理：空間介紹圖片上傳（menu 頁四樓照片） ---- */
+const UPLOAD_SPACE_DIR = path.join(__dirname, 'uploads', 'space');
+fs.mkdirSync(UPLOAD_SPACE_DIR, { recursive: true });
+const spaceUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOAD_SPACE_DIR),
+    filename: (req, file, cb) => cb(null, buildSafeSpaceFilename(file.originalname, file.mimetype)),
+  }),
+});
+app.post('/api/admin/upload/space', auth, adminOnly, (req, res) => {
+  spaceUpload.single('file')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message || 'Upload failed' });
+    if (!req.file) return res.status(400).json({ error: 'file required' });
+    const sizeErr = assertSpaceImageFile({ mimetype: req.file.mimetype, size: req.file.size });
+    if (sizeErr) {
+      try { fs.unlinkSync(req.file.path); } catch (_) {}
+      return res.status(400).json({ error: sizeErr });
+    }
+    return res.json({ url: `/uploads/space/${req.file.filename}` });
+  });
+});
+
 /* ---- 前台管理：網站內容（首頁公告等 key-value） ---- */
 app.post('/api/admin/content', auth, adminOnly, requireDb, wrap(async (req, res) => {
   const key = (req.body.key || '').trim();
@@ -1313,9 +1355,18 @@ for (const pre of ['', 'en', 'ja']) {
   app.get(route, (req, res) => sendPage(res, file, req.path));
 }
 app.get('/', (req, res) => sendPage(res, path.join(PUB, 'index.html'), '/'));
+// /menu 舊頁改版為空間介紹：301 導至 /space（保留語系前綴），需先於 static 攔截
+function menuToSpace(req, res) {
+  const lang = req.path.startsWith('/en/') ? 'en' : req.path.startsWith('/ja/') ? 'ja' : 'zh';
+  const base = lang === 'zh' ? '/space' : `/${lang}/space`;
+  res.redirect(301, `${base}#menu`);
+}
+app.get(['/menu', '/menu/', '/en/menu', '/en/menu/', '/ja/menu', '/ja/menu/'], menuToSpace);
 // 含 <!--SITE_HEADER--> 的 HTML（member、menu、語系首頁…）在 static 前組裝
 app.use(layoutMiddleware(PUB));
 app.use('/fellow', express.static(path.join(PUB, 'fellow'), { extensions: ['html'] }));
+// 空間介紹圖片上傳檔（管理後台上傳，需先於 static 掛載）
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // 靜態官網（無標記 HTML／資產）
 app.use(express.static(PUB, { extensions: ['html'] }));
 
