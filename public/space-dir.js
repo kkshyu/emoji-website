@@ -29,10 +29,10 @@
         4: 'Support · rooftop',
       },
       hints: {
-        1: '外帶口、廚房、吧台、座位與駐唱',
-        2: '榻榻米、沙發、lattice 席、淋浴',
-        3: '移動式桌椅、多面投影、自助吧',
-        4: '洗衣與戶外吸菸／水塔陽台',
+        1: '外帶、廚房、吧台、客席、駐唱',
+        2: '榻榻米娛樂室、lattice／沙發、淋浴廁所',
+        3: '投影、移動桌椅、自助吧、廁所',
+        4: '洗衣烘衣與陽台水塔',
       },
     },
     en: {
@@ -58,10 +58,10 @@
         4: 'Support · rooftop',
       },
       hints: {
-        1: 'Takeout, kitchen, bar, seats & stage',
-        2: 'Tatami, sofas, lattice berths, shower',
-        3: 'Movable desks, projection, snack bar',
-        4: 'Laundry & outdoor smoking / tanks',
+        1: 'Takeout, kitchen, bar, seats, stage',
+        2: 'Tatami lounge, lattice/sofa, shower',
+        3: 'Screen, desks, snack bar, toilet',
+        4: 'Laundry and terrace tanks',
       },
     },
     ja: {
@@ -88,9 +88,9 @@
       },
       hints: {
         1: 'テイクアウト・厨房・バー・客席・ステージ',
-        2: '畳・ソファ・lattice席・シャワー',
-        3: '可動デスク・投影・セルフバー',
-        4: '洗濯と屋外喫煙／水塔テラス',
+        2: '畳ラウンジ・lattice／ソファ・シャワー',
+        3: '投影・可動デスク・セルフバー・トイレ',
+        4: '洗濯乾燥とテラス水塔',
       },
     },
   };
