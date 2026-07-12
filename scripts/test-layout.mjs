@@ -35,6 +35,9 @@ test('localePaths maps member and menu specials', () => {
   assert.equal(m.ja, '/ja/');
   assert.equal(localePaths('/menu/').zh, '/menu/');
   assert.equal(localePaths('/menu').en, '/menu/');
+  assert.equal(localePaths('/space').slug, 'space');
+  assert.equal(localePaths('/space').zh, '/space');
+  assert.equal(localePaths('/space.html').slug, 'space');
 });
 
 test('composeLayout injects header and footer with aria-current', () => {

@@ -366,12 +366,21 @@ function tabContent(d){
   const c = d.content || {};
   return `<div class="a-sec">
     <h2>網站內容</h2>
-    <p class="hint">編輯官網首頁的可變內容，儲存後即時生效，免改程式重新部署。</p>
-    <div class="a-form" style="flex-direction:column;align-items:stretch;max-width:640px">
+    <p class="hint">編輯官網首頁及空間介紹的可變內容，儲存後即時生效，免改程式重新部署。（支援 Markdown 語法）</p>
+    <div class="a-form" style="flex-direction:column;align-items:stretch;max-width:800px">
       <label style="width:100%">首頁公告橫幅（留空則不顯示）
         <textarea id="ct-notice" placeholder="例：創始名額倒數中，售至 2026/10/31 止。">${esc(c.home_notice||'')}</textarea>
       </label>
-      <div><button class="btn btn--solid btn-sm" id="ct-save">儲存</button></div>
+      <label style="width:100%">空間介紹 - 1F 餐飲與酒吧
+        <textarea id="ct-space-1f" rows="5" placeholder="1F 介紹...">${esc(c.space_1f||'')}</textarea>
+      </label>
+      <label style="width:100%">空間介紹 - 2F 會員休憩與設施
+        <textarea id="ct-space-2f" rows="5" placeholder="2F 介紹...">${esc(c.space_2f||'')}</textarea>
+      </label>
+      <label style="width:100%">空間介紹 - 3F 共享辦公與活動
+        <textarea id="ct-space-3f" rows="5" placeholder="3F 介紹...">${esc(c.space_3f||'')}</textarea>
+      </label>
+      <div><button class="btn btn--solid btn-sm" id="ct-save">儲存所有網站內容</button></div>
     </div>
   </div>`;
 }
@@ -512,7 +521,12 @@ function bind(d, x){
   document.querySelectorAll('[data-upd-del]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/updates/'+b.dataset.updDel,{method:'DELETE'}),'已刪除'));
 
   // 網站內容
-  on('ct-save','click',()=>doThen(()=>api('/admin/content',{method:'POST',body:{key:'home_notice',value:document.getElementById('ct-notice').value.trim()}}),'已儲存'));
+  on('ct-save','click',()=>doThen(()=>Promise.all([
+    api('/admin/content',{method:'POST',body:{key:'home_notice',value:document.getElementById('ct-notice').value.trim()}}),
+    api('/admin/content',{method:'POST',body:{key:'space_1f',value:document.getElementById('ct-space-1f').value.trim()}}),
+    api('/admin/content',{method:'POST',body:{key:'space_2f',value:document.getElementById('ct-space-2f').value.trim()}}),
+    api('/admin/content',{method:'POST',body:{key:'space_3f',value:document.getElementById('ct-space-3f').value.trim()}})
+  ]),'已儲存'));
 
   // 管理員
   document.querySelectorAll('[data-admin]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/users/'+b.dataset.admin+'/admin',{method:'POST',body:{admin:b.dataset.on==='1'}}),'已更新管理權限'));
