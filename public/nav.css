@@ -12,7 +12,8 @@ header.site-nav{position:sticky;top:0;z-index:80;
 header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(251,250,246,.96)}
 .site-nav__inner{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,40px);
   display:flex;align-items:center;justify-content:space-between;height:70px;gap:20px}
-.site-nav .brand{display:flex;flex-direction:column;line-height:1.1;gap:3px;text-decoration:none;color:#1B1A17;flex:0 0 auto}
+/* align-items 明設 flex-start：計畫頁的 fellow/styles.css 有 .brand{align-items:center} 會污染共用 nav，此處鎖定左對齊，兩套 stylesheet 下一致 */
+.site-nav .brand{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1;gap:3px;text-decoration:none;color:#1B1A17;flex:0 0 auto}
 .site-nav .brand b{font-family:"Noto Serif TC",serif;font-weight:700;font-size:1.16rem;letter-spacing:.16em}
 .site-nav .brand span{font-size:.6rem;letter-spacing:.13em;color:#6B6558;font-weight:400}
 .site-nav__links{display:flex;gap:24px;align-items:center}
@@ -50,11 +51,13 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
   .site-nav__dd:hover .site-nav__caret,.site-nav__dd:focus-within .site-nav__caret{transform:rotate(180deg)}
   .site-nav__menu a:hover{background:rgba(255,222,52,.22);color:#1B1A17}
   .site-nav__lang:hover .site-nav__dd-top,.site-nav__lang:focus-within .site-nav__dd-top{color:#1B1A17}
+  /* 頂層連結 hover 底線展開（重構時漏帶的觸發規則） */
+  .site-nav__links>a:not(.btn):hover::after,.site-nav__links>a:not(.btn):focus-visible::after{width:100%}
 }
 
 /* ── CTA 按鈕（墨底：黃色留給每頁唯一 highlight／主 CTA，避免同屏兩擊）── */
 .site-nav .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
-  font-size:.86rem;font-weight:600;padding:9px 18px;border-radius:999px;text-decoration:none;
+  font-size:.86rem;font-weight:600;letter-spacing:.02em;padding:9px 18px;border-radius:999px;text-decoration:none;
   background:#1B1A17;color:#FBFAF6;border:1px solid #1B1A17;transition:transform .15s ease,box-shadow .15s ease}
 .site-nav .btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px -8px rgba(27,26,23,.45)}
 /* ── 漢堡（手機）── */

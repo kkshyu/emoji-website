@@ -1,4 +1,4 @@
-# 言文字——台灣人才聚落 Taiwan Talent Hub
+# 言文字｜台灣人才聚落 Taiwan Talent Hub
 # 允許所有爬蟲（含 AI／答案引擎）索引
 User-agent: *
 Allow: /
