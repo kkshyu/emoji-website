@@ -84,6 +84,7 @@
   © 2026 言文字 Taiwan Talent Hub
 </footer>
 
+<script src="/vendor/qrcode.min.js"></script>
 <script>
   // 後端與官網同源（www.emoji.tw），一律走相對路徑
   const FELLOW = '';
@@ -173,6 +174,19 @@
     qrTimer = null;
   }
 
+  function qrDataUrl(text) {
+    return new Promise((resolve, reject) => {
+      if (!window.QRCode || typeof window.QRCode.toDataURL !== 'function') {
+        reject(new Error('QRCode unavailable'));
+        return;
+      }
+      window.QRCode.toDataURL(text, { width: 200, margin: 1 }, (err, url) => {
+        if (err) reject(err);
+        else resolve(url);
+      });
+    });
+  }
+
   async function refreshQr() {
     const img = document.getElementById('m-qr-img');
     const meta = document.getElementById('m-qr-meta');
@@ -188,7 +202,7 @@
         return;
       }
       img.style.display = '';
-      img.src = 'https://quickchart.io/qr?text=' + encodeURIComponent(d.token) + '&size=200';
+      img.src = await qrDataUrl(d.token);
       tokenEl.textContent = d.token || '';
       const exp = d.exp ? fmtTime(d.exp * 1000) : '';
       meta.textContent = `${planName(d.plan)}${d.pending_activation ? '（待首次進場啟用）' : ''}${exp ? '，有效至 ' + exp : ''}`;
