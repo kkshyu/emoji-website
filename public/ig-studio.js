@@ -1,7 +1,7 @@
 /* 言文字後台 · IG 貼文產生器
    左填右看，即時預覽，純前端匯出 PNG（方形 1080×1080 / 直式 1080×1350）。
    沿用 CIS token（/style.css 的 --ink/--paper/--accent…）與已載入的明體/黑體字型。
-   狀態模型為 category／variant；本版提供 01–03 共九個版型。 */
+   狀態模型為 category／variant；本版提供 01–06 共十八個版型。 */
 'use strict';
 (function () {
   if (!window.IGStudioLib) {
@@ -12,7 +12,7 @@
   const toast = m => (window.toast ? window.toast(m) : alert(m));
   const DIMS = { portrait: { w: 1080, h: 1350 }, square: { w: 1080, h: 1080 } };
 
-  const TYPE_KEYS = { '01': 'product', '02': 'event', '03': 'quote' };
+  const TYPE_KEYS = { '01': 'product', '02': 'event', '03': 'quote', '04': 'hours', '05': 'menu', '06': 'brand' };
   const currentTypeKey = () => TYPE_KEYS[state.category] || 'product';
 
   // ---- 狀態（預設帶示範內容，避免空白預覽） ----
@@ -33,12 +33,43 @@
     e_capacity: '20 位', e_signup: '需報名',
     // quote
     q_text: '把日常，留一點空。', q_sub: '來坐坐。', q_by: '言文字',
+    // hours (04)
+    hoursRows: '週二–五｜12:00–23:00\n週六日｜11:00–23:00\n週一｜公休',
+    note: '17:00 後轉為酒吧，日咖啡、夜微醺。',
+    dayTitle: '日 · 咖啡', dayHours: '12:00 – 17:00', dayDesc: '手沖、甜點與一張安靜的桌。',
+    nightTitle: '夜 · 酒', nightHours: '17:00 – 23:00', nightDesc: '調酒、微醺與慢下來的對話。',
+    address: '中正區重慶南路一段 11 號', mrt: '台北車站 · Z10 出口', booking: '私訊 @yanwenzi.tw',
+    // menu (05)
+    menuTitle: '菜單',
+    menuRows: '冷萃 佛手柑｜180\n焙茶 拿鐵｜160\n手沖 單品｜200\n今日甜點｜140',
+    coffeeRows: '冷萃 佛手柑｜180\n焙茶 拿鐵｜160',
+    alcoholRows: '威士忌 Highball｜260\n季節 特調｜300',
+    m_menuIds: [],
+    // brand (06)
+    openingLine: '言文字，開門了。', openingDate: '2026 · 11',
+    openingDesc: '日咖啡、夜酒吧，把日常留一點空。',
+    manifesto: '為想被理解的人，\n留一張桌、\n一盞燈、\n一杯剛好的溫度。',
+    en: 'words, left for people.',
+    comingTitle: 'Coming\nsoon.', comingSub: '2026 年 11 月　台北車站見。',
   };
 
   const MENU = () => (window.MENU_DATA || []);
 
+  function menuSelectedItems() {
+    return (state.m_menuIds || []).map(id => MENU().find(m => m.id === id)).filter(Boolean);
+  }
+
   function currentNeedsAlcohol() {
-    return state.category === '01' && !!state.p_alcohol;
+    if (state.category === '01') return !!state.p_alcohol;
+    if (state.category === '05') {
+      const { menuLayoutNeedsAlcohol } = Lib;
+      return menuLayoutNeedsAlcohol(state.variant,
+        menuSelectedItems(),
+        Lib.parsePipeRows(state.alcoholRows, ['zh', 'price']),
+        !!state.p_alcohol,
+      );
+    }
+    return false;
   }
 
   // ---- 樣式（後台工具鏡 + 貼文本體 .igp） ----
@@ -127,6 +158,57 @@
     .igp-alcohol{flex:none;display:flex;flex-direction:column;justify-content:center;padding:0 48px;box-sizing:border-box;
       background:#1B1A17;color:#F4F1EA;font-family:var(--sans);font-size:22px;letter-spacing:.08em;gap:8px;text-align:center;}
     .igp.dark .igp-alcohol{background:#0E0D0A;}
+    .igp-hours-title{font-family:var(--serif);font-weight:500;line-height:1.06;letter-spacing:.02em;margin-top:24px;}
+    .igp-hours-list{margin-top:56px;}
+    .igp-hours-row{display:flex;align-items:baseline;gap:16px;padding:22px 0;border-top:1px solid rgba(27,26,23,.14);font-size:30px;}
+    .igp-hours-row:last-child{border-bottom:1px solid rgba(27,26,23,.14);}
+    .igp.dark .igp-hours-row{border-top-color:rgba(244,241,234,.18);}
+    .igp.dark .igp-hours-row:last-child{border-bottom-color:rgba(244,241,234,.18);}
+    .igp-hours-day{min-width:220px;font-family:var(--serif);}
+    .igp-hours-time{margin-left:auto;font-family:"Cormorant Garamond",var(--serif);font-size:34px;font-variant-numeric:tabular-nums;}
+    .igp-hours-note{font-size:24px;line-height:1.7;color:var(--ink-soft);margin-top:34px;}
+    .igp-dark .igp-hours-note{color:#D6D0C4;}
+    .igp-dual{margin-top:52px;display:flex;flex-direction:column;gap:34px;}
+    .igp-dual-card{border:1px solid rgba(27,26,23,.2);padding:38px 40px;}
+    .igp-dual-card--night{background:#1B1A17;color:#F4F1EA;border-color:transparent;}
+    .igp-dual-head{display:flex;align-items:baseline;gap:16px;}
+    .igp-dual-title{font-family:var(--serif);font-weight:500;font-size:52px;letter-spacing:.02em;}
+    .igp-dual-hours{margin-left:auto;font-family:"Cormorant Garamond",var(--serif);font-size:30px;font-variant-numeric:tabular-nums;color:var(--muted);}
+    .igp-dual-card--night .igp-dual-hours{color:var(--ig-yellow);}
+    .igp-dual-desc{font-size:23px;line-height:1.66;color:var(--ink-soft);margin-top:18px;}
+    .igp-dual-card--night .igp-dual-desc{color:#B7B0A2;}
+    .igp-loc-title{font-family:var(--serif);font-weight:500;line-height:1.1;letter-spacing:.02em;margin-top:28px;font-size:78px;}
+    .igp-loc-row{display:flex;align-items:baseline;gap:16px;padding:22px 0;border-top:1px solid rgba(244,241,234,.18);font-size:30px;}
+    .igp-loc-row:last-child{border-bottom:1px solid rgba(244,241,234,.18);}
+    .igp-loc-lbl{font-size:17px;letter-spacing:.24em;text-transform:uppercase;color:#B7B0A2;min-width:130px;}
+    .igp-loc-val{margin-left:auto;text-align:right;}
+    .igp-loc-val--accent{color:var(--ig-yellow);}
+    .igp-menu-list{margin-top:52px;display:flex;flex-direction:column;gap:30px;}
+    .igp-menu-row{display:flex;align-items:baseline;gap:14px;font-size:32px;}
+    .igp-menu-dots{flex:1;border-bottom:1px dotted rgba(27,26,23,.3);transform:translateY(-8px);}
+    .igp.dark .igp-menu-dots{border-bottom-color:rgba(244,241,234,.3);}
+    .igp-menu-price{font-family:"Cormorant Garamond",var(--serif);font-size:34px;font-variant-numeric:tabular-nums;}
+    .igp-menu-section{margin-top:44px;}
+    .igp-menu-section:first-of-type{margin-top:44px;}
+    .igp-menu-section-head{display:flex;align-items:center;gap:14px;}
+    .igp-menu-section-head .dot{width:11px;height:11px;background:var(--ig-yellow);transform:rotate(45deg);flex:none;}
+    .igp-menu-section-head .dot--dark{background:#1B1A17;}
+    .igp.dark .igp-menu-section-head .dot--dark{background:var(--ig-yellow);}
+    .igp-menu-section-title{font-family:var(--serif);font-weight:500;font-size:40px;letter-spacing:.04em;}
+    .igp-menu-items{margin-top:22px;display:flex;flex-direction:column;gap:16px;}
+    .igp-menu-item{display:flex;align-items:baseline;justify-content:space-between;gap:14px;font-size:28px;}
+    .igp-menu-item .p{font-family:"Cormorant Garamond",var(--serif);font-size:30px;font-variant-numeric:tabular-nums;}
+    .igp-sig-price{font-family:"Cormorant Garamond",var(--serif);font-size:60px;line-height:1;color:var(--ig-yellow);font-variant-numeric:tabular-nums;}
+    .igp-sig-price sup{font-size:.42em;vertical-align:.7em;margin-right:2px;}
+    .igp-sig-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-top:26px;}
+    .igp-photo-placeholder{background:var(--ig-yellow);}
+    .igp-opening-line{font-family:var(--serif);font-weight:500;line-height:1.08;letter-spacing:.02em;}
+    .igp-opening-date{margin-top:44px;font-family:"Cormorant Garamond",var(--serif);font-size:80px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+    .igp.dark .igp-opening-date{color:#F4F1EA;}
+    .igp-opening-desc{font-size:26px;line-height:1.7;color:var(--ink-soft);margin-top:26px;}
+    .igp-manifesto{font-family:var(--serif);font-weight:500;line-height:1.32;letter-spacing:.03em;margin-top:48px;white-space:pre-line;}
+    .igp-coming-title{font-family:"Cormorant Garamond",var(--serif);font-size:132px;line-height:1.02;letter-spacing:.01em;}
+    .igp-coming-sub{font-family:var(--serif);font-size:42px;line-height:1.5;color:#B7B0A2;margin-top:40px;}
     `;
     const s = document.createElement('style'); s.id = 'ig-studio-css'; s.textContent = css;
     document.head.appendChild(s);
@@ -135,7 +217,12 @@
   // ---- 貼文 HTML ----
   const hl = t => state.hl ? `<span class="hl">${H(t)}</span>` : H(t);
   const foot = () => `<div class="igp-foot"><span class="igp-brand">言文字</span><span class="igp-handle">${H(state.place)} · ${H(state.handle)}</span></div>`;
-  const photo = (height, className = '', extraStyle = '') => `<div class="igp-photo${className ? ` ${className}` : ''}" style='height:${height}px;${extraStyle}${state.photo ? `background-image:url("${state.photo}")` : ''}'></div>`;
+  const photo = (height, className = '', extraStyle = '', placeholder = false) => {
+    if (placeholder && !state.photo) {
+      return `<div class="igp-photo igp-photo-placeholder${className ? ` ${className}` : ''}" style='height:${height}px;${extraStyle}'></div>`;
+    }
+    return `<div class="igp-photo${className ? ` ${className}` : ''}" style='height:${height}px;${extraStyle}${state.photo ? `background-image:url("${state.photo}")` : ''}'></div>`;
+  };
   const productCopy = () => `
     ${state.showEn && state.p_en ? `<div class="igp-en">${H(state.p_en)}</div>` : ''}
     ${state.p_note ? `<div class="igp-note">${H(state.p_note)}</div>` : ''}
@@ -309,6 +396,184 @@
     </div>`;
   }
 
+  function render04a() {
+    const sq = state.format === 'square';
+    const rows = Lib.parsePipeRows(state.hoursRows, ['day', 'time']);
+    const rowHtml = rows.map((r, i) => `<div class="igp-hours-row">
+        <span class="igp-hours-day">${H(r.day)}</span>
+        <span class="igp-hours-time">${H(r.time)}</span>
+      </div>`).join('');
+    return `<div class="igp-layout" data-layout="04a">
+      <div class="igp-body">
+        <div class="igp-eyebrow igp-eyebrow--plain">Opening Hours</div>
+        <h2 class="igp-hours-title" style="font-size:${sq ? 72 : 84}px">營業時間</h2>
+        <div class="igp-hours-list">${rowHtml}</div>
+        ${state.note ? `<p class="igp-hours-note">${hl(state.note)}</p>` : ''}
+        <div class="igp-spacer"></div>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render04b() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="04b">
+      <div class="igp-body">
+        <div class="igp-eyebrow igp-eyebrow--plain">Two Faces · 一日兩種</div>
+        <div class="igp-dual">
+          <div class="igp-dual-card">
+            <div class="igp-dual-head">
+              <span class="igp-dual-title" style="font-size:${sq ? 44 : 52}px">${H(state.dayTitle)}</span>
+              <span class="igp-dual-hours">${H(state.dayHours)}</span>
+            </div>
+            ${state.dayDesc ? `<p class="igp-dual-desc">${H(state.dayDesc)}</p>` : ''}
+          </div>
+          <div class="igp-dual-card igp-dual-card--night">
+            <div class="igp-dual-head">
+              <span class="igp-dual-title" style="font-size:${sq ? 44 : 52}px">${H(state.nightTitle)}</span>
+              <span class="igp-dual-hours">${H(state.nightHours)}</span>
+            </div>
+            ${state.nightDesc ? `<p class="igp-dual-desc">${H(state.nightDesc)}</p>` : ''}
+          </div>
+        </div>
+        <div class="igp-spacer"></div>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render04c() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="04c">
+      <div class="igp-body">
+        <div class="igp-eyebrow igp-eyebrow--plain">Find Us · 怎麼來</div>
+        <h2 class="igp-loc-title" style="font-size:${sq ? 64 : 78}px">來坐坐</h2>
+        <div style="margin-top:52px">
+          <div class="igp-loc-row"><span class="igp-loc-lbl">地址</span><span class="igp-loc-val">${H(state.address)}</span></div>
+          <div class="igp-loc-row"><span class="igp-loc-lbl">捷運</span><span class="igp-loc-val">${H(state.mrt)}</span></div>
+          <div class="igp-loc-row"><span class="igp-loc-lbl">訂位</span><span class="igp-loc-val igp-loc-val--accent">${H(state.booking)}</span></div>
+        </div>
+        <div class="igp-spacer"></div>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function menuRowsFor05a() {
+    const selected = menuSelectedItems();
+    if (selected.length) return selected.map(m => ({ zh: m.zh, price: m.price }));
+    return Lib.parsePipeRows(state.menuRows, ['zh', 'price']);
+  }
+
+  function render05a() {
+    const sq = state.format === 'square';
+    const needsAlcohol = currentNeedsAlcohol();
+    const rows = menuRowsFor05a();
+    const rowHtml = rows.map(r => `<div class="igp-menu-row">
+        <span>${H(r.zh)}</span>
+        <span class="igp-menu-dots"></span>
+        <span class="igp-menu-price">${H(r.price)}</span>
+      </div>`).join('');
+    const band = needsAlcohol ? Lib.alcoholBandHTML(DIMS[state.format].h) : '';
+    return `<div class="igp-layout" data-layout="05a">
+      <div class="igp-body${needsAlcohol ? ' igp-body--alcohol' : ''}">
+        <div class="igp-eyebrow igp-eyebrow--plain">Coffee · 日間咖啡</div>
+        <h2 class="igp-h2" style="font-size:${sq ? 68 : 80}px">${H(state.menuTitle)}</h2>
+        <div class="igp-menu-list">${rowHtml}</div>
+        <div class="igp-spacer"></div>
+        ${foot()}
+      </div>
+    </div>${band}`;
+  }
+
+  function render05b() {
+    const sq = state.format === 'square';
+    const needsAlcohol = currentNeedsAlcohol();
+    const coffee = Lib.parsePipeRows(state.coffeeRows, ['zh', 'price']);
+    const alcohol = Lib.parsePipeRows(state.alcoholRows, ['zh', 'price']);
+    const itemRow = r => `<div class="igp-menu-item"><span>${H(r.zh)}</span><span class="p">${H(r.price)}</span></div>`;
+    const band = needsAlcohol ? Lib.alcoholBandHTML(DIMS[state.format].h) : '';
+    return `<div class="igp-layout" data-layout="05b">
+      <div class="igp-body${needsAlcohol ? ' igp-body--alcohol' : ''}" style="padding-top:${sq ? 72 : 88}px">
+        <div class="igp-eyebrow igp-eyebrow--plain">Day &amp; Night · 一單兩面</div>
+        <div class="igp-menu-section">
+          <div class="igp-menu-section-head"><span class="dot"></span><span class="igp-menu-section-title" style="font-size:${sq ? 34 : 40}px">咖啡</span></div>
+          <div class="igp-menu-items">${coffee.map(itemRow).join('')}</div>
+        </div>
+        <div class="igp-menu-section">
+          <div class="igp-menu-section-head"><span class="dot dot--dark"></span><span class="igp-menu-section-title" style="font-size:${sq ? 34 : 40}px">夜間 · 酒</span></div>
+          <div class="igp-menu-items">${alcohol.map(itemRow).join('')}</div>
+        </div>
+        <div class="igp-spacer"></div>
+        ${foot()}
+      </div>
+    </div>${band}`;
+  }
+
+  function render05c() {
+    const sq = state.format === 'square';
+    const needsAlcohol = currentNeedsAlcohol();
+    const photoH = needsAlcohol ? (sq ? 280 : 420) : (sq ? 320 : 600);
+    const band = needsAlcohol ? Lib.alcoholBandHTML(DIMS[state.format].h) : '';
+    return `<div class="igp-layout" data-layout="05c">
+      ${photo(photoH, '', '', true)}
+      <div class="igp-body${needsAlcohol ? ' igp-body--alcohol' : ''}" style="padding-top:${sq ? 48 : 64}px;padding-bottom:${sq ? 60 : 76}px">
+        <div class="igp-eyebrow igp-eyebrow--plain">Signature · 招牌</div>
+        <div class="igp-sig-row">
+          <div>
+            <h2 class="igp-h2" style="font-size:${sq ? 54 : 66}px;margin:0">${H(state.p_zh)}</h2>
+            ${state.showEn && state.p_en ? `<div class="igp-en" style="font-size:${sq ? 26 : 30}px;margin-top:12px">${H(state.p_en)}</div>` : ''}
+          </div>
+          <span class="igp-sig-price"><sup>$</sup>${H(state.p_price)}</span>
+        </div>
+        <div class="igp-spacer"></div>
+        ${foot()}
+      </div>
+    </div>${band}`;
+  }
+
+  function render06a() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="06a">
+      <div class="igp-body">
+        <div class="igp-eyebrow igp-eyebrow--plain">Grand Opening · 開幕</div>
+        <div style="margin:auto 0">
+          <div class="igp-opening-line" style="font-size:${sq ? 96 : 118}px">${hl(state.openingLine)}</div>
+          <div class="igp-opening-date" style="font-size:${sq ? 64 : 80}px">${H(state.openingDate)}</div>
+          ${state.openingDesc ? `<p class="igp-opening-desc">${H(state.openingDesc)}</p>` : ''}
+        </div>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render06b() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="06b">
+      <div class="igp-body">
+        <div class="igp-eyebrow">Brand · 品牌理念</div>
+        <div class="igp-manifesto" style="font-size:${sq ? 62 : 76}px">${H(state.manifesto)}</div>
+        ${state.en ? `<p class="igp-en" style="font-size:${sq ? 28 : 32}px;margin-top:36px">${H(state.en)}</p>` : ''}
+        <div class="igp-spacer"></div>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render06c() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="06c">
+      <div class="igp-body">
+        <div class="igp-eyebrow igp-eyebrow--plain">Coming Soon · 即將</div>
+        <div style="margin:auto 0">
+          <h2 class="igp-coming-title" style="font-size:${sq ? 104 : 132}px">${H(state.comingTitle)}</h2>
+          ${state.comingSub ? `<p class="igp-coming-sub" style="font-size:${sq ? 36 : 42}px">${hl(state.comingSub)}</p>` : ''}
+        </div>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
   const LAYOUTS = {
     '01': {
       a: { label: '全幅照片 · 底部資訊', forceDark: false, render: render01a },
@@ -324,6 +589,21 @@
       a: { label: '留白 · 大字金句', forceDark: false, render: render03a },
       b: { label: '深色 · 引號金句', forceDark: true, render: render03b },
       c: { label: '照片 · 金句疊字', forceDark: false, render: render03c },
+    },
+    '04': {
+      a: { label: '一週時間表', forceDark: false, render: render04a },
+      b: { label: '日／夜 · 雙模式', forceDark: false, render: render04b },
+      c: { label: '深色 · 地點交通', forceDark: true, render: render04c },
+    },
+    '05': {
+      a: { label: '價目 · 點線引導', forceDark: false, render: render05a },
+      b: { label: '分類 · 咖啡／酒', forceDark: false, render: render05b },
+      c: { label: '深色 · 招牌單品', forceDark: true, render: render05c },
+    },
+    '06': {
+      a: { label: '開幕 · 大日期', forceDark: false, render: render06a },
+      b: { label: '品牌理念 · 標語', forceDark: false, render: render06b },
+      c: { label: '深色 · Coming soon', forceDark: true, render: render06c },
     },
   };
   const currentLayout = () => LAYOUTS[state.category][state.variant];
@@ -377,6 +657,48 @@
       <label>主文（金句）<textarea data-k="q_text">${H(state.q_text)}</textarea></label>
       <label>副題<input data-k="q_sub" value="${H(state.q_sub)}"></label>
       <label>署名<input data-k="q_by" value="${H(state.q_by)}"></label>`,
+    hours: () => `
+      <label>營業列（一行一列，欄位以 ｜ 或 | 分隔：星期｜時間）
+        <textarea data-k="hoursRows">${H(state.hoursRows)}</textarea></label>
+      <label>備註<textarea data-k="note">${H(state.note)}</textarea></label>
+      <p class="ig-hint">4B 日／夜雙模式欄位</p>
+      <label>日間標題<input data-k="dayTitle" value="${H(state.dayTitle)}"></label>
+      <label>日間時間<input data-k="dayHours" value="${H(state.dayHours)}"></label>
+      <label>日間說明<textarea data-k="dayDesc">${H(state.dayDesc)}</textarea></label>
+      <label>夜間標題<input data-k="nightTitle" value="${H(state.nightTitle)}"></label>
+      <label>夜間時間<input data-k="nightHours" value="${H(state.nightHours)}"></label>
+      <label>夜間說明<textarea data-k="nightDesc">${H(state.nightDesc)}</textarea></label>
+      <p class="ig-hint">4C 地點交通欄位</p>
+      <label>地址<input data-k="address" value="${H(state.address)}"></label>
+      <label>捷運<input data-k="mrt" value="${H(state.mrt)}"></label>
+      <label>訂位<input data-k="booking" value="${H(state.booking)}"></label>`,
+    menu: () => `
+      <p class="ig-hint">菜單價格尚未核定，僅供內部預覽，勿直接對外發布。</p>
+      <label>從菜單多選（5A）
+        <select data-menu-multi multiple size="6">${MENU().map(m =>
+          `<option value="${H(m.id)}" ${state.m_menuIds.includes(m.id) ? 'selected' : ''}>${H(m.cat)}｜${H(m.zh)} $${H(m.price)}${m.published ? '' : '（未發布）'}${m.alcohol ? '　🔞' : ''}</option>`
+        ).join('')}</select></label>
+      <label>菜單標題<input data-k="menuTitle" value="${H(state.menuTitle)}"></label>
+      <label>手動品項列（一行一列，欄位以 ｜ 或 | 分隔：品名｜價格）
+        <textarea data-k="menuRows">${H(state.menuRows)}</textarea></label>
+      <label>咖啡列（5B）
+        <textarea data-k="coffeeRows">${H(state.coffeeRows)}</textarea></label>
+      <label>酒類列（5B，有內容將觸發警語）
+        <textarea data-k="alcoholRows">${H(state.alcoholRows)}</textarea></label>
+      <p class="ig-hint">5C 招牌單品欄位</p>
+      <label>品名（中）<input data-k="p_zh" value="${H(state.p_zh)}"></label>
+      <label>品名（英）<input data-k="p_en" value="${H(state.p_en)}"></label>
+      <label>原價<input data-k="p_price" type="number" value="${H(state.p_price)}"></label>
+      <label style="flex-direction:row;align-items:center;gap:.4em"><input type="checkbox" data-k="p_alcohol" ${state.p_alcohol ? 'checked' : ''}> 含酒精（5C 招牌，匯出將自動附加警語）</label>
+      ${state.p_alcohol ? '<p class="ig-hint ig-hint--warn">已標記酒精飲品：匯出將自動附加法定警語，且無法在缺少警語時匯出。</p>' : ''}`,
+    brand: () => `
+      <label>開幕主句（6A）<textarea data-k="openingLine">${H(state.openingLine)}</textarea></label>
+      <label>開幕日期<input data-k="openingDate" value="${H(state.openingDate)}"></label>
+      <label>開幕說明<textarea data-k="openingDesc">${H(state.openingDesc)}</textarea></label>
+      <label>品牌理念（6B，可換行）<textarea data-k="manifesto">${H(state.manifesto)}</textarea></label>
+      <label>英文標語<input data-k="en" value="${H(state.en)}"></label>
+      <label>Coming 主標（6C）<textarea data-k="comingTitle">${H(state.comingTitle)}</textarea></label>
+      <label>Coming 副標<textarea data-k="comingSub">${H(state.comingSub)}</textarea></label>`,
   };
 
   let root, stage, downloading = false;
@@ -390,8 +712,10 @@
 
   function refreshMenu() {
     if (state.p_menuId) loadMenuItem(state.p_menuId);
-    if (!root || currentTypeKey() !== 'product') return;
-    renderForm(); renderPreview();
+    state.m_menuIds = state.m_menuIds.filter(id => MENU().some(m => m.id === id));
+    if (!root) return;
+    const type = currentTypeKey();
+    if (type === 'product' || type === 'menu') { renderForm(); renderPreview(); }
   }
   window.addEventListener('tth:menu-data', refreshMenu);
 
@@ -412,6 +736,11 @@
     if (menu) menu.addEventListener('change', e => {
       loadMenuItem(e.target.value);
       renderForm(); renderPreview();
+    });
+    const menuMulti = box.querySelector('[data-menu-multi]');
+    if (menuMulti) menuMulti.addEventListener('change', e => {
+      state.m_menuIds = [...e.target.selectedOptions].map(o => o.value);
+      renderPreview();
     });
   }
 
@@ -463,7 +792,12 @@
     }
 
     const typeKey = currentTypeKey();
-    const title = typeKey === 'product' ? state.p_zh : typeKey === 'event' ? state.e_title : '金句';
+    const title = typeKey === 'product' ? state.p_zh
+      : typeKey === 'event' ? state.e_title
+      : typeKey === 'quote' ? '金句'
+      : typeKey === 'hours' ? '營業時間'
+      : typeKey === 'menu' ? (state.menuTitle || '菜單')
+      : (state.openingLine || '品牌');
     const prevText = btn.textContent;
     downloading = true;
     btn.disabled = true;
@@ -520,6 +854,9 @@
           <button data-category="01" class="${currentTypeKey() === 'product' ? 'on' : ''}">01 單品／價目</button>
           <button data-category="02" class="${currentTypeKey() === 'event' ? 'on' : ''}">02 活動預告</button>
           <button data-category="03" class="${currentTypeKey() === 'quote' ? 'on' : ''}">03 金句／字</button>
+          <button data-category="04" class="${currentTypeKey() === 'hours' ? 'on' : ''}">04 營業資訊</button>
+          <button data-category="05" class="${currentTypeKey() === 'menu' ? 'on' : ''}">05 菜單</button>
+          <button data-category="06" class="${currentTypeKey() === 'brand' ? 'on' : ''}">06 品牌／開幕</button>
         </div>
         <div class="ig-seg" id="ig-variant">
           <button data-variant="a" class="${state.variant === 'a' ? 'on' : ''}">A · ${H(LAYOUTS[state.category].a.label)}</button>

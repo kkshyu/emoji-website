@@ -37,6 +37,20 @@
     return false;
   }
 
+  function parsePipeRows(text, keys) {
+    return String(text || '').split(/\r?\n/)
+      .map(line => line.split(/[|｜]/).map(value => value.trim()))
+      .filter(values => values.some(Boolean))
+      .map(values => Object.fromEntries(keys.map((key, index) => [key, values[index] || ''])));
+  }
+
+  function menuLayoutNeedsAlcohol(variant, selectedItems, alcoholRows, signatureAlcohol) {
+    if (variant === 'c') return !!signatureAlcohol;
+    const selectedHasAlcohol = (selectedItems || []).some(itemNeedsAlcoholBand);
+    return variant === 'a' ? selectedHasAlcohol
+      : variant === 'b' && (selectedHasAlcohol || (alcoholRows || []).length > 0);
+  }
+
   function alcoholBandHTML(canvasH) {
     const h = Math.ceil(Number(canvasH) * 0.1);
     return `<div class="igp-alcohol" style="height:${h}px;min-height:${h}px;flex:none;display:flex;flex-direction:column;justify-content:center;padding:0 48px;box-sizing:border-box;background:#1B1A17;color:#F4F1EA;font-family:var(--sans);font-size:22px;letter-spacing:.08em;gap:8px;">
@@ -59,6 +73,8 @@
     computePreviewScale,
     contentOverflows,
     itemNeedsAlcoholBand,
+    parsePipeRows,
+    menuLayoutNeedsAlcohol,
     alcoholBandHTML,
     buildDownloadName,
   };

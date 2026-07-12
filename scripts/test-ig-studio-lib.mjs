@@ -24,6 +24,8 @@ const {
   alcoholBandHTML,
   buildDownloadName,
   contentOverflows,
+  parsePipeRows,
+  menuLayoutNeedsAlcohol,
   PHOTO_MAX_BYTES,
   isAllowedPhotoType,
 } = window.IGStudioLib;
@@ -182,4 +184,119 @@ test('01b photo stays square in alcohol modes', () => {
     studioCode.indexOf('function render01c() {'),
   );
   assert.ok(body.includes("photo(photoH, 'igp-photo-square', `width:${photoH}px;margin-top:"));
+});
+
+test('parsePipeRows parses native textarea rows and ignores blank lines', () => {
+  const rows = parsePipeRows('週一｜10:00–18:00\n\n 週六 | 12:00–20:00 ', ['day', 'time']);
+  assert.equal(JSON.stringify(rows), JSON.stringify([
+    { day: '週一', time: '10:00–18:00' },
+    { day: '週六', time: '12:00–20:00' },
+  ]));
+});
+
+test('05 alcohol compliance is scoped to each variant', () => {
+  const alcohol = [{ id: 'beer', alcohol: true }];
+  const manualAlcohol = [{ zh: '高球', price: '300' }];
+  assert.equal(menuLayoutNeedsAlcohol('a', alcohol, manualAlcohol, false), true);
+  assert.equal(menuLayoutNeedsAlcohol('a', [], manualAlcohol, false), false);
+  assert.equal(menuLayoutNeedsAlcohol('b', [], manualAlcohol, false), true);
+  assert.equal(menuLayoutNeedsAlcohol('b', alcohol, [], false), true);
+  assert.equal(menuLayoutNeedsAlcohol('c', alcohol, manualAlcohol, false), false);
+  assert.equal(menuLayoutNeedsAlcohol('c', [], [], true), true);
+});
+
+test('LAYOUTS wires nine distinct named 04-06 renderers', () => {
+  const keys = ['04a', '04b', '04c', '05a', '05b', '05c', '06a', '06b', '06c'];
+  keys.forEach((key, index) => {
+    const fn = `render${key}`;
+    const start = studioCode.indexOf(`function ${fn}() {`);
+    const next = index === keys.length - 1
+      ? studioCode.indexOf('const LAYOUTS = {', start)
+      : studioCode.indexOf(`function render${keys[index + 1]}() {`, start);
+    assert.ok(start >= 0 && next > start, `${fn} must be a named implementation`);
+    const body = studioCode.slice(start, next);
+    assert.ok(body.includes(`data-layout="${key}"`), `${fn} must render its own layout`);
+    assert.ok(body.includes("state.format === 'square'"), `${fn} must size square separately`);
+    assert.ok(body.includes('${foot()}'), `${fn} must use the shared state footer`);
+    assert.doesNotMatch(body, /return render\d{2}[a-c]\(\);/);
+    assert.match(
+      studioCode,
+      new RegExp(`${key[2]}:\\s*\\{\\s*label:\\s*['\"][^'\"]+['\"],\\s*forceDark:\\s*(?:true|false),\\s*render:\\s*${fn}\\s*\\}`),
+    );
+  });
+});
+
+test('04-06 UI exposes required fields and only c variants force dark', () => {
+  for (const [category, type] of [['04', 'hours'], ['05', 'menu'], ['06', 'brand']]) {
+    assert.ok(studioCode.includes(`'${category}': '${type}'`));
+    assert.ok(studioCode.includes(`data-category="${category}"`));
+  }
+  for (const key of ['04c', '05c', '06c']) {
+    assert.match(studioCode, new RegExp(`${key[2]}:\\s*\\{[^}]*forceDark:\\s*true`));
+  }
+  for (const key of ['04a', '04b', '05a', '05b', '06a', '06b']) {
+    assert.match(studioCode, new RegExp(`${key[2]}:\\s*\\{[^}]*forceDark:\\s*false`));
+  }
+
+  const fields = [
+    'hoursRows', 'note', 'dayTitle', 'dayHours', 'dayDesc', 'nightTitle', 'nightHours', 'nightDesc',
+    'address', 'mrt', 'booking', 'menuTitle', 'menuRows', 'coffeeRows', 'alcoholRows',
+    'openingLine', 'openingDate', 'openingDesc', 'manifesto', 'en', 'comingTitle', 'comingSub',
+  ];
+  fields.forEach(field => assert.ok(studioCode.includes(`data-k="${field}"`), field));
+  assert.match(studioCode, /<select data-menu-multi multiple/);
+  assert.match(studioCode, /一行一列[^<]*\|/);
+});
+
+test('05 menu selection keeps stable ids, prunes stale ids, and refreshes', () => {
+  for (const fragment of [
+    'm_menuIds: []',
+    'value="${H(m.id)}"',
+    'state.m_menuIds.includes(m.id)',
+    'e.target.selectedOptions',
+    'state.m_menuIds = state.m_menuIds.filter',
+    "window.addEventListener('tth:menu-data', refreshMenu);",
+  ]) assert.ok(studioCode.includes(fragment), fragment);
+});
+
+test('05 renderers add preview/export alcohol band from shared variant-scoped decision', () => {
+  assert.match(studioCode, /function currentNeedsAlcohol\(\)[\s\S]*?menuLayoutNeedsAlcohol\(state\.variant/);
+  for (const key of ['05a', '05b', '05c']) {
+    const start = studioCode.indexOf(`function render${key}() {`);
+    const next = key === '05c'
+      ? studioCode.indexOf('function render06a() {', start)
+      : studioCode.indexOf(`function render05${String.fromCharCode(key.charCodeAt(2) + 1)}() {`, start);
+    const body = studioCode.slice(start, next);
+    assert.ok(body.includes('Lib.alcoholBandHTML'), key);
+  }
+  assert.ok(studioCode.includes("toast('酒精飲品缺少法定警語，已阻止匯出')"));
+  assert.ok(studioCode.includes('Lib.contentOverflows(el.scrollHeight, el.clientHeight, el.scrollWidth, el.clientWidth)'));
+});
+
+test('manifesto remains escaped while CSS preserves newlines', () => {
+  const body = studioCode.slice(
+    studioCode.indexOf('function render06b() {'),
+    studioCode.indexOf('function render06c() {'),
+  );
+  assert.ok(body.includes('H(state.manifesto)'));
+  assert.match(studioCode, /\.igp-manifesto\{[^}]*white-space:pre-line/);
+  assert.doesNotMatch(body, /innerHTML\s*=\s*state\.manifesto|\$\{state\.manifesto\}/);
+});
+
+test('04-06 user copy is escaped and 05c has the CIS photo placeholder', () => {
+  for (const field of [
+    'note', 'dayTitle', 'dayHours', 'dayDesc', 'nightTitle', 'nightHours', 'nightDesc',
+    'address', 'mrt', 'booking', 'menuTitle', 'openingLine', 'openingDate', 'openingDesc',
+    'manifesto', 'en', 'comingTitle', 'comingSub',
+  ]) assert.ok(studioCode.includes(`H(state.${field})`), field);
+  for (const field of ['day', 'time', 'zh', 'price']) {
+    assert.ok(studioCode.includes(`H(r.${field})`), field);
+  }
+  const body = studioCode.slice(
+    studioCode.indexOf('function render05c() {'),
+    studioCode.indexOf('function render06a() {'),
+  );
+  assert.ok(body.includes("photo(photoH, '', '', true)"));
+  assert.match(studioCode, /\.igp-photo-placeholder\{[^}]*background:var\(--ig-yellow\)/);
+  assert.ok(studioCode.includes('--ig-yellow:#FFDE34'));
 });
