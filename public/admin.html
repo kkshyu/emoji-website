@@ -86,11 +86,7 @@
 </main>
 <div class="a-toast" id="toast"></div>
 
-<script src="/vendor/html-to-image.js"></script>
 <script src="/menu-lib.js"></script>
-<script src="/menu-data.js"></script>
-<script src="/ig-studio-lib.js"></script>
-<script src="/ig-studio.js"></script>
 <script>
 'use strict';
 const KEY = 'tth_token';
@@ -642,13 +638,27 @@ async function showRegs(eventId, d){
   }catch(e){ host.innerHTML='<p class="a-sub">'+esc(e.message)+'</p>'; }
 }
 
-async function refresh(){ const d=await api('/state'); render(d); }
+async function ensureIgScripts() {
+  if (window.IGStudio) return;
+  const load = src => new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error(src));
+    document.head.appendChild(s);
+  });
+  await load('/ig-studio-lib.js');
+  await load('/vendor/html-to-image.js');
+  await load('/menu-data.js');
+  await load('/ig-studio.js');
+}
+
+async function refresh(){ const d=await api('/state'); await ensureIgScripts(); render(d); }
 
 async function main(){
   if (!token) return renderLogin();
   try {
     const d = await api('/state');
     if (d.role !== 'admin') return renderLogin('此 Google 帳號沒有管理員權限。請以超管或已授權的管理員帳號登入。');
+    await ensureIgScripts();
     render(d);
   } catch(e){
     if (String(e.message).includes('登入') || String(e.message).includes('401')) { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); return renderLogin(); }
