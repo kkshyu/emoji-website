@@ -254,9 +254,8 @@
     if (!stage) return;
     const parent = stage.parentElement;
     const { w, h } = DIMS[state.format];
-    let scale = Lib.computePreviewScale(parent ? parent.clientWidth : 0, w);
-    // 隱藏分頁時 lib 回 null——用安全預設，避免 1080 原尺寸撐破 grid
-    if (scale == null) scale = 460 / w;
+    const scale = Lib.computePreviewScale(parent ? parent.clientWidth : 0, w);
+    if (scale == null) return;
     if (!(scale > 0) || !isFinite(scale)) return;
     stage.style.width = w * scale + 'px';
     stage.style.height = h * scale + 'px';
@@ -324,6 +323,7 @@
     if (!Lib.isAllowedPhotoType(file.type)) return toast('僅支援 JPEG／PNG／WebP 格式');
     if (file.size > Lib.PHOTO_MAX_BYTES) return toast('照片請小於 5MB');
     const r = new FileReader();
+    r.onerror = r.onabort = () => toast('照片讀取失敗');
     r.onload = () => { state.photo = r.result; root.querySelector('#ig-drop').classList.add('has'); root.querySelector('#ig-drop-t').textContent = '已選照片 · 點此更換'; renderPreview(); };
     r.readAsDataURL(file);
   }

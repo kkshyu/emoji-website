@@ -7,6 +7,10 @@ const code = fs.readFileSync(
   new URL('../public/ig-studio-lib.js', import.meta.url),
   'utf8',
 );
+const studioCode = fs.readFileSync(
+  new URL('../public/ig-studio.js', import.meta.url),
+  'utf8',
+);
 const window = {};
 vm.runInNewContext(code, { window, console });
 const {
@@ -56,4 +60,12 @@ test('buildDownloadName', () => {
     '言文字_IG_美式咖啡_直式.png',
   );
   assert.equal(buildDownloadName('x', 'square'), '言文字_IG_x_方形.png');
+});
+
+test('sizeStage skips hidden preview widths', () => {
+  assert.match(studioCode, /const scale = Lib\.computePreviewScale\([\s\S]*?\);\s*if \(scale == null\) return;/);
+});
+
+test('readPhoto reports FileReader errors without changing photo state', () => {
+  assert.match(studioCode, /r\.onerror = r\.onabort = \(\) => toast\('照片讀取失敗'\);/);
 });
