@@ -120,3 +120,57 @@ test('alcohol layout is compact and export blocks overflow', () => {
     "toast('內容超出版面，請縮短文字或移除照片')",
   ]) assert.ok(studioCode.includes(fragment), fragment);
 });
+
+test('LAYOUTS wires nine real named renderers', () => {
+  const keys = ['01a', '01b', '01c', '02a', '02b', '02c', '03a', '03b', '03c'];
+  assert.ok(studioCode.includes('const LAYOUTS = {'));
+  keys.forEach((key, index) => {
+    const fn = `render${key}`;
+    const start = studioCode.indexOf(`function ${fn}() {`);
+    const next = index === keys.length - 1
+      ? studioCode.indexOf('const LAYOUTS = {', start)
+      : studioCode.indexOf(`function render${keys[index + 1]}() {`, start);
+    assert.ok(start >= 0 && next > start, `${fn} must be a named implementation`);
+    const body = studioCode.slice(start, next);
+    assert.ok(body.includes(`data-layout="${key}"`), `${fn} must render its own layout`);
+    assert.doesNotMatch(body, /return render\d{2}[a-c]\(\);/);
+    assert.match(
+      studioCode,
+      new RegExp(`${key[2]}:\\s*\\{\\s*label:\\s*['\"][^'\"]+['\"],\\s*forceDark:\\s*(?:true|false),\\s*render:\\s*${fn}\\s*\\}`),
+    );
+  });
+});
+
+test('layout controls support category, variant, and forced dark state', () => {
+  for (const category of ['01', '02', '03']) {
+    assert.ok(studioCode.includes(`data-category="${category}"`), category);
+  }
+  for (const variant of ['a', 'b', 'c']) {
+    assert.ok(studioCode.includes(`data-variant="${variant}"`), variant);
+  }
+  for (const key of ['01c', '02c', '03b']) {
+    assert.match(studioCode, new RegExp(`${key[2]}:\\s*\\{[^}]*forceDark:\\s*true`));
+  }
+  assert.ok(studioCode.includes('if (currentLayout().forceDark) state.dark = true;'));
+  assert.ok(studioCode.includes('dark.checked = state.dark;'));
+  assert.ok(studioCode.includes('dark.disabled = currentLayout().forceDark;'));
+});
+
+test('forms expose required 01-03 fields and escape user text', () => {
+  const fields = [
+    'p_eyebrow', 'p_zh', 'p_en', 'p_note', 'p_desc', 'p_unit', 'p_price', 'p_emo',
+    'e_title', 'e_dateBig', 'e_weekday', 'e_when', 'e_place', 'e_desc', 'e_capacity', 'e_signup',
+    'q_text', 'q_sub', 'q_by',
+  ];
+  for (const field of fields) {
+    assert.ok(studioCode.includes(`data-k="${field}"`), field);
+    assert.ok(studioCode.includes(`H(state.${field})`), `${field} must be escaped`);
+  }
+  for (const field of ['place', 'handle']) {
+    assert.ok(studioCode.includes(`H(state.${field})`), `${field} must be escaped`);
+  }
+});
+
+test('photo quote participates in the overflow export guard', () => {
+  assert.ok(studioCode.includes("node.querySelectorAll('.igp-body,.igp-quote,.igp-overlay-copy,.igp-layout')"));
+});
