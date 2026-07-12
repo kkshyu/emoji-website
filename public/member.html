@@ -170,12 +170,12 @@
       redeemEnt: '娛樂室 1h（10 點）',
       needActive: '需為 Active 會員（可進出二三樓）才能兌換淋浴／膠囊／娛樂室。',
       orderPaid: (id) => `${id} 訂單`,
-      orderRemain: (n) => `剩餘本金 ${n} 點`,
+      orderRemain: (n) => `剩餘可退 ${n} 點`,
       refund: '退款',
       noOrders: '尚無已付款購點訂單。',
       walletLabel: '點數錢包',
       walletTitle: '點數錢包',
-      walletNote: '每點 NT$10。購買本金無效期可退；加贈／會籍贈點預設一年、不退現。效期近者優先扣除。',
+      walletNote: '每點 NT$10。購買點數無使用期限、可退款；加贈／會籍贈點預設一年、不退現。效期近者優先扣除。',
       ptsUnit: (n) => `${n} 點`,
       expiring: '即將到期',
       ptsAvailable: '可用點數',
@@ -231,6 +231,13 @@
       planDetails: '方案說明',
       planSoon: '即將開放，請洽現場',
       daysLeft: (n) => `還有 ${n} 天`,
+      editProfile: '編輯資料',
+      nameLabel: '姓名',
+      saveName: '儲存',
+      nameReadonly: '姓名資料由 Google 帳號提供，目前僅供檢視、無法在此修改。',
+      redeemOk: '兌換成功',
+      regOk: '已完成報名',
+      unregOk: '已取消報名',
       locale: 'zh-TW',
     },
     en: {
@@ -331,6 +338,13 @@
       planDetails: 'Plan details',
       planSoon: 'Coming soon — ask on-site',
       daysLeft: (n) => `${n} days left`,
+      editProfile: 'Edit profile',
+      nameLabel: 'Name',
+      saveName: 'Save',
+      nameReadonly: 'Your name comes from your Google account — view only for now.',
+      redeemOk: 'Redeemed',
+      regOk: 'Registered',
+      unregOk: 'Registration cancelled',
       locale: 'en-US',
     },
     ja: {
@@ -431,6 +445,13 @@
       planDetails: 'プラン詳細',
       planSoon: '近日公開・現地にてご確認ください',
       daysLeft: (n) => `残り${n}日`,
+      editProfile: 'プロフィールを編集',
+      nameLabel: '氏名',
+      saveName: '保存',
+      nameReadonly: '氏名は Google アカウントから取得されており、現時点では閲覧のみでここでは編集できません。',
+      redeemOk: '交換しました',
+      regOk: '申込みが完了しました',
+      unregOk: '申込みを取消しました',
       locale: 'ja-JP',
     },
   };
@@ -786,8 +807,20 @@
         <div>
           <h1 class="m-hi">${T.welcome(esc(me.name))}</h1>
           <p class="m-sub" style="margin-bottom:0">${esc(me.email || '')}</p>
+          <button type="button" class="btn btn--ghost" id="m-profile-toggle" style="margin-top:.6rem;padding:.35em .9em;font-size:.78rem">${esc(T.editProfile)}</button>
         </div>
         ${renderAccessChip(data)}
+      </div>
+      <div class="m-drawer" id="m-profile-drawer" hidden>
+        <label style="display:block;font-size:.8rem;color:var(--muted);margin-bottom:10px">Email
+          <input type="text" value="${esc(me.email || '')}" readonly disabled
+            style="display:block;width:100%;margin-top:.35em;padding:.6em .75em;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink-soft);box-sizing:border-box">
+        </label>
+        <label style="display:block;font-size:.8rem;color:var(--muted)">${esc(T.nameLabel)}
+          <input type="text" id="m-profile-name" value="${esc(me.name || '')}" readonly
+            style="display:block;width:100%;margin-top:.35em;padding:.6em .75em;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink-soft);box-sizing:border-box">
+        </label>
+        <button type="button" class="btn btn--ghost" id="m-profile-save" style="margin-top:12px;padding:.45em 1em;font-size:.82rem">${esc(T.saveName)}</button>
       </div>
       ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin">${T.goAdmin}</a></div>` : ''}
       ${renderNotice(data.events)}
@@ -819,6 +852,11 @@
       if (chip.dataset.blocked === '1') { showToast(T.needPlan); return; }
       openQrOverlay();
     };
+    const profileToggle = document.getElementById('m-profile-toggle');
+    const profileDrawer = document.getElementById('m-profile-drawer');
+    if (profileToggle && profileDrawer) profileToggle.onclick = () => { profileDrawer.hidden = !profileDrawer.hidden; };
+    const profileSave = document.getElementById('m-profile-save');
+    if (profileSave) profileSave.onclick = () => showToast(T.nameReadonly);
     const plansToggle = document.getElementById('m-plans-toggle');
     const plansDrawer = document.getElementById('m-plans-drawer');
     if (plansToggle && plansDrawer) plansToggle.onclick = () => { plansDrawer.hidden = !plansDrawer.hidden; };
@@ -862,6 +900,7 @@
       });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) { showToast(d.error || T.redeemFail); btn.disabled = false; return; }
+      showToast(T.redeemOk);
       await main();
     } catch (e) {
       showToast(T.netFail);
@@ -915,6 +954,7 @@
       });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) { showToast(d.error || T.opFail); btn.disabled = false; return; }
+      showToast(method === 'DELETE' ? T.unregOk : T.regOk);
       main();
     } catch (e) { showToast(T.tempFail); btn.disabled = false; }
   }
