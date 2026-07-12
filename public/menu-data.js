@@ -1,6 +1,7 @@
-/* SEED only — 首次寫入 site_content.menu 用；所有項目 seeded published:false。
-   非對外即時菜單。原價 price / 會員價 emo；SNACK 尚無可靠資料，暫不建立品項。
-   舊產品照非 CIS 風格，故不內建圖片，照片由後台上傳。 */
+/* SEED — 供 server migrate 寫入 site_content.menu（預設全部 published:true）。
+   亦供後台／IG 在 DB 尚無 menu 時作 fallback 原料。
+   原價 price / 會員價 emo；SNACK 尚無可靠資料，暫不建立品項。
+   強制覆寫：啟動時設 FORCE_MENU_SEED=1（勿長期開啟）。 */
 'use strict';
 window.__MENU_SEED = [
   // ── COFFEE ──

@@ -24,6 +24,14 @@ const {
 const { sendPage, layoutMiddleware } = require('./lib/layout');
 const { SPACE_SEED, missingSpaceSeedKeys } = require('./lib/space-content');
 const { assertSpaceImageFile, buildSafeSpaceFilename } = require('./lib/space-upload');
+const {
+  MENU_CONTENT_KEY,
+  loadMenuSeedRows,
+  buildMenuSeedDoc,
+  validateMenuSeedDoc,
+  shouldWriteMenuSeed,
+  stringifyMenuDoc,
+} = require('./lib/menu-seed');
 
 const PORT = process.env.PORT || 8080;
 const PRICE = 35000;                    // 創始會費（固定）
@@ -275,6 +283,7 @@ async function migrate() {
   const paid = (await q(`SELECT ${SEL_C} FROM commitments WHERE payment_status='已付款'`)).rows;
   for (const c of paid) await ensureFoundingEntitlement(c);
   await seedSpaceContent();
+  await seedMenuContent();
 }
 
 async function seedBond() {
@@ -297,6 +306,37 @@ async function seedSpaceContent() {
        ON CONFLICT (key) DO NOTHING`,
       [key, value]
     );
+  }
+}
+
+// 菜單：缺鍵時灌入 seed（全部 published:true）；FORCE_MENU_SEED=1 時覆寫
+async function seedMenuContent() {
+  const force = process.env.FORCE_MENU_SEED === '1' || process.env.FORCE_MENU_SEED === 'true';
+  const content = await readContent();
+  if (!shouldWriteMenuSeed(content, force)) return;
+  let rows;
+  try {
+    rows = loadMenuSeedRows();
+  } catch (e) {
+    console.warn('[menu-seed] 讀取 seed 失敗，略過：', e && e.message);
+    return;
+  }
+  const doc = buildMenuSeedDoc(rows);
+  const v = validateMenuSeedDoc(doc);
+  if (!v.ok) {
+    console.warn('[menu-seed] 驗證失敗，略過：', v.error);
+    return;
+  }
+  const value = stringifyMenuDoc(doc);
+  await q(
+    `INSERT INTO site_content (key,value,updated_at) VALUES ($1,$2,now())
+     ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now()`,
+    [MENU_CONTENT_KEY, value]
+  );
+  if (force) {
+    console.warn('[menu-seed] FORCE_MENU_SEED=1：已覆寫 site_content.menu（全部已發布）。請勿長期開啟此旗標。');
+  } else {
+    console.log('[menu-seed] 已灌入 site_content.menu（全部已發布）。');
   }
 }
 
