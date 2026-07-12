@@ -1,0 +1,36 @@
+<header class="site-nav" id="nav">
+  <div class="site-nav__inner">
+    <a class="brand" href="/en/" aria-label="Emoji - Taiwan Talent Hub home">
+      <b>言文字</b><span>Emoji - Taiwan Talent Hub</span>
+    </a>
+    <nav class="site-nav__links" id="navLinks" aria-label="Programs">
+      <a href="/en/#about">About</a>
+      <a href="/en/#floors">Access</a>
+      <div class="site-nav__dd">
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">Programs <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="site-nav__menu">
+          <a href="/en/fellow"{{NAV_FELLOW_CURRENT}}>Founding Member</a>
+          <a href="/en/partner"{{NAV_PARTNER_CURRENT}}>Community Partner Program</a>
+          <a href="/en/startup"{{NAV_STARTUP_CURRENT}}>Startup Program</a>
+        </div>
+      </div>
+      <a href="/menu/"{{NAV_MENU_CURRENT}}>Menu</a>
+      <a href="/en/cis/"{{NAV_CIS_CURRENT}}>Brand</a>
+      <a href="/member" id="navMember" data-label-authed="Member area"{{NAV_MEMBER_CURRENT}}>Member login</a>
+      <div class="site-nav__dd site-nav__lang">
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false" aria-label="Change language">
+          <svg class="site-nav__globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><ellipse cx="12" cy="12" rx="4" ry="9"/></svg>
+          <span class="site-nav__lang-label">English</span>
+          <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="site-nav__menu">
+          <a href="{{LANG_ZH}}" hreflang="zh-Hant" lang="zh-Hant"{{LANG_ZH_CURRENT}}>中文</a>
+          <a href="{{LANG_EN}}" hreflang="en" lang="en"{{LANG_EN_CURRENT}}>English</a>
+          <a href="{{LANG_JA}}" hreflang="ja" lang="ja"{{LANG_JA_CURRENT}}>日本語</a>
+        </div>
+      </div>
+      <a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener" class="btn">Follow us</a>
+    </nav>
+    <button class="site-nav__toggle" id="navToggle" aria-label="Open menu" data-label-open="Open menu" data-label-close="Close menu" aria-controls="navLinks" aria-expanded="false">☰</button>
+  </div>
+</header>

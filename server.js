@@ -19,6 +19,7 @@ const {
   POINT_PRICE_TWD, PACKS, MEMBERSHIP_GIFT_POINTS,
   addYears, isLotAvailable, availableBalance, planDebit, planRefund, redeemPointsFor,
 } = require('./lib/points');
+const { sendPage, layoutMiddleware } = require('./lib/layout');
 
 const PORT = process.env.PORT || 8080;
 const PRICE = 35000;                    // 創始會費（固定）
@@ -1292,22 +1293,29 @@ const PUB = path.join(__dirname, 'public');
 // 各計畫一頁式：fellow／partner／startup × 中/en/ja。
 // 精確路由先於 static，讓無斜線路徑（/partner、/en/startup…）直接回 200 不轉址；
 // 資產（styles/app/kk）皆共用 /fellow/*，各語系計畫頁以絕對路徑引用。
+// HTML 經 layout 組裝 header／footer（SEO／GEO：回應已含完整 markup）。
 const PROGRAMS = ['fellow', 'partner', 'startup'];
 for (const prog of PROGRAMS) {
   for (const pre of ['', 'en', 'ja']) {
     const parts = pre ? [pre, prog] : [prog];
-    app.get('/' + parts.join('/'), (req, res) => res.sendFile(path.join(PUB, ...parts, 'index.html')));
+    const route = '/' + parts.join('/');
+    const file = path.join(PUB, ...parts, 'index.html');
+    app.get(route, (req, res) => sendPage(res, file, req.path));
   }
 }
 // CIS 品牌識別頁（中/en/ja）；無斜線路徑直接 200
 for (const pre of ['', 'en', 'ja']) {
   const parts = pre ? [pre, 'cis'] : ['cis'];
-  app.get('/' + parts.join('/'), (req, res) => res.sendFile(path.join(PUB, ...parts, 'index.html')));
+  const route = '/' + parts.join('/');
+  const file = path.join(PUB, ...parts, 'index.html');
+  app.get(route, (req, res) => sendPage(res, file, req.path));
 }
+app.get('/', (req, res) => sendPage(res, path.join(PUB, 'index.html'), '/'));
+// 含 <!--SITE_HEADER--> 的 HTML（member、menu、語系首頁…）在 static 前組裝
+app.use(layoutMiddleware(PUB));
 app.use('/fellow', express.static(path.join(PUB, 'fellow'), { extensions: ['html'] }));
-// 靜態官網
+// 靜態官網（無標記 HTML／資產）
 app.use(express.static(PUB, { extensions: ['html'] }));
-app.get('/', (req, res) => res.sendFile(path.join(PUB, 'index.html')));
 
 /* ---------- 啟動 ---------- */
 async function boot() {

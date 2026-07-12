@@ -86,4 +86,21 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
   .site-nav .btn{margin-top:16px;width:100%}
   .site-nav__toggle{display:grid}
 }
-@media print{header.site-nav{display:none}}
+/* ── 全站頁尾（自包含：計畫頁只載 nav.css 也能用）── */
+footer.site-foot{background:#16150F;color:#B7B0A2;padding:72px 0 40px;
+  font-family:"Noto Sans TC",system-ui,-apple-system,sans-serif}
+footer.site-foot .wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
+footer.site-foot .foot__top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:44px;padding-bottom:44px;border-bottom:1px solid rgba(237,233,224,.12)}
+footer.site-foot .foot__brand b{display:block;font-family:"Noto Serif TC",serif;color:#EDE9E0;font-size:1.28rem;font-weight:700;letter-spacing:.1em}
+footer.site-foot .foot__brand span{font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:#B7B0A2}
+footer.site-foot .foot__brand p{margin-top:16px;font-size:.9rem;font-weight:300;max-width:34ch;line-height:1.8}
+footer.site-foot .foot__col h3{color:#EDE9E0;font-size:.76rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px;font-weight:500}
+footer.site-foot .foot__col a,footer.site-foot .foot__col p{display:block;font-size:.9rem;color:#B7B0A2;margin-bottom:10px;font-weight:300;text-decoration:none;transition:color .2s}
+footer.site-foot .foot__col a:hover{color:#EDE9E0}
+footer.site-foot .foot__bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:28px;font-size:.8rem;color:#B7B0A2}
+@media(max-width:760px){
+  footer.site-foot .foot__top{grid-template-columns:1fr;gap:32px}
+  footer.site-foot .foot__col a{padding:6px 0;margin-bottom:4px}
+}
+
+@media print{header.site-nav,footer.site-foot{display:none}}
