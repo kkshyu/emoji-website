@@ -100,6 +100,9 @@ const NT = n => 'NT$' + Number(n || 0).toLocaleString('en-US');
 const num = n => Number(n || 0).toLocaleString('en-US');
 let toastT, DATA = null, TAB = 'overview';
 let MENU_DOC = null;
+let MENU_DIRTY = false;
+let MENU_DIRTY_TOASTED = false;
+let MENU_SEEDED = false;
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 
 // datetime-local 值 ↔ ISO
@@ -160,11 +163,17 @@ function derived(d){
 /* ---------- 菜單（site_content.menu） ---------- */
 function ensureMenuDoc(d) {
   const raw = (d.content && d.content.menu) || '';
-  let doc = MenuLib.parseMenuDoc(raw);
-  if (!doc.items.length && window.MENU_DATA) {
-    doc = MenuLib.fromSeedRows(window.MENU_DATA);
+  const fromDb = MenuLib.parseMenuDoc(raw);
+  if (fromDb.items.length > 0) {
+    MENU_SEEDED = false;
+    return fromDb;
   }
-  return doc;
+  if (window.MENU_DATA) {
+    MENU_SEEDED = true;
+    return MenuLib.fromSeedRows(window.MENU_DATA);
+  }
+  MENU_SEEDED = false;
+  return fromDb;
 }
 
 /* ---------- 各分頁 ---------- */
@@ -291,7 +300,7 @@ function tabUpdates(d){
 }
 
 function tabMenu(d){
-  const seeded = !(d.content && d.content.menu);
+  const seeded = MENU_SEEDED;
   const items = MenuLib.sortItems(MENU_DOC.items);
   const body = items.map(it => `<tr data-q="${esc([it.cat, it.zh, it.en, it.note].join(' ').toLowerCase())}">
       <td>${esc(it.cat)}</td>
@@ -378,7 +387,16 @@ const TABS = [
 
 function render(d){
   DATA = d;
-  MENU_DOC = ensureMenuDoc(d);
+  if (!MENU_DIRTY || MENU_DOC === null) {
+    MENU_DOC = ensureMenuDoc(d);
+  } else {
+    const raw = (d.content && d.content.menu) || '';
+    MENU_SEEDED = MenuLib.parseMenuDoc(raw).items.length === 0;
+    if (!MENU_DIRTY_TOASTED) {
+      toast('菜單有未儲存變更，已保留本機編輯');
+      MENU_DIRTY_TOASTED = true;
+    }
+  }
   if (d.me && d.me.name) try { localStorage.setItem('tth_name', d.me.name); } catch (e) {}
   logoutBtn.style.display='';
   const x = derived(d);
@@ -479,11 +497,25 @@ function bind(d, x){
 }
 
 /* ---------- 菜單：局部重繪 + 綁定（不觸發整頁 refresh，避免遺失未存檔編輯） ---------- */
+function applyMenuSearch(qv){
+  const q = (qv ?? document.getElementById('mi-search')?.value ?? '').trim().toLowerCase();
+  document.querySelectorAll('#mi-body tr').forEach(tr=>{
+    const qq = (tr.dataset.q || '').toLowerCase();
+    tr.style.display = !q || qq.includes(q) ? '' : 'none';
+  });
+}
+
 function paintMenu(){
   const panel = document.querySelector('[data-panel="menu"]');
   if (!panel) return;
+  const savedSearch = document.getElementById('mi-search')?.value || '';
   panel.innerHTML = tabMenu(DATA);
   bindMenu();
+  const searchEl = document.getElementById('mi-search');
+  if (searchEl) {
+    searchEl.value = savedSearch;
+    applyMenuSearch(savedSearch);
+  }
 }
 
 function resetMenuForm(){
@@ -503,9 +535,7 @@ function bindMenu(){
   if (!document.getElementById('mi-body')) return; // 菜單分頁尚未掛載於 DOM
   const on = (sel,ev,fn)=>{ const el=document.getElementById(sel); if(el) el.addEventListener(ev,fn); };
 
-  on('mi-search','input',e=>{ const qv=e.target.value.trim().toLowerCase();
-    document.querySelectorAll('#mi-body tr').forEach(tr=>{ const qq=(tr.dataset.q||'').toLowerCase();
-      tr.style.display = !qv || qq.includes(qv) ? '' : 'none'; }); });
+  on('mi-search','input',e=> applyMenuSearch(e.target.value));
 
   on('mi-save','click',()=>{
     const zh = document.getElementById('mi-zh').value.trim();
@@ -522,6 +552,7 @@ function bindMenu(){
       published: document.getElementById('mi-published').checked,
       sort: Number(document.getElementById('mi-sort').value) || 0,
     });
+    MENU_DIRTY = true;
     toast(editing ? '已更新（尚未存檔）' : '已新增（尚未存檔）');
     paintMenu();
   });
@@ -546,6 +577,7 @@ function bindMenu(){
   document.querySelectorAll('[data-mi-del]').forEach(b=>b.onclick=()=>{
     if (!confirm('確定刪除此菜單項目？')) return;
     MENU_DOC = MenuLib.removeItem(MENU_DOC, b.dataset.miDel);
+    MENU_DIRTY = true;
     toast('已刪除（尚未存檔）');
     paintMenu();
   });
@@ -556,6 +588,8 @@ function bindMenu(){
     (async () => {
       try {
         await api('/admin/content', { method:'POST', body:{ key:'menu', value: MenuLib.stringifyDoc(MENU_DOC) } });
+        MENU_DIRTY = false;
+        MENU_DIRTY_TOASTED = false;
         toast('菜單已儲存至伺服器');
         await refresh();
       } catch(e){ toast(e.message); }
