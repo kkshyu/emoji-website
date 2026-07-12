@@ -28,6 +28,38 @@ test('localePaths maps programs and cis slash', () => {
   assert.equal(localePaths('/en/cis/').en, '/en/cis/');
 });
 
+test('localePaths maps about locales', () => {
+  assert.equal(localePaths('/about').slug, 'about');
+  assert.equal(localePaths('/about').zh, '/about');
+  assert.equal(localePaths('/en/about').en, '/en/about');
+  assert.equal(localePaths('/ja/about').ja, '/ja/about');
+  assert.equal(localePaths('/about.html').slug, 'about');
+});
+
+test('header and footer link to /about not /#about', () => {
+  for (const lang of ['zh', 'en', 'ja']) {
+    const h = fs.readFileSync(path.join(__dirname, '..', 'views', 'partials', `header-${lang}.html`), 'utf8');
+    const f = fs.readFileSync(path.join(__dirname, '..', 'views', 'partials', `footer-${lang}.html`), 'utf8');
+    assert.doesNotMatch(h, /\/#about/);
+    assert.doesNotMatch(f, /\/#about/);
+    assert.match(h, /NAV_ABOUT_CURRENT/);
+    if (lang === 'zh') {
+      assert.match(h, /href="\/about"/);
+      assert.match(f, /href="\/about"/);
+    } else {
+      assert.match(h, new RegExp(`href="/${lang}/about"`));
+      assert.match(f, new RegExp(`href="/${lang}/about"`));
+    }
+  }
+});
+
+test('composeLayout about page marks about current', () => {
+  const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
+  const html = composeLayout(raw, '/about');
+  assert.match(html, /href="\/about"[^>]*aria-current="page"/);
+  assert.doesNotMatch(html, /href="\/#about"/);
+});
+
 test('localePaths maps member menu and space locales', () => {
   const m = localePaths('/member');
   assert.equal(m.lang, 'zh');
@@ -105,4 +137,70 @@ test('member page has redesign markers', () => {
   assert.match(member, /m-toast/);
   assert.doesNotMatch(member, /申購|本金|持倉|贖回/);
   assert.doesNotMatch(member, /Principal left|残元本/);
+});
+
+test('about zh page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'about.html'), 'utf8');
+  assert.match(html, /SITE_HEADER/);
+  assert.match(html, /SITE_FOOTER/);
+  assert.match(html, /id="why"/);
+  assert.match(html, /id="kk"/);
+  assert.match(html, /about\.css/);
+  assert.match(html, /href="\/space"/);
+  assert.match(html, /href="\/fellow#about"/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜/i);
+  assert.doesNotMatch(html, /哈哈|～～/);
+});
+
+test('resolvePublicHtml resolves about zh', () => {
+  assert.ok(resolvePublicHtml(PUB, '/about').endsWith('about.html'));
+});
+
+test('about en page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'en', 'about.html'), 'utf8');
+  assert.match(html, /lang="en"/);
+  assert.match(html, /id="why"/);
+  assert.match(html, /id="kk"/);
+  assert.match(html, /href="\/en\/space"/);
+  assert.match(html, /href="\/en\/fellow#about"/);
+  assert.match(html, /canonical" href="https:\/\/www\.emoji\.tw\/en\/about"/);
+  assert.match(html, /SITE_HEADER/);
+  assert.match(html, /about\.css/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜/i);
+});
+
+test('resolvePublicHtml resolves about en', () => {
+  assert.ok(resolvePublicHtml(PUB, '/en/about').endsWith(`en${path.sep}about.html`));
+});
+
+test('about ja page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'ja', 'about.html'), 'utf8');
+  assert.match(html, /lang="ja"/);
+  assert.match(html, /id="why"/);
+  assert.match(html, /id="kk"/);
+  assert.match(html, /href="\/ja\/space"/);
+  assert.match(html, /href="\/ja\/fellow#about"/);
+  assert.match(html, /canonical" href="https:\/\/www\.emoji\.tw\/ja\/about"/);
+  assert.match(html, /SITE_HEADER/);
+  assert.match(html, /about\.css/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|ホテル/i);
+});
+
+test('resolvePublicHtml resolves about ja', () => {
+  assert.ok(resolvePublicHtml(PUB, '/ja/about').endsWith(`ja${path.sep}about.html`));
+});
+
+test('homepages no longer ship #about section', () => {
+  for (const rel of ['index.html', path.join('en', 'index.html'), path.join('ja', 'index.html')]) {
+    const html = fs.readFileSync(path.join(PUB, rel), 'utf8');
+    assert.doesNotMatch(html, /id="about"/);
+    assert.doesNotMatch(html, /class="about"/);
+  }
+});
+
+test('sitemap includes about locales', () => {
+  const sm = fs.readFileSync(path.join(PUB, 'sitemap.xml'), 'utf8');
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/about/);
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/en\/about/);
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/ja\/about/);
 });

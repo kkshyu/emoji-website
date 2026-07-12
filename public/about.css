@@ -1,0 +1,146 @@
+/* about.css — 關於聚落長文單欄 */
+.about-page {
+  padding-bottom: clamp(64px, 10vw, 120px);
+}
+.about-hero {
+  padding: clamp(72px, 12vw, 120px) 0 clamp(40px, 6vw, 64px);
+}
+.about-hero .eyebrow {
+  display: block;
+  margin-bottom: 16px;
+}
+.about-hero h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  max-width: 18em;
+}
+.about-hero .lede {
+  margin-top: 20px;
+  max-width: 36em;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+.about-narrow {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 28px);
+}
+.about-block {
+  padding-top: clamp(40px, 7vw, 72px);
+}
+.about-block__label {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: none;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.about-prose p {
+  margin: 0 0 1.25em;
+  color: var(--ink-soft);
+  font-size: 1.02rem;
+  line-height: 1.95;
+}
+.about-prose p:last-child {
+  margin-bottom: 0;
+}
+.about-prose .pull {
+  font-family: var(--serif);
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  line-height: 1.7;
+  color: var(--ink);
+  margin: 1.75em 0;
+}
+.about-kk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.about-kk img {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.about-kk__name {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.about-kk__role {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+.about-roles {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.about-roles li {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+.about-roles li span:first-child {
+  color: var(--muted);
+}
+.about-more {
+  margin-top: 20px;
+  font-size: 0.95rem;
+}
+.about-more a {
+  color: var(--ink);
+  text-underline-offset: 3px;
+}
+.about-cta {
+  margin-top: clamp(48px, 8vw, 80px);
+  padding: 28px 24px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.about-cta p {
+  margin: 0 0 16px;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  line-height: 1.5;
+}
+.about-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.about-cta .btn {
+  background: var(--ink);
+  color: var(--on-ink);
+  border: none;
+}
+.about-cta .btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+@media (max-width: 560px) {
+  .about-roles li {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-page .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

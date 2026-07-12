@@ -59,7 +59,7 @@ def build(lang, ptype):
       <b>言文字</b><span>{d['bsub']}</span>
     </a>
     <nav class="site-nav__links" id="navLinks" aria-label="{d['proglabel']}">
-      <a href="{home}#about">{d['about']}</a>
+      <a href="{(base + '/about') if base else '/about'}">{d['about']}</a>
       <a href="{home}#floors">{d['floors']}</a>
       <div class="site-nav__dd">
         <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">{d['proglabel']} <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
