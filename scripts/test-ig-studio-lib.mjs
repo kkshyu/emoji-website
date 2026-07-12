@@ -110,13 +110,14 @@ test('contentOverflows detects clipped content', () => {
   assert.equal(contentOverflows(100, 100), false);
   assert.equal(contentOverflows(99, 100), false);
   assert.equal(contentOverflows('bad', 100), false);
+  assert.equal(contentOverflows(100, 100, 101, 100), true);
 });
 
 test('alcohol layout is compact and export blocks overflow', () => {
   for (const fragment of [
     'const photoH = needsAlcohol ? (sq ? 160 : 320)',
     "needsAlcohol ? ' igp-body--alcohol' : ''",
-    'Lib.contentOverflows(el.scrollHeight, el.clientHeight)',
+    'Lib.contentOverflows(el.scrollHeight, el.clientHeight, el.scrollWidth, el.clientWidth)',
     "toast('內容超出版面，請縮短文字或移除照片')",
   ]) assert.ok(studioCode.includes(fragment), fragment);
 });

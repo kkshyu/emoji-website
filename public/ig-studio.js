@@ -471,7 +471,7 @@
     try {
       await document.fonts.ready;
       const overflow = [node, ...node.querySelectorAll('.igp-body,.igp-quote,.igp-overlay-copy,.igp-layout')]
-        .some(el => Lib.contentOverflows(el.scrollHeight, el.clientHeight));
+        .some(el => Lib.contentOverflows(el.scrollHeight, el.clientHeight, el.scrollWidth, el.clientWidth));
       if (overflow) {
         toast('內容超出版面，請縮短文字或移除照片');
         return;

@@ -22,9 +22,11 @@
     return avail / canvasW;
   }
 
-  function contentOverflows(scrollHeight, clientHeight) {
-    const scroll = Number(scrollHeight); const client = Number(clientHeight);
-    return Number.isFinite(scroll) && Number.isFinite(client) && scroll > client;
+  function contentOverflows(scrollHeight, clientHeight, scrollWidth, clientWidth) {
+    const sh = Number(scrollHeight); const ch = Number(clientHeight);
+    const sw = Number(scrollWidth); const cw = Number(clientWidth);
+    return (Number.isFinite(sh) && Number.isFinite(ch) && sh > ch)
+      || (Number.isFinite(sw) && Number.isFinite(cw) && sw > cw);
   }
 
   function itemNeedsAlcoholBand(item) {
