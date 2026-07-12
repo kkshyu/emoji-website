@@ -18,3 +18,4 @@ npm-debug.log*
 
 # SDD 本地進度 scratch
 .superpowers/
+.worktrees
