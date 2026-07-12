@@ -138,3 +138,20 @@ test('member page has redesign markers', () => {
   assert.doesNotMatch(member, /申購|本金|持倉|贖回/);
   assert.doesNotMatch(member, /Principal left|残元本/);
 });
+
+test('about zh page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'about.html'), 'utf8');
+  assert.match(html, /SITE_HEADER/);
+  assert.match(html, /SITE_FOOTER/);
+  assert.match(html, /id="why"/);
+  assert.match(html, /id="kk"/);
+  assert.match(html, /about\.css/);
+  assert.match(html, /href="\/space"/);
+  assert.match(html, /href="\/fellow#about"/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜/i);
+  assert.doesNotMatch(html, /哈哈|～～/);
+});
+
+test('resolvePublicHtml resolves about zh', () => {
+  assert.ok(resolvePublicHtml(PUB, '/about').endsWith('about.html'));
+});
