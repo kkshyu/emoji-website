@@ -46,7 +46,7 @@
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "言文字｜台湾タレントハブ", "item": "https://www.emoji.tw/ja/" },
+        { "@type": "ListItem", "position": 1, "name": "言文字｜台湾タレントハブ", "item": "https://www.emoji.tw/ja" },
         { "@type": "ListItem", "position": 2, "name": "コミュニティパートナープログラム", "item": "https://www.emoji.tw/ja/partner" }
       ]
     }
@@ -56,6 +56,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="/fellow/styles.css">
+<link rel="stylesheet" href="/partner/partner.css">
 <link rel="stylesheet" href="/nav.css">
 <script defer src="/nav.js"></script>
 </head>
@@ -112,21 +113,22 @@
 <!-- ===================== HOME ===================== -->
 <main class="view active" id="view-home">
 
-  <!-- HERO -->
-  <section class="hero" id="top">
-    <div class="wrap hero-grid">
-      <div>
+  <!-- HERO：開放式陳述句 ＋ 極淡織線 -->
+  <section class="hero ptn-hero" id="top">
+    <div class="ptn-hero-weave" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="ptn-hero-body">
         <div class="eyebrow">コミュニティパートナープログラム · Community Partner Program</div>
         <h1>ふさわしい人を招き入れ<span class="cn">一緒にネットワークを織り上げる</span></h1>
         <p class="hero-lead">講師、主催者、チーム、コミュニティと、言文字の3階イベントスペース、人材コミュニティ、国際的なつながりを分かち合う——定型のプランではなく、まずはあなたが何をしたいのかから始めます。</p>
         <p class="hero-letter">コミュニティパートナープログラムは価格表ではありません。それは一つの関係です。あなたがふさわしい人をこの空間に連れてくる。私たちは空間、コミュニティ、国際的なつながりをあなたに開いて使ってもらう。そうして一緒に、ハブのネットワークをより大きく織り上げていきます。始め方はとてもシンプルです——まずは、あなたが何をしたいのか聞かせてください。</p>
-        <p class="hero-sign">— 言文字｜台湾タレントハブ</p>
+        <p class="hero-sign">— 言文字・台湾タレントハブ</p>
         <div class="hero-cta">
-          <a class="btn btn-seal btn-lg" href="mailto:kkshyu.tw@gmail.com?subject=%E7%A4%BE%E7%BE%A4%E5%A4%A5%E4%BC%B4%E8%A8%88%E7%95%AB%E6%B4%BD%E8%A9%A2&body=%E5%97%A8%EF%BC%8C%E6%88%91%E6%83%B3%E8%81%8A%E8%81%8A%E5%90%88%E4%BD%9C%EF%BC%9A%0A%0A%E6%88%91%E6%98%AF%EF%BC%9A%0A%E6%88%91%E6%83%B3%E5%81%9A%E7%9A%84%E4%BA%8B%EF%BC%9A%0A%E7%90%86%E6%83%B3%E7%9A%84%E5%90%88%E4%BD%9C%E6%96%B9%E5%BC%8F%EF%BC%88Event%20Salon%EF%BC%8FEvent%20Partner%EF%BC%8FEvent%20Circle%EF%BC%89%EF%BC%9A%0A%E9%A0%90%E8%A8%88%E6%99%82%E9%96%93%EF%BC%9A">協業について話す</a>
+          <a class="btn btn-ink btn-lg" href="mailto:kkshyu.tw@gmail.com?subject=%E7%A4%BE%E7%BE%A4%E5%A4%A5%E4%BC%B4%E8%A8%88%E7%95%AB%E6%B4%BD%E8%A9%A2&body=%E5%97%A8%EF%BC%8C%E6%88%91%E6%83%B3%E8%81%8A%E8%81%8A%E5%90%88%E4%BD%9C%EF%BC%9A%0A%0A%E6%88%91%E6%98%AF%EF%BC%9A%0A%E6%88%91%E6%83%B3%E5%81%9A%E7%9A%84%E4%BA%8B%EF%BC%9A%0A%E7%90%86%E6%83%B3%E7%9A%84%E5%90%88%E4%BD%9C%E6%96%B9%E5%BC%8F%EF%BC%88Event%20Salon%EF%BC%8FEvent%20Partner%EF%BC%8FEvent%20Circle%EF%BC%89%EF%BC%9A%0A%E9%A0%90%E8%A8%88%E6%99%82%E9%96%93%EF%BC%9A">協業について話す</a>
           <a class="btn btn-ghost btn-lg" href="#scenarios">6つの協業シーンを見る</a>
         </div>
       </div>
-      <div class="terms-card">
+      <div class="terms-card ptn-hero-aside">
         <div class="tc-serial"><span>TTH · 2026</span><span>PARTNER · どんな方に</span></div>
         <h3>このプログラムはこんな方へ</h3>
         <div class="terms-row"><span class="k">講師</span><span class="v">講座を開き、生徒を持ちたい。もう教室を借りたくない方</span></div>
@@ -139,26 +141,7 @@
     </div>
   </section>
 
-  <!-- 六種合作情境 -->
-  <section class="section" id="scenarios">
-    <div class="wrap">
-      <div class="section-head center">
-        <div class="eyebrow center">Scenarios · 協業シーン</div>
-        <h2 class="section-title">人を集める6つの方法</h2>
-        <p class="lead">どの協業形態にするか、先に決める必要はありません。まずはどのシーンが自分に近いかを見て、そこから一緒に形にしていきましょう。</p>
-      </div>
-      <div class="cards c3">
-        <div class="card"><div class="idx">01 · 先生が生徒を教える</div><h3>講座をここで開く</h3><p>先生は無料で空間を利用、生徒は受講料を払って学ぶ。もう別に教室を借りる必要はありません。あなたは授業に集中し、私たちが会場、受付、雰囲気づくりを整えます。</p></div>
-        <div class="card"><div class="idx">02 · 講演とワークショップ</div><h3>講座を立ち上げる</h3><p>講師が講座を開き、伝えたい。会場、プロジェクター、軽食バーから聴衆まで、一つの講座をアイデアから満席へと変えるまで、一緒に伴走します。</p></div>
-        <div class="card"><div class="idx">03 · 主催者が会場を探す</div><h3>コミュニティを持ち込む</h3><p>定例会、読書会、Meetup に安定した定期会場が必要ですか？あなたのコミュニティを3階に持ち込み、毎回同じ「家」に帰ってこられる場所にしましょう。</p></div>
-        <div class="card"><div class="idx">04 · チームがイベントを開く</div><h3>ふさわしい人に見てもらう</h3><p>Demo Night、成果発表、採用ナイト——作品を差し出し、起業家・投資家・人材でいっぱいの部屋で、ふさわしい人にあなたを見つけてもらいましょう。</p></div>
-        <div class="card"><div class="idx">05 · 企業の貸切</div><h3>台北駅にいちばん近い、ひらめきの会場</h3><p>ワークショップ、オフサイト、チーム共創、あるいは丸ごと貸切——台北駅のすぐそば、アクセスはいちばん手軽で、空間はいちばんひらめきに満ちています。</p></div>
-        <div class="card"><div class="idx">06 · 国際コミュニティ</div><h3>国際ネットワークにつながる</h3><p>デジタルノマド、海外コミュニティ、多国籍チームが、言文字を通じて日本・韓国・東南アジア、そして世界のデジタルノマドとスタートアップの資源につながります。</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 三種合作方式 -->
+  <!-- 三種合作方式：三大不等寬主脊面板 -->
   <section class="section" id="ways">
     <div class="wrap">
       <div class="section-head center">
@@ -166,18 +149,52 @@
         <h2 class="section-title">一緒にネットワークを大きくする3つの形</h2>
         <p class="lead">シーンは千差万別ですが、実現の形はおおむね3つに収まります。多くの協業はそのいずれかから始まり、あなたのニーズに合わせて調整していきます。</p>
       </div>
-      <div class="cards c3">
-        <div class="card"><div class="idx">A</div><h3>Event Salon｜私たちのイベントを主催</h3><p>あなたがキュレーター兼ホストとして、ハブの定例サロンやイベントを企画・主宰します。私たちは会場、コミュニティ、広報を用意し、あなたはコンテンツをつくる——一緒にハブのイベントブランドを育てていきます。長期的に舞台を育てたい講師やキュレーターに向いています。</p></div>
-        <div class="card"><div class="idx">B</div><h3>Event Partner｜ここであなたのイベントを開催</h3><p>あなたの講座、講演、読書会、Demo Night を3階イベントスペースに持ち込みます。会場設営、動線、プロジェクター、軽食バーから、受付やチケット業務の協力まで、一つひとつのイベントを一緒に成功させます。定期的にイベントを開く講師・主催者・チームに向いています。</p></div>
-        <div class="card"><div class="idx">C</div><h3>Event Circle｜アライアンスに参加</h3><p>あなたのコミュニティをハブのアライアンスに加えます：イベントの共同開催、相互送客、そしてハブの人材ネットワークと国際的なつながりの共有。あなたのメンバーはハブの人材密度の一部となり、ハブのネットワークもあなたのコミュニティの延長になります。</p></div>
+      <div class="ptn-ways-grid">
+        <div class="ptn-way">
+          <span class="ptn-way-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg></span>
+          <span class="ptn-way-mark">A</span>
+          <h3>Event Salon｜私たちのイベントを主催</h3>
+          <p>あなたがキュレーター兼ホストとして、ハブの定例サロンやイベントを企画・主宰します。私たちは会場、コミュニティ、広報を用意し、あなたはコンテンツをつくる——一緒にハブのイベントブランドを育てていきます。長期的に舞台を育てたい講師やキュレーターに向いています。</p>
+        </div>
+        <div class="ptn-way">
+          <span class="ptn-way-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><path d="m9 15 2 2 4-4"/></svg></span>
+          <span class="ptn-way-mark">B</span>
+          <h3>Event Partner｜ここであなたのイベントを開催</h3>
+          <p>あなたの講座、講演、読書会、Demo Night を3階イベントスペースに持ち込みます。会場設営、動線、プロジェクター、軽食バーから、受付やチケット業務の協力まで、一つひとつのイベントを一緒に成功させます。定期的にイベントを開く講師・主催者・チームに向いています。</p>
+        </div>
+        <div class="ptn-way">
+          <span class="ptn-way-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="m8.5 7.5 2 8.5M15.5 7.5l-2 8.5"/></svg></span>
+          <span class="ptn-way-mark">C</span>
+          <h3>Event Circle｜アライアンスに参加</h3>
+          <p>あなたのコミュニティをハブのアライアンスに加えます：イベントの共同開催、相互送客、そしてハブの人材ネットワークと国際的なつながりの共有。あなたのメンバーはハブの人材密度の一部となり、ハブのネットワークもあなたのコミュニティの延長になります。</p>
+        </div>
       </div>
-      <div class="prose" style="margin:34px auto 0;text-align:center;max-width:60ch">
-        <p style="color:var(--muted);font-size:.98rem">自分がどれに当てはまるか分からない？それはごく自然なことです。多くのパートナーは、まず話し、それから一緒に最もふさわしい協業の形を見つけていきます。</p>
+      <div class="ptn-ways-note">
+        <p>自分がどれに当てはまるか分からない？それはごく自然なことです。多くのパートナーは、まず話し、それから一緒に最もふさわしい協業の形を見つけていきます。</p>
       </div>
     </div>
   </section>
 
-  <!-- 為什麼是言文字 -->
+  <!-- 六種合作情境：不規則磚牆 -->
+  <section class="section" id="scenarios">
+    <div class="wrap">
+      <div class="section-head center">
+        <div class="eyebrow center">Scenarios · 協業シーン</div>
+        <h2 class="section-title">人を集める6つの方法</h2>
+        <p class="lead">どの協業形態にするか、先に決める必要はありません。まずはどのシーンが自分に近いかを見て、そこから一緒に形にしていきましょう。</p>
+      </div>
+      <div class="ptn-wall">
+        <div class="ptn-brick"><div class="idx">01 · 先生が生徒を教える</div><h3>講座をここで開く</h3><p>先生は無料で空間を利用、生徒は受講料を払って学ぶ。もう別に教室を借りる必要はありません。あなたは授業に集中し、私たちが会場、受付、雰囲気づくりを整えます。</p></div>
+        <div class="ptn-brick"><div class="idx">02 · 講演とワークショップ</div><h3>講座を立ち上げる</h3><p>講師が講座を開き、伝えたい。会場、プロジェクター、軽食バーから聴衆まで、一つの講座をアイデアから満席へと変えるまで、一緒に伴走します。</p></div>
+        <div class="ptn-brick"><div class="idx">03 · 主催者が会場を探す</div><h3>コミュニティを持ち込む</h3><p>定例会、読書会、Meetup に安定した定期会場が必要ですか？あなたのコミュニティを3階に持ち込み、毎回同じ「家」に帰ってこられる場所にしましょう。</p></div>
+        <div class="ptn-brick"><div class="idx">04 · チームがイベントを開く</div><h3>ふさわしい人に見てもらう</h3><p>Demo Night、成果発表、採用ナイト——作品を差し出し、起業家・投資家・人材でいっぱいの部屋で、ふさわしい人にあなたを見つけてもらいましょう。</p></div>
+        <div class="ptn-brick"><div class="idx">05 · 企業の貸切</div><h3>台北駅にいちばん近い、ひらめきの会場</h3><p>ワークショップ、オフサイト、チーム共創、あるいは丸ごと貸切——台北駅のすぐそば、アクセスはいちばん手軽で、空間はいちばんひらめきに満ちています。</p></div>
+        <div class="ptn-brick"><div class="idx">06 · 国際コミュニティ</div><h3>国際ネットワークにつながる</h3><p>デジタルノマド、海外コミュニティ、多国籍チームが、言文字を通じて日本・韓国・東南アジア、そして世界のデジタルノマドとスタートアップの資源につながります。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 為什麼是言文字：位置—社群—國際—空間 橫向串連 -->
   <section class="section" id="why">
     <div class="wrap">
       <div class="section-head center">
@@ -185,11 +202,23 @@
         <h2 class="section-title">ここで開くと、なぜ違うのか</h2>
         <p class="lead">同じ一つのイベントでも、鍵は空間の広さだけではなく、誰が来るのか、何につながれるのかにあります。</p>
       </div>
-      <div class="cards c2">
-        <div class="card"><div class="idx">立地</div><h3>台北駅のそば</h3><p>台北市中正区重慶南路一段11号、駅前地下街 Z10 出口の斜め向かい。台湾最大のターミナル駅という高人流の結節点で、台湾各地から来るゲストにとってアクセスがいちばん手軽です。</p></div>
-        <div class="card"><div class="idx">コミュニティ</div><h3>人材密度を核に</h3><p>ここには起業家、フリーランス、コンサルタント、デジタルノマド、そして国際的な人材が集まります。あなたが連れてくる人は、普段なら出会えない人たちと出会う——それこそが協業のいちばんの価値です。</p></div>
-        <div class="card"><div class="idx">国際</div><h3>TDNA 国際コミュニティとのつながり</h3><p>背後には台湾デジタルノマド協会（TDNA）と、日本・韓国・東南アジア・ヨーロッパに広がる国際ネットワークがあり、あなたのイベントやコミュニティが台湾の外へ運ばれる可能性を開きます。</p></div>
-        <div class="card"><div class="idx">空間</div><h3>3階・吹き抜けの木梁イベントスペース</h3><p>可動式の家具、多彩なレイアウト、100インチ以上のプロジェクション、セルフの軽食バー。十数人の読書会から満員の Demo Night まで、しっかり受け止めます。</p></div>
+      <div class="ptn-why-line">
+        <div class="ptn-why-node">
+          <span class="ptn-why-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></span>
+          <div><div class="ptn-why-tag">立地</div><h3>台北駅のそば</h3><p>台北市中正区重慶南路一段11号、駅前地下街 Z10 出口の斜め向かい。台湾最大のターミナル駅という高人流の結節点で、台湾各地から来るゲストにとってアクセスがいちばん手軽です。</p></div>
+        </div>
+        <div class="ptn-why-node">
+          <span class="ptn-why-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <div><div class="ptn-why-tag">コミュニティ</div><h3>人材密度を核に</h3><p>ここには起業家、フリーランス、コンサルタント、デジタルノマド、そして国際的な人材が集まります。あなたが連れてくる人は、普段なら出会えない人たちと出会う——それこそが協業のいちばんの価値です。</p></div>
+        </div>
+        <div class="ptn-why-node">
+          <span class="ptn-why-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><ellipse cx="12" cy="12" rx="4" ry="9"/></svg></span>
+          <div><div class="ptn-why-tag">国際</div><h3>TDNA 国際コミュニティとのつながり</h3><p>背後には台湾デジタルノマド協会（TDNA）と、日本・韓国・東南アジア・ヨーロッパに広がる国際ネットワークがあり、あなたのイベントやコミュニティが台湾の外へ運ばれる可能性を開きます。</p></div>
+        </div>
+        <div class="ptn-why-node">
+          <span class="ptn-why-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01M15 10h.01"/></svg></span>
+          <div><div class="ptn-why-tag">空間</div><h3>3階・吹き抜けの木梁イベントスペース</h3><p>可動式の家具、多彩なレイアウト、100インチ以上のプロジェクション、セルフの軽食バー。十数人の読書会から満員の Demo Night まで、しっかり受け止めます。</p></div>
+        </div>
       </div>
     </div>
   </section>
@@ -211,7 +240,7 @@
       <div class="wrap narrow" style="padding:0">
         <div class="pagenav">
           <a class="btn btn-ghost" href="#scenarios">← 協業シーンに戻る</a>
-          <a class="btn btn-seal" href="mailto:kkshyu.tw@gmail.com">あなたのイベントについて話す →</a>
+          <a class="btn btn-ink" href="mailto:kkshyu.tw@gmail.com">あなたのイベントについて話す →</a>
         </div>
       </div>
     </div>
@@ -237,7 +266,7 @@
     </div>
   </section>
 
-  <!-- 聯絡 / CTA -->
+  <!-- 聯絡 / CTA：全頁唯一黃擊 -->
   <section class="section" id="contact">
     <div class="wrap narrow">
       <div class="section-head center">
@@ -245,7 +274,14 @@
         <h2 class="section-title">協業について話しましょう</h2>
         <p class="lead">完璧な企画を先に準備する必要はありません。あなたが誰で、何をしたいのかを教えてください。一緒にそれを、本物のイベントへ、長く続くパートナーシップへと変えていきます。</p>
       </div>
-      <div class="table-wrap">
+      <div class="ptn-cta">
+        <p style="color:var(--muted);font-size:.98rem;max-width:52ch;margin:0 auto">まずはメールかメッセージで、あなたが誰で、何をしたいのかを教えてください。あとは時間を合わせて、ゆっくりお話ししましょう。</p>
+        <div class="hero-cta">
+          <a class="btn btn-seal btn-lg" href="mailto:kkshyu.tw@gmail.com?subject=%E7%A4%BE%E7%BE%A4%E5%A4%A5%E4%BC%B4%E8%A8%88%E7%95%AB%E6%B4%BD%E8%A9%A2&body=%E5%97%A8%EF%BC%8C%E6%88%91%E6%83%B3%E8%81%8A%E8%81%8A%E5%90%88%E4%BD%9C%EF%BC%9A%0A%0A%E6%88%91%E6%98%AF%EF%BC%9A%0A%E6%88%91%E6%83%B3%E5%81%9A%E7%9A%84%E4%BA%8B%EF%BC%9A%0A%E7%90%86%E6%83%B3%E7%9A%84%E5%90%88%E4%BD%9C%E6%96%B9%E5%BC%8F%EF%BC%9A%0A%E9%A0%90%E8%A8%88%E6%99%82%E9%96%93%EF%BC%9A">協業について話す</a>
+          <a class="btn btn-ghost btn-lg" href="#top">いちばん上に戻る</a>
+        </div>
+      </div>
+      <div class="table-wrap" style="margin-top:30px">
         <table class="led">
           <tbody>
             <tr><td style="width:120px">Email</td><td><a href="mailto:kkshyu.tw@gmail.com?subject=%E7%A4%BE%E7%BE%A4%E5%A4%A5%E4%BC%B4%E8%A8%88%E7%95%AB%E6%B4%BD%E8%A9%A2&body=%E5%97%A8%EF%BC%8C%E6%88%91%E6%83%B3%E8%81%8A%E8%81%8A%E5%90%88%E4%BD%9C%EF%BC%9A%0A%0A%E6%88%91%E6%98%AF%EF%BC%9A%0A%E6%88%91%E6%83%B3%E5%81%9A%E7%9A%84%E4%BA%8B%EF%BC%9A%0A%E7%90%86%E6%83%B3%E7%9A%84%E5%90%88%E4%BD%9C%E6%96%B9%E5%BC%8F%EF%BC%9A%0A%E9%A0%90%E8%A8%88%E6%99%82%E9%96%93%EF%BC%9A">kkshyu.tw@gmail.com</a></td></tr>
@@ -254,10 +290,6 @@
             <tr><td>住所</td><td>台北市中正区重慶南路一段11号（台北駅前地下街 Z10 出口の斜め向かい）</td></tr>
           </tbody>
         </table>
-      </div>
-      <div class="hero-cta" style="justify-content:center;margin-top:30px">
-        <a class="btn btn-seal btn-lg" href="mailto:kkshyu.tw@gmail.com?subject=%E7%A4%BE%E7%BE%A4%E5%A4%A5%E4%BC%B4%E8%A8%88%E7%95%AB%E6%B4%BD%E8%A9%A2&body=%E5%97%A8%EF%BC%8C%E6%88%91%E6%83%B3%E8%81%8A%E8%81%8A%E5%90%88%E4%BD%9C%EF%BC%9A%0A%0A%E6%88%91%E6%98%AF%EF%BC%9A%0A%E6%88%91%E6%83%B3%E5%81%9A%E7%9A%84%E4%BA%8B%EF%BC%9A%0A%E7%90%86%E6%83%B3%E7%9A%84%E5%90%88%E4%BD%9C%E6%96%B9%E5%BC%8F%EF%BC%9A%0A%E9%A0%90%E8%A8%88%E6%99%82%E9%96%93%EF%BC%9A">メールを送る</a>
-        <a class="btn btn-ghost btn-lg" href="#top">いちばん上に戻る</a>
       </div>
       <p class="tiny center" style="margin-top:16px">メッセージを受け取り次第、できるだけ早くお返事し、時間を合わせてじっくりお話ししましょう。</p>
     </div>

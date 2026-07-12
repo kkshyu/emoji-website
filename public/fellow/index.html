@@ -63,6 +63,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="/fellow/styles.css">
+<link rel="stylesheet" href="/fellow/founding.css">
 <link rel="stylesheet" href="/nav.css">
 <script defer src="/nav.js"></script>
 </head>
@@ -116,52 +117,82 @@
   </div>
 </header>
 
-<!-- ===================== HOME（精簡 hub，非長捲動） ===================== -->
+<!-- ===================== HOME：邀請函・限量名冊 ===================== -->
 <main class="view active" id="view-home">
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div>
+  <section class="fnd-hero">
+    <div class="wrap fnd-hero__grid">
+      <div class="fnd-invite">
         <div class="eyebrow">創始會員計畫 · 致信任 KK 的你</div>
-        <h1 class="hero-cjk">言文字——<span class="nb">台灣人才聚落</span><span class="latin-sub">Taiwan Talent Hub</span></h1>
-        <p class="hero-lead">一個讓台灣與國際人才相遇、工作、創業與共創的實體聚落。就在台北車站旁，重慶南路一段 11 號，2026 年 11 月 1 日正式開幕。</p>
-        <p class="hero-letter">這是一份會籍。開幕之前，我想先邀請 100 位信任這個聚落的人成為創始會員：與一般年費同價，換到更長的會籍與更多的休憩額度，權益全部攤在陽光下。</p>
-        <p class="hero-sign">— 徐愷 KK，發起人</p>
-        <div class="hero-cta">
+        <h1 class="fnd-invite__title">言文字｜台灣人才聚落<span class="latin-sub">Taiwan Talent Hub</span></h1>
+        <p class="fnd-invite__lead">一個讓台灣與國際人才相遇、工作、創業與共創的實體聚落。就在台北車站旁，重慶南路一段 11 號，2026 年 11 月 1 日正式開幕。</p>
+        <blockquote class="fnd-letter">
+          <p>這是一份會籍。開幕之前，我想先邀請 100 位信任這個聚落的人成為創始會員：與一般年費同價，換到更長的會籍與更多的休憩額度，權益全部攤在陽光下。</p>
+          <cite class="fnd-letter__sign">— 徐愷 KK，發起人</cite>
+        </blockquote>
+        <div class="fnd-invite__cta">
           <button class="btn btn-seal btn-lg" data-buy>成為創始會員</button>
           <button class="btn btn-ghost btn-lg" data-go="project">了解專案</button>
         </div>
       </div>
-      <div class="terms-card">
-        <div class="tc-serial"><span>TTH · 2026</span><span>FOUNDING TERMS</span></div>
-        <h3>創始會員核心條件</h3>
-        <div class="terms-row"><span class="k">會費</span><span class="v big">NT$35,000</span></div>
-        <div class="terms-row"><span class="k">會籍期間</span><span class="v big">18 個月</span></div>
-        <div class="terms-row"><span class="k">會籍起迄</span><span class="v">2026-11-01 → 2028-04-30</span></div>
-        <div class="terms-row"><span class="k">休憩額度</span><span class="v">200 小時</span></div>
-        <div class="terms-row"><span class="k">名額</span><span class="v">限量 100 名</span></div>
-        <div class="terms-row"><span class="k">售止</span><span class="v">2026-10-31</span></div>
-        <div class="fund fund--quiet">
-          <div class="fund-top"><span>創始名額</span><b id="hero-fund-pct">0%</b></div>
-          <div class="bar" data-bar><i id="hero-fund-bar"></i></div>
-          <div class="fund-note"><span id="hero-fund-raised">創始名單陸續確認中　·　售止 2026-10-31，售罄不補</span></div>
+
+      <div class="fnd-panel">
+        <div class="terms-card fnd-terms">
+          <div class="tc-serial"><span>TTH · 2026</span><span>FOUNDING TERMS</span></div>
+          <h3>創始會員核心條件</h3>
+          <div class="terms-row"><span class="k">會費</span><span class="v big">NT$35,000</span></div>
+          <div class="terms-row"><span class="k">會籍期間</span><span class="v big">18 個月</span></div>
+          <div class="terms-row"><span class="k">會籍起迄</span><span class="v">2026-11-01 → 2028-04-30</span></div>
+          <div class="terms-row"><span class="k">休憩額度</span><span class="v">200 小時</span></div>
+          <div class="terms-row"><span class="k">名額</span><span class="v">限量 100 名</span></div>
+          <div class="terms-row"><span class="k">售止</span><span class="v">2026-10-31</span></div>
+          <div class="fund fund--quiet fnd-scarcity">
+            <div class="fund-top"><span>創始名額 · 稀缺進度</span><b id="hero-fund-pct">0%</b></div>
+            <div class="bar" data-bar><i id="hero-fund-bar"></i></div>
+            <div class="fund-note"><span id="hero-fund-raised">創始名單陸續確認中　·　售止 2026-10-31，售罄不補</span></div>
+          </div>
+        </div>
+
+        <div class="fnd-roster-wrap">
+          <div class="fnd-roster-label">創始牆 · 座號 001–100</div>
+          <div class="fnd-roster" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head center">
-        <div class="eyebrow center">Explore · 專案總覽</div>
+  <section class="section fnd-index-section">
+    <div class="wrap narrow">
+      <div class="section-head">
+        <div class="eyebrow">Contents · 目次</div>
         <h2 class="section-title">想了解哪一部分？</h2>
         <p class="lead">每個主題都獨立成頁，點進去看完整說明。</p>
       </div>
-      <div class="hub">
-        <button class="hubcard" data-go="why-now"><span class="hc-i">01</span><h3>為什麼是現在</h3><p>數位遊牧浪潮、台灣簽證紅利與台北的市場缺口。</p></button>
-        <button class="hubcard" data-go="about"><span class="hc-i">02</span><h3>關於 KK</h3><p>專案的信用核心：我是誰、做過什麼、為何值得信任。</p></button>
-        <button class="hubcard" data-go="project"><span class="hc-i">03</span><h3>專案說明</h3><p>言文字是什麼、核心服務與三層空間規劃。</p></button>
-        <button class="hubcard" data-go="membership"><span class="hc-i">04</span><h3>會員權益</h3><p>會籍權益，加上只有前 100 名才有的創始專屬。</p></button>
-        <button class="hubcard" data-go="risk"><span class="hc-i">05</span><h3>誠實須知</h3><p>開幕時程與條件式服務，誠實說清楚。</p></button>
+      <div class="fnd-index">
+        <button class="fnd-index__row fnd-index__row--lead" data-go="why-now">
+          <span class="fnd-index__no">01</span>
+          <div class="fnd-index__text"><h3>為什麼是現在</h3><p>數位遊牧浪潮、台灣簽證紅利與台北的市場缺口。</p></div>
+          <svg class="fnd-index__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button class="fnd-index__row" data-go="about">
+          <span class="fnd-index__no">02</span>
+          <div class="fnd-index__text"><h3>關於 KK</h3><p>專案的信用核心：我是誰、做過什麼、為何值得信任。</p></div>
+          <svg class="fnd-index__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button class="fnd-index__row" data-go="project">
+          <span class="fnd-index__no">03</span>
+          <div class="fnd-index__text"><h3>專案說明</h3><p>言文字是什麼、核心服務與三層空間規劃。</p></div>
+          <svg class="fnd-index__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button class="fnd-index__row" data-go="membership">
+          <span class="fnd-index__no">04</span>
+          <div class="fnd-index__text"><h3>會員權益</h3><p>會籍權益，加上只有前 100 名才有的創始專屬。</p></div>
+          <svg class="fnd-index__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button class="fnd-index__row" data-go="risk">
+          <span class="fnd-index__no">05</span>
+          <div class="fnd-index__text"><h3>誠實須知</h3><p>開幕時程與條件式服務，誠實說清楚。</p></div>
+          <svg class="fnd-index__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
       </div>
     </div>
   </section>
