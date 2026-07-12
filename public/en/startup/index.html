@@ -46,7 +46,7 @@
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Emoji - Taiwan Talent Hub", "item": "https://www.emoji.tw/en/" },
+        { "@type": "ListItem", "position": 1, "name": "Emoji - Taiwan Talent Hub", "item": "https://www.emoji.tw/en" },
         { "@type": "ListItem", "position": 2, "name": "Startup Program", "item": "https://www.emoji.tw/en/startup" }
       ]
     }
@@ -56,6 +56,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="/fellow/styles.css">
+<link rel="stylesheet" href="/startup/startup.css">
 <link rel="stylesheet" href="/nav.css">
 <script defer src="/nav.js"></script>
 </head>
@@ -113,34 +114,34 @@
 <!-- ===================== 主內容 ===================== -->
 <main class="view active" id="view-home">
 
-  <!-- ---- Hero ---- -->
+  <!-- ---- Hero：雙向橋 ---- -->
   <section class="hero" id="top">
-    <div class="wrap hero-grid">
-      <div>
-        <div class="eyebrow">Startup Program</div>
-        <h1>Taking Taiwan's startups to the world, and the world's startups to Taiwan<span class="cn">Emoji - Taiwan Talent Hub</span></h1>
-        <p class="hero-lead">This is a two-way bridge: one end connects Taiwan's startups to the global market, the other helps international startups land and take root in Taiwan.</p>
-        <p class="hero-letter">Recruiting every March, June, and September, we focus on three things — founder training, product refinement, and business matchmaking — to push your startup toward the world one step at a time. It isn't a course; it's a run alongside you — we run this stretch together.</p>
-        <p class="hero-sign">— 言文字, Taiwan Talent Hub</p>
-        <div class="hero-cta">
-          <a class="btn btn-seal btn-lg" href="mailto:kkshyu.tw@gmail.com?subject=Startup%20Program%20%E2%80%94%20Application&amp;body=Team%20name%3A%0ALocation%3A%0AOne-line%20product%20intro%3A%0ACurrent%20stage%3A%0AHelp%20you%27re%20looking%20for%3A%0APreferred%20cohort%20%28March%20%2F%20June%20%2F%20September%29%3A%0AContact%3A">Submit your application</a>
-          <a class="btn btn-ghost btn-lg" href="#support">Explore the three pillars of support</a>
-        </div>
+    <div class="wrap">
+      <div class="eyebrow">Startup Program</div>
+      <h1>Taking Taiwan's startups to <span class="nb">the world</span>, and bringing <span class="nb">the world's</span> startups <span class="nb">home to Taiwan</span></h1>
+      <p class="hero-lead">This is a two-way bridge: one end connects Taiwan's startups to the global market, the other helps international startups land and take root in Taiwan.</p>
+      <p class="hero-letter">Recruiting every March, June, and September, we focus on three things — founder training, product refinement, and business matchmaking — to push your startup toward the world one step at a time. It isn't a course; it's a run alongside you — we run this stretch together.</p>
+      <p class="hero-sign">— Emoji - Taiwan Talent Hub</p>
+      <div class="hero-cta">
+        <a class="btn btn-ink btn-lg" href="mailto:kkshyu.tw@gmail.com?subject=Startup%20Program%20%E2%80%94%20Application&amp;body=Team%20name%3A%0ALocation%3A%0AOne-line%20product%20intro%3A%0ACurrent%20stage%3A%0AHelp%20you%27re%20looking%20for%3A%0APreferred%20cohort%20%28March%20%2F%20June%20%2F%20September%29%3A%0AContact%3A">Submit your application</a>
+        <a class="btn btn-ghost btn-lg" href="#support">Explore the three pillars of support</a>
       </div>
-      <div class="terms-card">
-        <div class="tc-serial"><span>TTH · STARTUP</span><span>PROGRAM TERMS</span></div>
-        <h3>Program essentials</h3>
-        <div class="terms-row"><span class="k">Recruiting</span><span class="v big">Three cohorts a year</span></div>
-        <div class="terms-row"><span class="k">Cohorts</span><span class="v">March · June · September</span></div>
-        <div class="terms-row"><span class="k">Positioning</span><span class="v">A two-way bridge</span></div>
-        <div class="terms-row"><span class="k">Support</span><span class="v">Training · Refinement · Matchmaking</span></div>
-        <div class="terms-row"><span class="k">Process</span><span class="v">Apply → Interview → Selection → Run</span></div>
-        <div class="terms-row"><span class="k">Location</span><span class="v">Beside Taipei Main Station · Hub 3F</span></div>
+
+      <div class="stp-hero-bridge">
+        <div class="stp-hero-side">
+          <span class="stp-hero-cn">Taiwan Startups</span>
+          <span class="stp-hero-en">TW Startups</span>
+        </div>
+        <div class="stp-hero-arrow" aria-hidden="true"></div>
+        <div class="stp-hero-side is-end">
+          <span class="stp-hero-cn">World Startups</span>
+          <span class="stp-hero-en">World Startups</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ---- 召募時程 ---- -->
+  <!-- ---- 召募時程：三梯次時間軸 + 四階段跑道 ---- -->
   <section class="section" id="schedule">
     <div class="wrap">
       <div class="section-head center">
@@ -148,23 +149,74 @@
         <h2 class="section-title">Three cohorts a year — three chances to set off</h2>
         <p class="lead">We recruit startup teams every March, June, and September. Miss one cohort and the next is just three months away — you can submit your interest at any time, and we'll place you in the nearest cohort.</p>
       </div>
-      <div class="cards c3">
-        <div class="card"><div class="idx">MAR</div><h3>March Cohort</h3><p>The year's first cohort. Ideal for teams arriving with a fresh yearly plan, ready to bring their product to market in the first half of the year.</p></div>
-        <div class="card"><div class="idx">JUN</div><h3>June Cohort</h3><p>The mid-year cohort. Building on first-half progress, ideal for teams that already have an MVP and are ready for market validation and expansion.</p></div>
-        <div class="card"><div class="idx">SEP</div><h3>September Cohort</h3><p>The second-half cohort. Aligned with year-end expos, fundraising, and international exchange milestones — ideal for teams aiming to complete a sprint before the year ends.</p></div>
+
+      <div class="stp-track">
+        <div class="stp-station">
+          <div class="stp-station-marker">
+            <div class="stp-station-dot">MAR</div>
+          </div>
+          <div class="stp-station-body">
+            <h3>March Cohort</h3>
+            <p>The year's first cohort. Ideal for teams arriving with a fresh yearly plan, ready to bring their product to market in the first half of the year.</p>
+          </div>
+        </div>
+        <div class="stp-station">
+          <div class="stp-station-marker">
+            <div class="stp-station-dot">JUN</div>
+          </div>
+          <div class="stp-station-body">
+            <h3>June Cohort</h3>
+            <p>The mid-year cohort. Building on first-half progress, ideal for teams that already have an MVP and are ready for market validation and expansion.</p>
+          </div>
+        </div>
+        <div class="stp-station is-next">
+          <div class="stp-station-marker">
+            <div class="stp-station-flag">Next cohort</div>
+            <div class="stp-station-dot">SEP</div>
+          </div>
+          <div class="stp-station-body">
+            <h3>September Cohort</h3>
+            <p>The second-half cohort. Aligned with year-end expos, fundraising, and international exchange milestones — ideal for teams aiming to complete a sprint before the year ends.</p>
+          </div>
+        </div>
       </div>
 
       <h3 class="block-title center">The journey: four stages</h3>
-      <div class="floors narrow" style="margin:0 auto">
-        <div class="floor"><div class="lv"><b>1</b><span>APPLY</span></div><div class="fd"><h4>Apply</h4><p>Submit your interest by email or LINE, with a brief note on your team, your product's stage, and the help you most want. Expressing interest doesn't require a full business plan.</p></div></div>
-        <div class="floor"><div class="lv"><b>2</b><span>TALK</span></div><div class="fd"><h4>Interview</h4><p>A one-on-one deep conversation to clarify together where you're truly stuck right now, your target market, and what this cohort's support can do for you.</p></div></div>
-        <div class="floor"><div class="lv"><b>3</b><span>SELECT</span></div><div class="fd"><h4>Selection</h4><p>Selected by how well your team's needs fit the Hub's resources. We'd rather support a few teams deeply than mass-produce a large class.</p></div></div>
-        <div class="floor"><div class="lv"><b>4</b><span>RUN</span></div><div class="fd"><h4>Run</h4><p>You're officially in. Training, product refinement, and business matchmaking unfold in parallel, while connections keep building in the event space on the Hub's third floor.</p></div></div>
+      <div class="stp-flow">
+        <div class="stp-flow-step">
+          <div class="stp-flow-num">01 · APPLY</div>
+          <h4>Apply</h4>
+          <p>Submit your interest by email or LINE, with a brief note on your team, your product's stage, and the help you most want. Expressing interest doesn't require a full business plan.</p>
+        </div>
+        <div class="stp-flow-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+        <div class="stp-flow-step">
+          <div class="stp-flow-num">02 · TALK</div>
+          <h4>Interview</h4>
+          <p>A one-on-one deep conversation to clarify together where you're truly stuck right now, your target market, and what this cohort's support can do for you.</p>
+        </div>
+        <div class="stp-flow-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+        <div class="stp-flow-step">
+          <div class="stp-flow-num">03 · SELECT</div>
+          <h4>Selection</h4>
+          <p>Selected by how well your team's needs fit the Hub's resources. We'd rather support a few teams deeply than mass-produce a large class.</p>
+        </div>
+        <div class="stp-flow-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+        <div class="stp-flow-step">
+          <div class="stp-flow-num">04 · RUN</div>
+          <h4>Run</h4>
+          <p>You're officially in. Training, product refinement, and business matchmaking unfold in parallel, while connections keep building in the event space on the Hub's third floor.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ---- 三大支援 ---- -->
+  <!-- ---- 三大支援：三跑道並行 ---- -->
   <section class="section" id="support">
     <div class="wrap">
       <div class="section-head center">
@@ -172,15 +224,15 @@
         <h2 class="section-title">What "running alongside you" actually means</h2>
         <p class="lead">We distill our resources into the three things that truly shape success or failure: build the people, sharpen the product, make the connections.</p>
       </div>
-      <div class="cards c3">
-        <div class="card"><div class="idx">01</div><h3>Founder training</h3><p>Complete support from mindset to execution: business models, fundraising narratives, and team operations, while bringing AI productivity and global-market thinking into daily work — so you can do more with fewer people.</p></div>
-        <div class="card"><div class="idx">02</div><h3>Product refinement</h3><p>Product polishing, MVP validation, and rapid iteration. Together we clarify who your real users are and what problem you're solving — subtracting features, adding value, and validating assumptions along the shortest path.</p></div>
-        <div class="card"><div class="idx">03</div><h3>Business matchmaking</h3><p>Connecting you with customers, investors, partners, and co-founders. Through the Hub's events, office hours, and international network, we raise your odds of meeting the right people — the hardest part to pull off on your own.</p></div>
+      <div class="stp-lanes">
+        <div class="stp-lane"><div class="stp-lane-idx">01</div><h3>Founder training</h3><p>Complete support from mindset to execution: business models, fundraising narratives, and team operations, while bringing AI productivity and global-market thinking into daily work — so you can do more with fewer people.</p></div>
+        <div class="stp-lane"><div class="stp-lane-idx">02</div><h3>Product refinement</h3><p>Product polishing, MVP validation, and rapid iteration. Together we clarify who your real users are and what problem you're solving — subtracting features, adding value, and validating assumptions along the shortest path.</p></div>
+        <div class="stp-lane"><div class="stp-lane-idx">03</div><h3>Business matchmaking</h3><p>Connecting you with customers, investors, partners, and co-founders. Through the Hub's events, office hours, and international network, we raise your odds of meeting the right people — the hardest part to pull off on your own.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- ---- 適合對象 ---- -->
+  <!-- ---- 適合對象：兩端對望 ---- -->
   <section class="section" id="who">
     <div class="wrap">
       <div class="section-head center">
@@ -188,14 +240,18 @@
         <h2 class="section-title">Two kinds of teams, one bridge</h2>
         <p class="lead">Whether you want to head out from Taiwan or come in from the world, this bridge is built for you.</p>
       </div>
-      <div class="cards c2">
-        <div class="card">
-          <div class="idx">TW → WORLD</div>
+      <div class="stp-bridge-grid">
+        <div class="stp-bridge-side">
+          <div class="stp-bridge-tag">TW → WORLD</div>
           <h3>Taiwan startups going global</h3>
           <p>You have a solid product but you're hitting the ceiling of the local market. We help you find overseas customers, local partners, and the right market to enter, connecting Taiwan's energy to international channels and capital — so your first overseas deal no longer rests on luck alone.</p>
         </div>
-        <div class="card">
-          <div class="idx">WORLD → TW</div>
+        <div class="stp-bridge-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+          <span>Bridge</span>
+        </div>
+        <div class="stp-bridge-side">
+          <div class="stp-bridge-tag">WORLD → TW</div>
           <h3>International startups landing in Taiwan</h3>
           <p>You see the opportunity in Taiwan but don't know where to start. We help you access local resources, handle the practicalities of visas and settling in, find local teams and talent, and take the shortest path into Taiwan's market and community.</p>
         </div>
@@ -203,7 +259,7 @@
     </div>
   </section>
 
-  <!-- ---- 為什麼是我們 ---- -->
+  <!-- ---- 為什麼是我們：編號清單 ---- -->
   <section class="section" id="why-us">
     <div class="wrap">
       <div class="section-head center">
@@ -211,13 +267,13 @@
         <h2 class="section-title">Everything a run alongside you needs, we happen to have</h2>
         <p class="lead">Running alongside a team isn't about enthusiasm — it's about a full set of real networks, policy tailwinds, and a physical venue. What we've built over the years is exactly what can catch a startup team.</p>
       </div>
-      <div class="cards c3">
-        <div class="card"><div class="idx">01</div><h3>Taiwan's visa tailwind</h3><p>Taiwan's digital nomad visa now runs up to 2 years, with new spousal work rights and a fast track to permanent residency — a powerful tailwind for international startups landing in Taiwan and for Taiwanese teams recruiting global talent.</p></div>
-        <div class="card"><div class="idx">02</div><h3>The TDNA network</h3><p>Through the Taiwan Digital Nomad Association (TDNA), we connect to digital-nomad and startup organizations across Japan, Korea, Southeast Asia, and Europe — giving "find an overseas partner" real nodes to plug into.</p></div>
-        <div class="card"><div class="idx">03</div><h3>Taiwan Digital Fest</h3><p>Our annual flagship event, gathering digital nomads, founders, and investors from home and abroad — a natural stage for startup exposure, matchmaking, and international exchange.</p></div>
-        <div class="card"><div class="idx">04</div><h3>Talent density beside Taipei Main Station</h3><p>The Hub sits right beside Taipei Main Station at No. 11, Section 1, Chongqing South Road — the most densely trafficked node in Taiwan, raising the odds that "meeting the right person" actually happens.</p></div>
-        <div class="card"><div class="idx">05</div><h3>Government and enterprise ties</h3><p>KK's years of government collaborations and enterprise connections mean the run doesn't stop at community — it extends into real business opportunities like public tenders, corporate training, and digital transformation.</p></div>
-        <div class="card"><div class="idx">06</div><h3>The Hub's third-floor event space</h3><p>With high ceilings, timber beams, and a large projection screen, the third-floor coworking and event space is the physical home of courses, Demo Nights, investor meetups, and Founder Dinners.</p></div>
+      <div class="stp-why-grid">
+        <div class="stp-why-item"><div class="stp-why-num">01</div><div><h3>Taiwan's visa tailwind</h3><p>Taiwan's digital nomad visa now runs up to 2 years, with new spousal work rights and a fast track to permanent residency — a powerful tailwind for international startups landing in Taiwan and for Taiwanese teams recruiting global talent.</p></div></div>
+        <div class="stp-why-item"><div class="stp-why-num">02</div><div><h3>The TDNA network</h3><p>Through the Taiwan Digital Nomad Association (TDNA), we connect to digital-nomad and startup organizations across Japan, Korea, Southeast Asia, and Europe — giving "find an overseas partner" real nodes to plug into.</p></div></div>
+        <div class="stp-why-item"><div class="stp-why-num">03</div><div><h3>Taiwan Digital Fest</h3><p>Our annual flagship event, gathering digital nomads, founders, and investors from home and abroad — a natural stage for startup exposure, matchmaking, and international exchange.</p></div></div>
+        <div class="stp-why-item"><div class="stp-why-num">04</div><div><h3>Talent density beside Taipei Main Station</h3><p>The Hub sits right beside Taipei Main Station at No. 11, Section 1, Chongqing South Road — the most densely trafficked node in Taiwan, raising the odds that "meeting the right person" actually happens.</p></div></div>
+        <div class="stp-why-item"><div class="stp-why-num">05</div><div><h3>Government and enterprise ties</h3><p>KK's years of government collaborations and enterprise connections mean the run doesn't stop at community — it extends into real business opportunities like public tenders, corporate training, and digital transformation.</p></div></div>
+        <div class="stp-why-item"><div class="stp-why-num">06</div><div><h3>The Hub's third-floor event space</h3><p>With high ceilings, timber beams, and a large projection screen, the third-floor coworking and event space is the physical home of courses, Demo Nights, investor meetups, and Founder Dinners.</p></div></div>
       </div>
     </div>
   </section>
@@ -254,7 +310,7 @@
         <p>Whether you want to take a Taiwanese product to the world or bring an international team to land in Taiwan, we'd love to get to know you first. Expressing interest doesn't require a full plan — a single sentence on what you're building and what help you want is enough.</p>
       </div>
       <div class="hero-cta" style="justify-content:center">
-        <a class="btn btn-seal btn-lg" href="mailto:kkshyu.tw@gmail.com?subject=Startup%20Program%20%E2%80%94%20Application&amp;body=Team%20name%3A%0ALocation%3A%0AOne-line%20product%20intro%3A%0ACurrent%20stage%3A%0AHelp%20you%27re%20looking%20for%3A%0APreferred%20cohort%20%28March%20%2F%20June%20%2F%20September%29%3A%0AContact%3A">Submit interest by email</a>
+        <a class="btn btn-ink btn-lg" href="mailto:kkshyu.tw@gmail.com?subject=Startup%20Program%20%E2%80%94%20Application&amp;body=Team%20name%3A%0ALocation%3A%0AOne-line%20product%20intro%3A%0ACurrent%20stage%3A%0AHelp%20you%27re%20looking%20for%3A%0APreferred%20cohort%20%28March%20%2F%20June%20%2F%20September%29%3A%0AContact%3A">Submit interest by email</a>
         <a class="btn btn-ghost btn-lg" href="#top">Back to top</a>
       </div>
       <div class="table-wrap" style="margin-top:34px">
@@ -279,7 +335,7 @@
       <div>
         <div class="brand" style="cursor:default">
           <svg class="logo" aria-hidden="true"><use href="#logo-tw"/></svg>
-          <div class="brand-name">言文字<small>Taiwan Talent Hub · STARTUP</small></div>
+          <div class="brand-name">Emoji - Taiwan Talent Hub<small>STARTUP</small></div>
         </div>
         <p style="margin-top:16px">The Startup Program. Taking Taiwan's startups to the world and the world's startups to Taiwan — every March, June, and September, we run this crucial stretch alongside you.</p>
       </div>
@@ -296,7 +352,7 @@
         <ul>
           <li><a href="#why-us">Why us</a></li>
           <li><a href="#notes">Honest notes</a></li>
-          <li><a href="mailto:kkshyu.tw@gmail.com">Apply & get in touch</a></li>
+          <li><a href="mailto:kkshyu.tw@gmail.com">Apply &amp; get in touch</a></li>
         </ul>
       </div>
       <div>

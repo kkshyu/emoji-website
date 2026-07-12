@@ -15,3 +15,6 @@ npm-debug.log*
 
 # 環境變數
 .env
+
+# SDD 本地進度 scratch
+.superpowers/
