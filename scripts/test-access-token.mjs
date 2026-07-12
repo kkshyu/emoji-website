@@ -39,3 +39,12 @@ test('rejects expired', () => {
 test('sign throws without secret', () => {
   assert.throws(() => signAccessToken(base, '', { now: 1, ttlSec: 60 }));
 });
+
+test('rejects missing iat', () => {
+  const crypto = require('crypto');
+  const body = Buffer.from(JSON.stringify({
+    sub: 'u', ent: 'e', plan: 'month', floors: ['2'], exp: 9e12,
+  })).toString('base64url');
+  const sig = crypto.createHmac('sha256', SECRET).update(body).digest('base64url');
+  assert.equal(verifyAccessToken(body + '.' + sig, SECRET, { now: 1 }), null);
+});
