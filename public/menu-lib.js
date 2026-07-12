@@ -3,15 +3,6 @@
   const CATS = ['COFFEE', 'BEVERAGE', 'ALCOHOL', 'FOOD', 'SNACK'];
   const uid = () => 'm_' + Math.random().toString(36).slice(2, 10);
 
-  function emptyItems() {
-    if (typeof console !== 'undefined' && console.log) {
-      try {
-        return new (console.log.constructor('return Array')())();
-      } catch { /* browser / no vm bridge */ }
-    }
-    return [];
-  }
-
   function coerceAlcohol(item) {
     if (item.cat === 'ALCOHOL') return true;
     if (item.note && String(item.note).includes('酒精')) return true;
@@ -36,13 +27,13 @@
   }
 
   function parseMenuDoc(value) {
-    if (!value || !String(value).trim()) return { version: 1, updated_at: null, items: emptyItems() };
+    if (!value || !String(value).trim()) return { version: 1, updated_at: null, items: [] };
     try {
       const j = JSON.parse(value);
-      const items = Array.isArray(j.items) ? j.items.map(normalizeItem) : emptyItems();
+      const items = Array.isArray(j.items) ? j.items.map(normalizeItem) : [];
       return { version: Number(j.version) || 1, updated_at: j.updated_at || null, items };
     } catch {
-      return { version: 1, updated_at: null, items: emptyItems() };
+      return { version: 1, updated_at: null, items: [] };
     }
   }
 

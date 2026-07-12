@@ -29,12 +29,14 @@ test('normalizeItem note 含酒精 → alcohol', () => {
 test('parseMenuDoc empty → empty items', () => {
   const doc = M.parseMenuDoc('');
   assert.equal(doc.version, 1);
-  assert.deepEqual(doc.items, []);
+  assert.ok(Array.isArray(doc.items));
+  assert.equal(doc.items.length, 0);
 });
 
 test('parseMenuDoc invalid JSON throws or returns empty', () => {
   const doc = M.parseMenuDoc('{not json');
-  assert.deepEqual(doc.items, []);
+  assert.ok(Array.isArray(doc.items));
+  assert.equal(doc.items.length, 0);
 });
 
 test('validateDoc rejects empty zh', () => {
