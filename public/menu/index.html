@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>菜單 · 言文字｜台灣人才聚落</title>
+<meta name="description" content="言文字｜台灣人才聚落菜單：咖啡、飲品、酒精飲品與餐點價目一覽。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link rel="canonical" href="https://www.emoji.tw/menu/">
+<meta property="og:url" content="https://www.emoji.tw/menu/">
+<meta property="og:title" content="菜單 · 言文字｜台灣人才聚落">
+<meta property="og:description" content="咖啡、飲品、酒精飲品與餐點價目一覽。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="言文字｜台灣人才聚落 Taiwan Talent Hub">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://www.emoji.tw/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="菜單 · 言文字｜台灣人才聚落">
+<meta name="twitter:description" content="咖啡、飲品、酒精飲品與餐點價目一覽。">
+<meta name="twitter:image" content="https://www.emoji.tw/og-cover.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "name": "言文字菜單",
+      "description": "言文字｜台灣人才聚落的公開菜單：咖啡、飲品、酒精飲品與餐點價目。",
+      "url": "https://www.emoji.tw/menu/",
+      "isPartOf": { "@type": "WebSite", "name": "言文字｜台灣人才聚落", "url": "https://www.emoji.tw/" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "言文字｜台灣人才聚落", "item": "https://www.emoji.tw/" },
+        { "@type": "ListItem", "position": 2, "name": "菜單", "item": "https://www.emoji.tw/menu/" }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/nav.css">
+<script defer src="/nav.js"></script>
+<style>
+  .menu-hero{padding:56px 0 40px;border-bottom:1px solid var(--line)}
+  .menu-hero__kicker{font-size:.76rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+  .menu-hero__title{font-family:var(--serif);font-weight:500;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1.28;margin:18px 0 0}
+  .menu-hero__title .hl{background:linear-gradient(transparent 58%,var(--accent) 58%,var(--accent) 94%,transparent 94%);padding:0 .04em}
+  .menu-hero__lede{margin-top:18px;max-width:56ch;color:var(--ink-soft);font-weight:300;font-size:1.02rem;line-height:1.9}
+
+  .menu-body{padding:48px 0 80px}
+  .menu-empty{padding:80px 24px;text-align:center;color:var(--muted);font-family:var(--serif);font-size:1.3rem}
+
+  .menu-group{margin-bottom:52px}
+  .menu-group__head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;padding-bottom:10px;border-bottom:1.5px solid var(--ink)}
+  .menu-group__zh{font-family:var(--serif);font-weight:500;font-size:1.5rem;letter-spacing:.04em}
+  .menu-group__en{font-family:var(--latin);font-size:.9rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  .menu-list{list-style:none}
+  .menu-item{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .menu-item:last-child{border-bottom:none}
+  .menu-item__names{min-width:0}
+  .menu-item__zh{font-family:var(--serif);font-weight:500;font-size:1.08rem}
+  .menu-item__en{margin-left:.7em;font-family:var(--latin);font-size:.86rem;letter-spacing:.03em;color:var(--muted)}
+  .menu-item__note{margin-top:5px;font-size:.86rem;color:var(--muted);font-weight:300}
+  .menu-item__price{flex:0 0 auto;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .menu-item__price .now{font-family:var(--latin);font-size:1.12rem;font-weight:600;color:var(--ink)}
+  .menu-item__price .orig{display:block;margin-top:2px;font-size:.78rem;color:var(--muted)}
+  .menu-item__price .orig s{text-decoration-color:var(--muted)}
+
+  .menu-notice{margin-top:8px;padding:16px 20px;background:var(--paper-alt);border:1px solid var(--line);border-radius:var(--radius-sm);font-size:.86rem;color:var(--ink-soft);font-weight:400}
+
+  @media(max-width:640px){
+    .menu-item__en{display:block;margin-left:0;margin-top:2px}
+  }
+</style>
+</head>
+<body>
+<a href="#content" class="skip-link">跳至主要內容</a>
+
+<header class="site-nav" id="nav">
+  <div class="site-nav__inner">
+    <a class="brand" href="/" aria-label="言文字｜台灣人才聚落 首頁">
+      <b>言文字</b><span>台灣人才聚落</span>
+    </a>
+    <nav class="site-nav__links" id="navLinks" aria-label="聚落計畫">
+      <a href="/#about">關於聚落</a>
+      <a href="/#floors">系統</a>
+      <div class="site-nav__dd">
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false">聚落計畫 <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="site-nav__menu">
+          <a href="/fellow">創始會員計畫</a>
+          <a href="/partner">社群夥伴計畫</a>
+          <a href="/startup">新創陪跑計畫</a>
+        </div>
+      </div>
+      <a href="/menu/" aria-current="page">菜單</a>
+      <a href="/cis/">企業識別</a>
+      <a href="/member" id="navMember" data-label-authed="會員專區">會員登入</a>
+      <div class="site-nav__dd site-nav__lang">
+        <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false" aria-label="切換語言">
+          <svg class="site-nav__globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><ellipse cx="12" cy="12" rx="4" ry="9"/></svg>
+          <span class="site-nav__lang-label">中文</span>
+          <svg class="site-nav__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="site-nav__menu">
+          <a href="/menu/" hreflang="zh-Hant" lang="zh-Hant" aria-current="page">中文</a>
+          <a href="/menu/" hreflang="en" lang="en">English</a>
+          <a href="/menu/" hreflang="ja" lang="ja">日本語</a>
+        </div>
+      </div>
+      <a href="https://www.instagram.com/emoji0701" target="_blank" rel="noopener" class="btn">追蹤我們</a>
+    </nav>
+    <button class="site-nav__toggle" id="navToggle" aria-label="開啟選單" data-label-open="開啟選單" data-label-close="關閉選單" aria-controls="navLinks" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main id="content">
+  <div class="wrap">
+    <header class="menu-hero">
+      <p class="menu-hero__kicker">Menu · 言文字菜單</p>
+      <h1 class="menu-hero__title">白日供咖啡，<br>入夜轉為<span class="hl">酒吧</span>。</h1>
+      <p class="menu-hero__lede">會員價為創始會員與年會員專屬價格。菜單依季節與供應狀況調整，正式品項與售價以現場公告為準。</p>
+    </header>
+  </div>
+
+  <div class="wrap menu-body">
+    <div id="menuRoot">
+      <p class="menu-empty">菜單準備中</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot__top">
+      <div class="foot__brand">
+        <b>言文字</b>
+        <span>言文字｜台灣人才聚落</span>
+        <p>打造台灣人才密度最高的聚落，讓你平常不會遇到的人，在台北車站旁相遇。</p>
+      </div>
+      <div class="foot__col">
+        <h3>聚落計畫</h3>
+        <a href="/fellow">創始會員計畫</a>
+        <a href="/partner">社群夥伴計畫</a>
+        <a href="/startup">新創陪跑計畫</a>
+      </div>
+      <div class="foot__col">
+        <h3>探索</h3>
+        <a href="/#about">關於聚落</a>
+        <a href="/cis/">企業識別 CIS</a>
+        <a href="/menu/" aria-current="page">菜單</a>
+        <a href="/member">會員登入</a>
+      </div>
+      <div class="foot__col">
+        <h3>據點</h3>
+        <p>台北市中正區<br>重慶南路一段 11 號</p>
+        <a href="mailto:us@emoji.tw">us@emoji.tw</a>
+      </div>
+    </div>
+    <div class="foot__bot">
+      <span>© 2026 言文字｜台灣人才聚落</span>
+      <span>Menu · 2026</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/menu-lib.js"></script>
+<script>
+(function () {
+  var CAT_LABEL = {
+    COFFEE: { zh: '咖啡', en: 'Coffee' },
+    BEVERAGE: { zh: '飲品', en: 'Beverage' },
+    ALCOHOL: { zh: '酒精飲品', en: 'Alcohol' },
+    FOOD: { zh: '餐點', en: 'Food' },
+    SNACK: { zh: '點心', en: 'Snack' },
+  };
+  var esc = function (s) {
+    return (s == null ? '' : String(s)).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  };
+  var money = function (n) { return 'NT$' + Number(n || 0).toLocaleString('zh-TW'); };
+
+  var root = document.getElementById('menuRoot');
+
+  function renderEmpty() {
+    root.innerHTML = '<p class="menu-empty">菜單準備中</p>';
+  }
+
+  function renderItem(item) {
+    var showOrig = item.emo > 0 && item.emo !== item.price;
+    var priceHtml = showOrig
+      ? '<span class="now">' + money(item.emo) + '</span><span class="orig">原價 <s>' + money(item.price) + '</s></span>'
+      : '<span class="now">' + money(item.price) + '</span>';
+    return (
+      '<li class="menu-item">' +
+        '<div class="menu-item__names">' +
+          '<span class="menu-item__zh">' + esc(item.zh) + '</span>' +
+          (item.en ? '<span class="menu-item__en">' + esc(item.en) + '</span>' : '') +
+          (item.note ? '<div class="menu-item__note">' + esc(item.note) + '</div>' : '') +
+        '</div>' +
+        '<div class="menu-item__price">' + priceHtml + '</div>' +
+      '</li>'
+    );
+  }
+
+  function render(items) {
+    if (!items.length) { renderEmpty(); return; }
+    var hasAlcohol = items.some(function (it) { return it.alcohol; });
+    var byCat = {};
+    var order = [];
+    items.forEach(function (it) {
+      if (!byCat[it.cat]) { byCat[it.cat] = []; order.push(it.cat); }
+      byCat[it.cat].push(it);
+    });
+    var html = order.map(function (cat) {
+      var label = CAT_LABEL[cat] || { zh: cat, en: '' };
+      return (
+        '<section class="menu-group">' +
+          '<div class="menu-group__head">' +
+            '<h2 class="menu-group__zh">' + esc(label.zh) + '</h2>' +
+            '<span class="menu-group__en">' + esc(label.en) + '</span>' +
+          '</div>' +
+          '<ul class="menu-list">' + byCat[cat].map(renderItem).join('') + '</ul>' +
+        '</section>'
+      );
+    }).join('');
+    if (hasAlcohol) {
+      html += '<p class="menu-notice">未滿十八歲禁止飲酒。禁止酒駕。</p>';
+    }
+    root.innerHTML = html;
+  }
+
+  fetch('/api/public')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      var raw = d && d.content && d.content.menu;
+      var doc = window.MenuLib.parseMenuDoc(raw);
+      var items = window.MenuLib.sortItems(window.MenuLib.publishedOnly(doc));
+      render(items);
+    })
+    .catch(renderEmpty);
+})();
+</script>
+</body>
+</html>

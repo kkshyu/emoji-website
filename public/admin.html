@@ -87,6 +87,7 @@
 <div class="a-toast" id="toast"></div>
 
 <script src="/vendor/html-to-image.js"></script>
+<script src="/menu-lib.js"></script>
 <script src="/menu-data.js"></script>
 <script src="/ig-studio.js"></script>
 <script>
@@ -98,6 +99,10 @@ const esc = s => (s == null ? '' : String(s)).replace(/[&<>"]/g, c => ({'&':'&am
 const NT = n => 'NT$' + Number(n || 0).toLocaleString('en-US');
 const num = n => Number(n || 0).toLocaleString('en-US');
 let toastT, DATA = null, TAB = 'overview';
+let MENU_DOC = null;
+let MENU_DIRTY = false;
+let MENU_DIRTY_TOASTED = false;
+let MENU_SEEDED = false;
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 
 // datetime-local 值 ↔ ISO
@@ -119,7 +124,7 @@ async function api(path, { method='GET', body } = {}) {
   return d;
 }
 
-logoutBtn.onclick = () => { localStorage.removeItem(KEY); location.reload(); };
+logoutBtn.onclick = () => { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); location.reload(); };
 
 function renderLogin(msg){
   logoutBtn.style.display='none';
@@ -155,6 +160,30 @@ function derived(d){
   return { joined, pending, people, cByUser };
 }
 
+/* ---------- 菜單（site_content.menu） ---------- */
+function ensureMenuDoc(d) {
+  const raw = d.content && d.content.menu;
+  if (typeof raw === 'string' && raw.trim()) {
+    MENU_SEEDED = false;
+    return MenuLib.parseMenuDoc(raw);
+  }
+  const seed = window.__MENU_SEED || window.MENU_DATA;
+  if (seed) {
+    MENU_SEEDED = true;
+    return MenuLib.fromSeedRows(seed);
+  }
+  MENU_SEEDED = false;
+  return MenuLib.parseMenuDoc('');
+}
+
+// IG 產生器讀 window.MENU_DATA；每次 MENU_DOC 有更新都要同步，確保帶入的是目前顯示中的清單（含未存檔編輯）。
+function syncWindowMenuData() {
+  const items = (MENU_DOC && MENU_DOC.items && MENU_DOC.items.length)
+    ? MENU_DOC.items
+    : MenuLib.fromSeedRows(window.__MENU_SEED || window.MENU_DATA || []).items;
+  window.MENU_DATA = MenuLib.sortItems(items);
+}
+
 /* ---------- 各分頁 ---------- */
 function tabOverview(d, x){
   return `
@@ -168,7 +197,7 @@ function tabOverview(d, x){
   </div>
   <div class="a-sec">
     <h2>快速指引</h2>
-    <p class="hint">此後台管理創始會員計畫與官網前台內容。左側分頁：<b>會員</b>可搜尋與匯出名單；<b>參與紀錄</b>確認會費入帳；<b>活動</b>建立並查看報名；<b>最新消息</b>會公開顯示於官網首頁；<b>網站內容</b>可編輯首頁公告。</p>
+    <p class="hint">此後台管理創始會員計畫與官網前台內容。左側分頁：<b>會員</b>可搜尋與匯出名單；<b>參與紀錄</b>確認會費入帳；<b>活動</b>建立並查看報名；<b>最新消息</b>會公開顯示於官網首頁；<b>網站內容</b>可編輯首頁公告；<a href="/access-mock" target="_blank" rel="noopener">門禁 Mock</a> 可協助手動驗簽與掃碼啟用。</p>
   </div>`;
 }
 
@@ -180,20 +209,22 @@ function tabMembers(d, x){
       <td>${esc(u.name||'—')}</td>
       <td class="a-mono">${esc(u.email||'—')}</td>
       <td class="a-mono">${esc(u.phone||'')}</td>
+      <td>${u.access_active?'<span class="pill pill-ok">Active</span>':'<span class="pill pill-wait">—</span>'}</td>
+      <td>${esc(u.access_summary||'—')}</td>
       <td>${c?'<span class="pill pill-ok">'+esc(status)+'</span>':'<span class="pill pill-wait">尚未加入</span>'}</td>
       <td class="a-mono">${esc(c?c.cert_no:'')}</td>
       <td class="num">${esc(u.created_at||'')}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="6" class="a-empty">尚無使用者</td></tr>';
+  }).join('') || '<tr><td colspan="8" class="a-empty">尚無使用者</td></tr>';
   return `<div class="a-sec">
     <h2>會員名單</h2>
-    <p class="hint">所有以 Google 登入或已建立的使用者；含會籍狀態與會員編號。</p>
+    <p class="hint">所有以 Google 登入或已建立的使用者；含門禁 Active、權益摘要、會籍狀態與會員編號。</p>
     <div class="a-toolbar">
       <input type="search" id="m-search" placeholder="搜尋姓名 / Email / 電話…">
       <button class="btn btn--ghost btn-sm" id="m-csv">匯出 CSV</button>
     </div>
     <div class="a-wrap2"><table class="a-tbl">
-      <thead><tr><th>姓名</th><th>Email</th><th>電話</th><th>會籍狀態</th><th>會員編號</th><th class="num">加入日</th></tr></thead>
+      <thead><tr><th>姓名</th><th>Email</th><th>電話</th><th>Active</th><th>權益摘要</th><th>創始狀態</th><th>會員編號</th><th class="num">加入日</th></tr></thead>
       <tbody id="m-body">${body}</tbody></table></div>
   </div>`;
 }
@@ -278,6 +309,51 @@ function tabUpdates(d){
   </div>`;
 }
 
+function tabMenu(d){
+  const seeded = MENU_SEEDED;
+  const items = MenuLib.sortItems(MENU_DOC.items);
+  const body = items.map(it => `<tr data-q="${esc([it.cat, it.zh, it.en, it.note].join(' ').toLowerCase())}">
+      <td>${esc(it.cat)}</td>
+      <td>${esc(it.zh)}</td>
+      <td class="a-mono">${esc(it.en)}</td>
+      <td class="num">${NT(it.price)}</td>
+      <td class="num">${NT(it.emo)}</td>
+      <td>${it.alcohol ? '<span class="pill pill-wait">酒精</span>' : ''}</td>
+      <td>${it.published ? '<span class="pill pill-ok">已發布</span>' : '<span class="pill pill-wait">未發布</span>'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn--ghost btn-sm" data-mi-edit="${it.id}">編輯</button>
+        <button class="btn btn--ghost btn-sm" data-mi-del="${it.id}">刪除</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="8" class="a-empty">尚無菜單項目</td></tr>';
+  return `<div class="a-sec">
+    <h2>菜單</h2>
+    <p class="hint">未發布項目（<span class="pill pill-wait">未發布</span>）不會顯示於前台 <code>/menu</code>。${seeded ? '目前顯示預設 SEED 資料，尚未寫入資料庫，請按「儲存至伺服器」完成灌入。' : '編輯或刪除項目後，務必按「儲存至伺服器」才會永久保存。'}</p>
+    <div class="a-toolbar">
+      <input type="search" id="mi-search" placeholder="搜尋分類 / 中文 / 英文 / 備註…">
+      <button class="btn btn--solid btn-sm" id="menu-save-server">儲存至伺服器</button>
+    </div>
+    <div class="a-wrap2"><table class="a-tbl">
+      <thead><tr><th>分類</th><th>中文</th><th>英文</th><th class="num">原價</th><th class="num">會員價</th><th>酒精</th><th>發布</th><th>操作</th></tr></thead>
+      <tbody id="mi-body">${body}</tbody></table></div>
+    <div class="a-form" style="margin-top:16px;border-top:1px dashed var(--line);padding-top:16px">
+      <input type="hidden" id="mi-id">
+      <label>分類<select id="mi-cat">${MenuLib.CATS.map(c => `<option value="${c}">${c}</option>`).join('')}</select></label>
+      <label>中文<input id="mi-zh" placeholder="品名（中）"></label>
+      <label>英文<input id="mi-en" placeholder="ITEM NAME"></label>
+      <label>原價<input id="mi-price" type="number" min="0" value="0" style="width:100px"></label>
+      <label>會員價<input id="mi-emo" type="number" min="0" value="0" style="width:100px"></label>
+      <label>排序<input id="mi-sort" type="number" value="0" style="width:80px"></label>
+      <label style="flex:1;min-width:180px">備註<input id="mi-note" placeholder="例：含酒精 / 黑糖 / 焦糖"></label>
+      <label style="flex-direction:row;align-items:center;gap:.4em"><input type="checkbox" id="mi-alcohol" style="width:auto">含酒精</label>
+      <label style="flex-direction:row;align-items:center;gap:.4em"><input type="checkbox" id="mi-published" style="width:auto">發布至前台</label>
+    </div>
+    <div class="a-form" style="align-items:center">
+      <button class="btn btn--solid btn-sm" id="mi-save">新增項目</button>
+      <button class="btn btn--ghost btn-sm" id="mi-reset" style="display:none">取消編輯</button>
+    </div>
+  </div>`;
+}
+
 function tabContent(d){
   const c = d.content || {};
   return `<div class="a-sec">
@@ -313,6 +389,7 @@ const TABS = [
   { id:'commitments', label:'參與紀錄', render:tabCommitments },
   { id:'events',      label:'活動',     render:tabEvents },
   { id:'updates',     label:'最新消息', render:tabUpdates },
+  { id:'menu',        label:'菜單',     render:tabMenu },
   { id:'content',     label:'網站內容', render:tabContent },
   { id:'ig',          label:'IG 貼文',  render:()=>`<div class="a-sec"><h2>IG 貼文產生器</h2><p class="hint">填資訊、上傳照片，即時預覽並下載可直接發布的 IG 貼文圖片（方形／直式）。</p><div id="ig-studio"></div></div>` },
   { id:'admins',      label:'管理員',   render:tabAdmins, super:true },
@@ -320,13 +397,24 @@ const TABS = [
 
 function render(d){
   DATA = d;
+  if (!MENU_DIRTY || MENU_DOC === null) {
+    MENU_DOC = ensureMenuDoc(d);
+  } else {
+    const raw = d.content && d.content.menu;
+    MENU_SEEDED = !(typeof raw === 'string' && raw.trim()) && !!(window.__MENU_SEED || window.MENU_DATA);
+    if (!MENU_DIRTY_TOASTED) {
+      toast('菜單有未儲存變更，已保留本機編輯');
+      MENU_DIRTY_TOASTED = true;
+    }
+  }
+  syncWindowMenuData();
+  if (d.me && d.me.name) try { localStorage.setItem('tth_name', d.me.name); } catch (e) {}
   logoutBtn.style.display='';
   const x = derived(d);
   const tabs = TABS.filter(t => !t.super || d.super);
   if (!tabs.find(t=>t.id===TAB)) TAB='overview';
   const nav = tabs.map(t=>{
-    const badge = t.id==='events' && (d.events||[]).length ? `<span class="badge">${d.events.length}</span>`
-      : t.id==='members' && (d.users||[]).length ? `<span class="badge">${d.users.length}</span>` : '';
+    const badge = t.id==='events' && (d.events||[]).length ? `<span class="badge">${d.events.length}</span>` : '';
     return `<button data-tab="${t.id}" class="${t.id===TAB?'on':''}">${t.label}${badge}</button>`;
   }).join('');
   const panels = tabs.map(t=>`<div class="a-tab ${t.id===TAB?'on':''}" data-panel="${t.id}">${t.render(d,x)}</div>`).join('');
@@ -346,6 +434,10 @@ function bindNav(){
     TAB=b.dataset.tab;
     document.querySelectorAll('[data-tab]').forEach(n=>n.classList.toggle('on',n.dataset.tab===TAB));
     document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('on',p.dataset.panel===TAB));
+    // IG 分頁原先在 display:none 時掛載會得到負／零縮放；切入後重算預覽尺寸
+    if (TAB === 'ig' && window.IGStudio && typeof window.IGStudio.resize === 'function') {
+      requestAnimationFrame(() => window.IGStudio.resize());
+    }
   });
 }
 
@@ -357,9 +449,9 @@ function bind(d, x){
   on('m-search','input',e=>{ const qv=e.target.value.trim().toLowerCase();
     document.querySelectorAll('#m-body tr').forEach(tr=>{ const qq=(tr.dataset.q||'').toLowerCase();
       tr.style.display = !qv || qq.includes(qv) ? '' : 'none'; }); });
-  on('m-csv','click',()=>{ const rows=[['姓名','Email','電話','會籍狀態','會員編號','加入日']];
+  on('m-csv','click',()=>{ const rows=[['姓名','Email','電話','Active','權益摘要','創始狀態','會員編號','加入日']];
     (d.users||[]).forEach(u=>{ const c=x.cByUser[u.id];
-      rows.push([u.name||'', u.email||'', u.phone||'', c?(c.membership_status||''):'尚未加入', c?c.cert_no:'', u.created_at||'']); });
+      rows.push([u.name||'', u.email||'', u.phone||'', u.access_active?'Active':'', u.access_summary||'—', c?(c.membership_status||''):'尚未加入', c?c.cert_no:'', u.created_at||'']); });
     downloadCSV('會員名單.csv', rows); });
 
   // 參與紀錄：確認入帳
@@ -409,6 +501,111 @@ function bind(d, x){
   // IG 貼文產生器（掛載一次）
   const igHost = document.getElementById('ig-studio');
   if (igHost && window.IGStudio && !igHost.dataset.mounted){ igHost.dataset.mounted='1'; window.IGStudio.mount(igHost); }
+
+  // 菜單
+  bindMenu();
+}
+
+/* ---------- 菜單：局部重繪 + 綁定（不觸發整頁 refresh，避免遺失未存檔編輯） ---------- */
+function applyMenuSearch(qv){
+  const q = (qv ?? document.getElementById('mi-search')?.value ?? '').trim().toLowerCase();
+  document.querySelectorAll('#mi-body tr').forEach(tr=>{
+    const qq = (tr.dataset.q || '').toLowerCase();
+    tr.style.display = !q || qq.includes(q) ? '' : 'none';
+  });
+}
+
+function paintMenu(){
+  const panel = document.querySelector('[data-panel="menu"]');
+  if (!panel) return;
+  const savedSearch = document.getElementById('mi-search')?.value || '';
+  syncWindowMenuData();
+  panel.innerHTML = tabMenu(DATA);
+  bindMenu();
+  const searchEl = document.getElementById('mi-search');
+  if (searchEl) {
+    searchEl.value = savedSearch;
+    applyMenuSearch(savedSearch);
+  }
+}
+
+function resetMenuForm(){
+  document.getElementById('mi-id').value = '';
+  document.getElementById('mi-cat').value = 'FOOD';
+  ['mi-zh','mi-en','mi-note'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('mi-price').value = 0;
+  document.getElementById('mi-emo').value = 0;
+  document.getElementById('mi-sort').value = 0;
+  document.getElementById('mi-alcohol').checked = false;
+  document.getElementById('mi-published').checked = false;
+  document.getElementById('mi-save').textContent = '新增項目';
+  document.getElementById('mi-reset').style.display = 'none';
+}
+
+function bindMenu(){
+  if (!document.getElementById('mi-body')) return; // 菜單分頁尚未掛載於 DOM
+  const on = (sel,ev,fn)=>{ const el=document.getElementById(sel); if(el) el.addEventListener(ev,fn); };
+
+  on('mi-search','input',e=> applyMenuSearch(e.target.value));
+
+  on('mi-save','click',()=>{
+    const zh = document.getElementById('mi-zh').value.trim();
+    if (!zh){ toast('請輸入品名（中）'); return; }
+    const editing = !!document.getElementById('mi-id').value;
+    MENU_DOC = MenuLib.upsertItem(MENU_DOC, {
+      id: document.getElementById('mi-id').value || undefined,
+      cat: document.getElementById('mi-cat').value,
+      zh, en: document.getElementById('mi-en').value.trim(),
+      price: Number(document.getElementById('mi-price').value) || 0,
+      emo: Number(document.getElementById('mi-emo').value) || 0,
+      note: document.getElementById('mi-note').value.trim(),
+      alcohol: document.getElementById('mi-alcohol').checked,
+      published: document.getElementById('mi-published').checked,
+      sort: Number(document.getElementById('mi-sort').value) || 0,
+    });
+    MENU_DIRTY = true;
+    toast(editing ? '已更新（尚未存檔）' : '已新增（尚未存檔）');
+    paintMenu();
+  });
+  on('mi-reset','click',()=>resetMenuForm());
+
+  document.querySelectorAll('[data-mi-edit]').forEach(b=>b.onclick=()=>{
+    const it = MENU_DOC.items.find(x=>x.id===b.dataset.miEdit); if(!it) return;
+    document.getElementById('mi-id').value = it.id;
+    document.getElementById('mi-cat').value = it.cat;
+    document.getElementById('mi-zh').value = it.zh;
+    document.getElementById('mi-en').value = it.en;
+    document.getElementById('mi-price').value = it.price;
+    document.getElementById('mi-emo').value = it.emo;
+    document.getElementById('mi-sort').value = it.sort;
+    document.getElementById('mi-note').value = it.note;
+    document.getElementById('mi-alcohol').checked = !!it.alcohol;
+    document.getElementById('mi-published').checked = !!it.published;
+    document.getElementById('mi-save').textContent = '更新項目';
+    document.getElementById('mi-reset').style.display = '';
+    document.getElementById('mi-zh').scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  document.querySelectorAll('[data-mi-del]').forEach(b=>b.onclick=()=>{
+    if (!confirm('確定刪除此菜單項目？')) return;
+    MENU_DOC = MenuLib.removeItem(MENU_DOC, b.dataset.miDel);
+    MENU_DIRTY = true;
+    toast('已刪除（尚未存檔）');
+    paintMenu();
+  });
+
+  on('menu-save-server','click',()=>{
+    const v = MenuLib.validateDoc(MENU_DOC);
+    if (!v.ok){ toast(v.error); return; }
+    (async () => {
+      try {
+        await api('/admin/content', { method:'POST', body:{ key:'menu', value: MenuLib.stringifyDoc(MENU_DOC) } });
+        MENU_DIRTY = false;
+        MENU_DIRTY_TOASTED = false;
+        toast('菜單已儲存至伺服器');
+        await refresh();
+      } catch(e){ toast(e.message); }
+    })();
+  });
 }
 
 function resetEventForm(){
@@ -452,7 +649,7 @@ async function main(){
     if (d.role !== 'admin') return renderLogin('此 Google 帳號沒有管理員權限。請以超管或已授權的管理員帳號登入。');
     render(d);
   } catch(e){
-    if (String(e.message).includes('登入') || String(e.message).includes('401')) { localStorage.removeItem(KEY); return renderLogin(); }
+    if (String(e.message).includes('登入') || String(e.message).includes('401')) { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); return renderLogin(); }
     app.innerHTML = `<p class="a-center">暫時無法連線：${esc(e.message)}<br><button class="btn btn--ghost btn-sm" style="margin-top:1rem" onclick="location.reload()">重新整理</button></p>`;
   }
 }

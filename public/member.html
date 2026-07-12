@@ -37,6 +37,16 @@
   .m-google svg{width:20px;height:20px}
   .m-center{text-align:center}
   .m-note{color:var(--muted);font-size:.85rem;margin-top:1.2rem}
+  .m-access{margin:1.4rem 0 0;padding:18px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.44)}
+  .m-access-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .m-access h3{font-family:var(--serif);font-size:1.15rem;margin:0 0 .25rem}
+  .m-pill{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:.28em .75em;color:var(--ink-soft);font-size:.86rem;background:var(--paper)}
+  .m-pill.on{border-color:var(--ink);color:var(--ink);background:rgba(255,222,52,.18)}
+  .m-access-list{margin:.9rem 0 0;padding-left:1.15rem;color:var(--ink-soft);font-size:.92rem}
+  .m-access-list li{margin:.32rem 0}
+  .m-qr{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line)}
+  .m-qr img{display:block;margin:.8rem auto 0;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .m-token{display:block;margin-top:.6rem;padding:.8rem;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink-soft);font-size:.78rem;line-height:1.45;word-break:break-all;white-space:pre-wrap}
   /* 創始會員勳章（CIS：印章＋唯一黃） */
   .m-badge{display:inline-flex;align-items:center;gap:.65em;margin:.2rem 0 1.6rem;padding:.5em .95em .5em .55em;
     border:1px solid var(--ink);border-radius:999px;background:rgba(255,222,52,.18)}
@@ -74,12 +84,15 @@
   © 2026 言文字 Taiwan Talent Hub
 </footer>
 
+<script src="/vendor/qrcode.min.js"></script>
 <script>
   // 後端與官網同源（www.emoji.tw），一律走相對路徑
   const FELLOW = '';
   const KEY = 'tth_token';
   const card = document.getElementById('card');
   const esc = s => (s == null ? '' : String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let qrTimer = null;
+  let qrEnabled = false;
 
   // 1) 從 Google 導回時，token 夾在網址 fragment，讀出後即從網址移除
   const hash = new URLSearchParams(location.hash.slice(1));
@@ -95,7 +108,120 @@
        使用 Google 登入
      </a>`;
 
+  const planName = p => ({
+    day_4h: '單日 4 小時',
+    day_12h: '單日 12 小時',
+    month: '月票',
+    quarter: '季票',
+    year: '年票',
+    founding: '創始會員',
+  }[p] || p || '權益');
+
+  function fmtTime(v) {
+    if (!v) return '';
+    const d = new Date(v);
+    if (Number.isNaN(+d)) return String(v);
+    return d.toLocaleString('zh-TW', {
+      timeZone: 'Asia/Taipei',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  }
+
+  function entitlementLine(e, pending) {
+    if (pending) return `${esc(planName(e.plan))}：待首次進場啟用`;
+    const range = [fmtTime(e.starts_at), fmtTime(e.ends_at)].filter(Boolean).join(' – ');
+    return `${esc(planName(e.plan))}${range ? '：' + esc(range) : ''}`;
+  }
+
+  function renderAccess(data) {
+    const access = data.access || {};
+    const activeEntitlements = Array.isArray(access.activeEntitlements) ? access.activeEntitlements : [];
+    const pending = Array.isArray(access.pending) ? access.pending : [];
+    const canIssueQr = activeEntitlements.length > 0 || pending.length > 0;
+    const rows = [
+      ...activeEntitlements.map(e => `<li>${entitlementLine(e, false)}</li>`),
+      ...pending.map(e => `<li>${entitlementLine(e, true)}</li>`),
+    ].join('') || '<li>目前沒有可進出二三樓的權益。</li>';
+    const qr = canIssueQr
+      ? `<div class="m-qr" id="m-qr">
+           <b>進出 QR</b>
+           <img id="m-qr-img" alt="進出 QR" width="200" height="200">
+           <p class="m-note" id="m-qr-meta">正在產生短效 QR…</p>
+           <code class="m-token" id="m-qr-token">產生中…</code>
+         </div>`
+      : `<p class="m-note">尚無有效或待啟用權益，因此目前無法進出二三樓。</p>`;
+    return `<section class="m-access" aria-label="進出二三樓狀態">
+      <div class="m-access-head">
+        <div>
+          <h3>進出二三樓</h3>
+          <p class="m-note" style="margin-top:0">會員 QR 每 30 秒自動更新，必要時可複製下方 token 備用。</p>
+        </div>
+        <span class="m-pill${access.active ? ' on' : ''}">${access.active ? 'Active（可進出二三樓）' : '非 Active'}</span>
+      </div>
+      <ul class="m-access-list">${rows}</ul>
+      ${qr}
+    </section>`;
+  }
+
+  function stopQrRefresh() {
+    qrEnabled = false;
+    if (qrTimer) clearInterval(qrTimer);
+    qrTimer = null;
+  }
+
+  function qrDataUrl(text) {
+    return new Promise((resolve, reject) => {
+      if (!window.QRCode || typeof window.QRCode.toDataURL !== 'function') {
+        reject(new Error('QRCode unavailable'));
+        return;
+      }
+      window.QRCode.toDataURL(text, { width: 200, margin: 1 }, (err, url) => {
+        if (err) reject(err);
+        else resolve(url);
+      });
+    });
+  }
+
+  async function refreshQr() {
+    const img = document.getElementById('m-qr-img');
+    const meta = document.getElementById('m-qr-meta');
+    const tokenEl = document.getElementById('m-qr-token');
+    if (!img || !meta || !tokenEl || !qrEnabled) return;
+    try {
+      const r = await fetch(FELLOW + '/api/me/access-qr', { headers: { authorization: 'Bearer ' + token } });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        img.style.display = 'none';
+        tokenEl.textContent = '';
+        meta.textContent = d.error || '目前無法產生進出 QR';
+        return;
+      }
+      img.style.display = '';
+      img.src = await qrDataUrl(d.token);
+      tokenEl.textContent = d.token || '';
+      const exp = d.exp ? fmtTime(d.exp * 1000) : '';
+      meta.textContent = `${planName(d.plan)}${d.pending_activation ? '（待首次進場啟用）' : ''}${exp ? '，有效至 ' + exp : ''}`;
+    } catch (e) {
+      if (img) img.style.display = 'none';
+      if (meta) meta.textContent = '暫時無法連線產生 QR，請稍後再試。';
+    }
+  }
+
+  function startQrRefresh(enabled) {
+    stopQrRefresh();
+    if (!enabled) return;
+    qrEnabled = true;
+    refreshQr();
+    qrTimer = setInterval(refreshQr, 30000);
+  }
+
   function renderLoggedOut() {
+    stopQrRefresh();
     card.innerHTML = `
       <div class="m-center">
         <h1 class="m-hi">會員登入</h1>
@@ -142,11 +268,14 @@
         <div class="act">${btn}</div></div>`;
     }).join('') || `<div class="m-empty">目前沒有開放報名的活動。</div>`;
 
+    const access = data.access || {};
+    const canIssueQr = !!(access.active || (access.activeEntitlements || []).length || (access.pending || []).length);
     card.innerHTML = `
       <h1 class="m-hi">歡迎，${esc(me.name || '會員')}</h1>
       <p class="m-sub">${esc(me.email || '')}</p>
       ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin">前往後台管理 →</a></div>` : ''}
       ${badge}
+      ${renderAccess(data)}
       <div>${membership}</div>
       <h3 class="m-sec-title">近期活動</h3>
       <div>${events}</div>
@@ -155,11 +284,13 @@
       <div class="m-actions">
         <button class="btn btn--ghost" id="logout">登出</button>
       </div>`;
+    if (me.name) try { localStorage.setItem('tth_name', me.name); } catch (e) {}
     document.getElementById('logout').onclick = () => {
-      localStorage.removeItem(KEY); location.reload();
+      localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); location.reload();
     };
     card.querySelectorAll('[data-reg]').forEach(b => b.onclick = () => regEvent(b.dataset.reg, 'POST', b));
     card.querySelectorAll('[data-unreg]').forEach(b => b.onclick = () => regEvent(b.dataset.unreg, 'DELETE', b));
+    startQrRefresh(canIssueQr);
   }
 
   async function regEvent(id, method, btn) {
@@ -178,15 +309,19 @@
     if (!token) return renderLoggedOut();
     try {
       const r = await fetch(FELLOW + '/api/state', { headers: { authorization: 'Bearer ' + token } });
-      if (r.status === 401) { localStorage.removeItem(KEY); return renderLoggedOut(); }
+      if (r.status === 401) { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); return renderLoggedOut(); }
       if (!r.ok) throw new Error('state ' + r.status);
       renderMember(await r.json());
     } catch (e) {
+      stopQrRefresh();
       card.innerHTML = `<p class="m-center" style="color:var(--muted)">
         暫時無法連線會員系統，請稍後再試。<br>
         <button class="btn btn--ghost" style="margin-top:1.2rem" onclick="location.reload()">重新整理</button></p>`;
     }
   }
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshQr();
+  });
   main();
 </script>
 </body>

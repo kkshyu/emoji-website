@@ -21,7 +21,7 @@
     // product
     p_eyebrow: '本週精選',
     p_zh: '美式咖啡', p_en: 'AMERICANO', p_note: '', p_desc: '深烘豆現萃，醇厚回甘。',
-    p_unit: '單杯', p_price: 170, p_emo: 150,
+    p_unit: '單杯', p_price: 170, p_emo: 150, p_alcohol: false,
     // event
     e_title: '七月社群沙龍', e_when: '7/20 (六) 19:00', e_place: '言文字三樓',
     e_desc: '一晚，把台灣做事的人聚在一起。自由入場，飲品另計。',
@@ -80,6 +80,9 @@
     .igp-member .tag{font-size:20px;letter-spacing:.14em;background:var(--accent);color:#1B1A17;padding:.1em .6em;border-radius:999px;}
     .igp-foot{display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-top:42px;padding-top:30px;border-top:1px solid rgba(27,26,23,.14);}
     .igp.dark .igp-foot{border-top-color:rgba(237,233,224,.18);}
+    .igp-alcohol{flex:none;display:flex;flex-direction:column;justify-content:center;padding:0 48px;box-sizing:border-box;
+      background:#1B1A17;color:#F4F1EA;font-family:var(--sans);font-size:22px;letter-spacing:.08em;gap:8px;text-align:center;}
+    .igp.dark .igp-alcohol{background:#0E0D0A;color:#EDE9E0;}
     .igp-brand{font-family:var(--serif);font-size:30px;letter-spacing:.06em;}
     .igp-handle{font-size:20px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
     /* 活動 */
@@ -101,9 +104,17 @@
   // ---- 貼文 HTML ----
   const hl = t => state.hl ? `<span class="hl">${H(t)}</span>` : H(t);
   const foot = () => `<div class="igp-foot"><span class="igp-brand">言文字</span><span class="igp-handle">${H(state.place)} · ${H(state.handle)}</span></div>`;
+  const alcoholBand = canvasH => {
+    const h = Math.ceil(Number(canvasH) * 0.1);
+    return `<div class="igp-alcohol" style="height:${h}px;min-height:${h}px;margin-top:24px">
+      <div>未滿十八歲禁止飲酒</div>
+      <div>禁止酒駕</div>
+    </div>`;
+  };
 
   function postInner() {
     const sq = state.format === 'square';
+    const { h: canvasH } = DIMS[state.format];
     if (state.type === 'product') {
       const photoH = sq ? 460 : 620;
       const photo = state.photo ? `<div class="igp-photo" style="height:${photoH}px;background-image:url('${state.photo}')"></div>` : '';
@@ -119,6 +130,7 @@
           <span class="igp-price"><sup>$</sup>${H(state.p_price)}</span>
         </div>
         ${state.showMember && state.p_emo ? `<div class="igp-member"><span class="tag">會員</span><span>會員價</span><b><sup style="font-size:.5em">$</sup>${H(state.p_emo)}</b></div>` : ''}
+        ${state.p_alcohol ? alcoholBand(canvasH) : ''}
         ${foot()}
       </div>`;
     }
@@ -160,7 +172,7 @@
     product: () => `
       <label>從菜單帶入
         <select data-menu>${['<option value="">— 手動輸入 —</option>']
-          .concat(MENU().map((m, i) => `<option value="${i}">${H(m.cat)}｜${H(m.zh)} $${m.price}</option>`)).join('')}</select></label>
+          .concat(MENU().map((m, i) => `<option value="${i}">${H(m.cat)}｜${H(m.zh)} $${m.price}${m.published ? '' : '（未發布）'}</option>`)).join('')}</select></label>
       <label>小標<input data-k="p_eyebrow" value="${H(state.p_eyebrow)}"></label>
       <label>品名（中）<input data-k="p_zh" value="${H(state.p_zh)}"></label>
       <label>品名（英）<input data-k="p_en" value="${H(state.p_en)}"></label>
@@ -170,7 +182,8 @@
         <label style="flex:1">單位<input data-k="p_unit" value="${H(state.p_unit)}"></label>
         <label style="flex:1">原價<input data-k="p_price" type="number" value="${H(state.p_price)}"></label>
         <label style="flex:1">會員價<input data-k="p_emo" type="number" value="${H(state.p_emo)}"></label>
-      </div>`,
+      </div>
+      <label style="flex-direction:row;align-items:center;gap:.4em;color:var(--ink-soft)"><input type="checkbox" data-t="p_alcohol"${state.p_alcohol ? ' checked' : ''} style="width:auto">含酒精（預覽／下載加警語）</label>`,
     event: () => `
       <label>活動標題<input data-k="e_title" value="${H(state.e_title)}"></label>
       <label>時間<input data-k="e_when" value="${H(state.e_when)}" placeholder="7/20 (六) 19:00"></label>
@@ -193,10 +206,15 @@
       state[k] = e.target.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value;
       renderPreview();
     }));
+    box.querySelectorAll('[data-t]').forEach(c => c.addEventListener('change', e => {
+      state[e.target.dataset.t] = e.target.checked;
+      renderPreview();
+    }));
     const menu = box.querySelector('[data-menu]');
     if (menu) menu.addEventListener('change', e => {
       const m = MENU()[e.target.value]; if (!m) return;
       Object.assign(state, { p_zh: m.zh, p_en: m.en, p_note: m.note || '', p_price: m.price, p_emo: m.emo });
+      if ('p_alcohol' in state) state.p_alcohol = !!m.alcohol;
       renderForm(); renderPreview();
     });
   }

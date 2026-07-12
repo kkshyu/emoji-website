@@ -1,8 +1,8 @@
-/* 言文字菜單資料 — 價格來自封存 legacy menu，尚未經菜單 owner 核定——後台 UI 須標「僅內部預覽」。
-   SNACK：legacy PDF 為全影像，無法可靠還原；暫無 SNACK 品項，待補。
-   舊產品照非 CIS 風格，故不內建圖片；照片由後台上傳。 */
+/* SEED only — 首次寫入 site_content.menu 用；所有項目 seeded published:false。
+   非對外即時菜單。原價 price / 會員價 emo；SNACK 尚無可靠資料，暫不建立品項。
+   舊產品照非 CIS 風格，故不內建圖片，照片由後台上傳。 */
 'use strict';
-window.MENU_DATA = [
+window.__MENU_SEED = [
   // ── COFFEE ──
   { cat:'COFFEE',   zh:'美式咖啡',       en:'AMERICANO',            price:170, emo:150, alcohol:false },
   { cat:'COFFEE',   zh:'拿鐵咖啡',       en:'LATTE',                price:200, emo:180, alcohol:false },
@@ -34,3 +34,5 @@ window.MENU_DATA = [
   { cat:'FOOD',     zh:'牛肉/雞肉捲',    en:'BEEF/CHICKEN ROLL',    price:180, emo:150, alcohol:false },
   { cat:'FOOD',     zh:'五吋小披薩',     en:'5" SMALL PIZZA',       price:180, emo:150, note:'燻雞 / 海鮮 / 總匯', alcohol:false },
 ];
+// 向後相容：舊程式碼可能仍讀 window.MENU_DATA；admin.html 會在讀到 DB 資料後覆寫此值。
+window.MENU_DATA = window.__MENU_SEED;
