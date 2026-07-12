@@ -340,6 +340,13 @@ function auth(req, res, next) {
   if (!p) return res.status(401).json({ error: '請先登入。' });
   req.auth = p; next();
 }
+function doorAuth(req, res, next) {
+  const h = req.headers.authorization || '';
+  const t = h.startsWith('Bearer ') ? h.slice(7) : '';
+  if (!ACCESS_DOOR_SECRET || t !== ACCESS_DOOR_SECRET)
+    return res.status(401).json({ error: '門禁憑證無效。' });
+  next();
+}
 function adminOnly(req, res, next) {
   if (req.auth.role !== 'admin') return res.status(403).json({ error: '需要後台權限。' });
   next();
@@ -456,6 +463,81 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
       pending: access.pending,
       activeEntitlements: access.activeEntitlements,
     },
+  });
+}));
+
+app.get('/api/me/access-qr', auth, requireDb, wrap(async (req, res) => {
+  if (!ACCESS_QR_SECRET) return res.status(503).json({ error: '進出 QR 尚未開通（未設定 ACCESS_QR_SECRET）。' });
+  if (!req.auth.sub) return res.status(403).json({ error: '請以會員身分登入。' });
+  const now = new Date();
+  let ents = await persistLazyActivations(await loadEntitlements(req.auth.sub), now);
+  const pick = pickEntitlementForQr(ents, now);
+  if (!pick) return res.status(403).json({ error: '目前無法進出二三樓（無有效或待啟用權益）。', code: 'NO_ENTITLEMENT' });
+  const pending = !pick.activated_at;
+  const token = signAccessToken({
+    sub: req.auth.sub,
+    ent: pick.id,
+    plan: pick.plan,
+    floors: ['2', '3'],
+    pending_activation: pending,
+  }, ACCESS_QR_SECRET, { ttlSec: 45 });
+  const payload = verifyAccessToken(token, ACCESS_QR_SECRET);
+  res.json({
+    token,
+    exp: payload.exp,
+    pending_activation: pending,
+    plan: pick.plan,
+    entitlement_id: pick.id,
+  });
+}));
+
+app.post('/api/access/verify', wrap(async (req, res) => {
+  if (!ACCESS_QR_SECRET) return res.status(503).json({ error: '未設定 ACCESS_QR_SECRET。' });
+  const token = String((req.body && req.body.token) || '');
+  const p = verifyAccessToken(token, ACCESS_QR_SECRET);
+  if (!p) return res.status(401).json({ ok: false, error: '無效或過期的 QR。' });
+  res.json({ ok: true, claims: p });
+}));
+
+app.post('/api/access/scan', doorAuth, requireDb, wrap(async (req, res) => {
+  if (!ACCESS_QR_SECRET) return res.status(503).json({ error: '未設定 ACCESS_QR_SECRET。' });
+  const token = String((req.body && req.body.token) || '');
+  const p = verifyAccessToken(token, ACCESS_QR_SECRET);
+  if (!p) return res.status(401).json({ ok: false, error: '無效或過期的 QR。' });
+
+  const ent = rowToEnt((await q(`SELECT ${SEL_ENT} FROM entitlements WHERE id=$1`, [p.ent])).rows[0]);
+  if (!ent || ent.user_id !== p.sub)
+    return res.status(400).json({ ok: false, error: '權益不符。' });
+
+  const now = new Date();
+  // 冪等：同一 token_iat + entitlement 只記一次
+  const scanId = uid('as_');
+  const ins = await q(
+    `INSERT INTO access_scans (id,entitlement_id,user_id,token_iat,scanned_at)
+     VALUES ($1,$2,$3,$4,now())
+     ON CONFLICT (entitlement_id, token_iat) DO NOTHING
+     RETURNING id`,
+    [scanId, ent.id, ent.user_id, p.iat]
+  );
+
+  let activated = false;
+  if (!ent.activated_at && ent.plan !== 'founding') {
+    const ends = endsAtAfterActivation(ent.plan, now);
+    const upd = await q(
+      `UPDATE entitlements SET activated_at=$2, starts_at=$2, ends_at=$3
+       WHERE id=$1 AND activated_at IS NULL
+       RETURNING ${SEL_ENT}`,
+      [ent.id, now, ends]
+    );
+    activated = !!upd.rows[0];
+  }
+
+  res.json({
+    ok: true,
+    door: 'open',
+    activated,
+    duplicate: !ins.rows[0],
+    access: await memberAccessFor(ent.user_id, now),
   });
 }));
 
