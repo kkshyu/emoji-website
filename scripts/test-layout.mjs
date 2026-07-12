@@ -37,10 +37,10 @@ test('localePaths maps member menu and space locales', () => {
   assert.equal(localePaths('/en/member').lang, 'en');
   assert.equal(localePaths('/en/member').en, '/en/member');
   assert.equal(localePaths('/ja/member').ja, '/ja/member');
-  assert.equal(localePaths('/menu/').zh, '/menu/');
-  assert.equal(localePaths('/menu').en, '/en/menu/');
-  assert.equal(localePaths('/en/menu/').en, '/en/menu/');
-  assert.equal(localePaths('/ja/menu/').ja, '/ja/menu/');
+  assert.equal(localePaths('/menu/').zh, '/menu');
+  assert.equal(localePaths('/menu').en, '/en/menu');
+  assert.equal(localePaths('/en/menu/').en, '/en/menu');
+  assert.equal(localePaths('/ja/menu/').ja, '/ja/menu');
   assert.equal(localePaths('/space').slug, 'space');
   assert.equal(localePaths('/space').zh, '/space');
   assert.equal(localePaths('/en/space').en, '/en/space');
@@ -68,6 +68,22 @@ test('resolvePublicHtml resolves known pages', () => {
   assert.ok(resolvePublicHtml(PUB, '/').endsWith('index.html'));
   assert.ok(resolvePublicHtml(PUB, '/member').endsWith('member.html'));
   assert.ok(resolvePublicHtml(PUB, '/fellow').includes(`${path.sep}fellow${path.sep}index.html`));
+});
+
+test('header partials drop menu and floors system link', () => {
+  for (const lang of ['zh', 'en', 'ja']) {
+    const h = fs.readFileSync(path.join(__dirname, '..', 'views', 'partials', `header-${lang}.html`), 'utf8');
+    assert.doesNotMatch(h, /href="[^"]*\/menu/);
+    assert.doesNotMatch(h, /#floors/);
+    assert.match(h, /\/space/);
+  }
+});
+
+test('composeLayout space page marks space current', () => {
+  const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
+  const html = composeLayout(raw, '/space');
+  assert.match(html, /href="\/space"[^>]*aria-current="page"/);
+  assert.doesNotMatch(html, /\/menu\//);
 });
 
 test('source pages use markers', () => {

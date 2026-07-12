@@ -335,7 +335,7 @@ function tabMenu(d){
     </tr>`).join('') || '<tr><td colspan="8" class="a-empty">尚無菜單項目</td></tr>';
   return `<div class="a-sec">
     <h2>菜單</h2>
-    <p class="hint">未發布項目（<span class="pill pill-wait">未發布</span>）不會顯示於前台 <code>/menu</code>。${seeded ? '目前顯示預設 SEED 資料，尚未寫入資料庫，請按「儲存至伺服器」完成灌入。' : '編輯或刪除項目後，務必按「儲存至伺服器」才會永久保存。'}</p>
+    <p class="hint">未發布項目（<span class="pill pill-wait">未發布</span>）不會顯示於空間頁 <code>/space#menu</code>。${seeded ? '目前顯示預設 SEED 資料，尚未寫入資料庫，請按「儲存至伺服器」完成灌入。' : '編輯或刪除項目後，務必按「儲存至伺服器」才會永久保存。'}</p>
     <div class="a-toolbar">
       <input type="search" id="mi-search" placeholder="搜尋分類 / 中文 / 英文 / 備註…">
       <button class="btn btn--solid btn-sm" id="menu-save-server">儲存至伺服器</button>
@@ -362,24 +362,57 @@ function tabMenu(d){
   </div>`;
 }
 
+const SPACE_FLOOR_TITLES = {
+  1: '1F 餐飲與酒吧',
+  2: '2F 會員休憩與設施',
+  3: '3F 共享辦公與活動',
+  4: '4F 頂樓',
+};
+
+function ctImageField(idBase, uploadKey, url){
+  return `<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-top:.4em">
+    <img id="prev-space-${idBase}" src="${esc(url||'')}" alt="" style="width:96px;height:72px;object-fit:cover;border:1px solid var(--line);border-radius:8px;background:var(--card);${url?'':'display:none'}">
+    <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:.4em">
+      <input id="ct-space-${idBase}-image" placeholder="圖片網址（或直接上傳）" value="${esc(url||'')}">
+      <input type="file" accept="image/*" data-space-upload="${uploadKey}" data-target="ct-space-${idBase}-image" data-preview="prev-space-${idBase}">
+    </div>
+  </div>`;
+}
+
 function tabContent(d){
   const c = d.content || {};
+  const floors = [1,2,3,4].map(n => {
+    const zh = c[`space_${n}f_zh`] || c[`space_${n}f`] || '';
+    const en = c[`space_${n}f_en`] || '';
+    const ja = c[`space_${n}f_ja`] || '';
+    const legend = n === 4 ? `${SPACE_FLOOR_TITLES[n]}（支援機能）` : SPACE_FLOOR_TITLES[n];
+    return `<fieldset style="border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px">
+      <legend style="font-weight:500;padding:0 .4em">${esc(legend)}</legend>
+      <label style="width:100%">中文
+        <textarea id="ct-space-${n}f-zh" rows="5" placeholder="中文介紹…">${esc(zh)}</textarea>
+      </label>
+      <label style="width:100%">English
+        <textarea id="ct-space-${n}f-en" rows="5" placeholder="English copy…">${esc(en)}</textarea>
+      </label>
+      <label style="width:100%">日本語
+        <textarea id="ct-space-${n}f-ja" rows="5" placeholder="日本語の紹介…">${esc(ja)}</textarea>
+      </label>
+      <label style="width:100%">樓層圖片
+        ${ctImageField(`${n}f`, `${n}f`, c[`space_${n}f_image`])}
+      </label>
+    </fieldset>`;
+  }).join('');
   return `<div class="a-sec">
     <h2>網站內容</h2>
-    <p class="hint">編輯官網首頁及空間介紹的可變內容，儲存後即時生效，免改程式重新部署。（支援 Markdown 語法）</p>
+    <p class="hint">編輯官網首頁及空間介紹的可變內容，儲存後即時生效，免改程式重新部署。支援 Markdown 語法；請留意 CIS 規範：二樓禁用「住宿」／「旅館」／「hotel」等用詞。</p>
     <div class="a-form" style="flex-direction:column;align-items:stretch;max-width:800px">
       <label style="width:100%">首頁公告橫幅（留空則不顯示）
         <textarea id="ct-notice" placeholder="例：創始名額倒數中，售至 2026/10/31 止。">${esc(c.home_notice||'')}</textarea>
       </label>
-      <label style="width:100%">空間介紹 - 1F 餐飲與酒吧
-        <textarea id="ct-space-1f" rows="5" placeholder="1F 介紹...">${esc(c.space_1f||'')}</textarea>
+      <label style="width:100%">空間介紹 - 主視覺（Hero）圖片
+        ${ctImageField('hero', 'hero', c.space_hero_image)}
       </label>
-      <label style="width:100%">空間介紹 - 2F 會員休憩與設施
-        <textarea id="ct-space-2f" rows="5" placeholder="2F 介紹...">${esc(c.space_2f||'')}</textarea>
-      </label>
-      <label style="width:100%">空間介紹 - 3F 共享辦公與活動
-        <textarea id="ct-space-3f" rows="5" placeholder="3F 介紹...">${esc(c.space_3f||'')}</textarea>
-      </label>
+      ${floors}
       <div><button class="btn btn--solid btn-sm" id="ct-save">儲存所有網站內容</button></div>
     </div>
   </div>`;
@@ -521,12 +554,49 @@ function bind(d, x){
   document.querySelectorAll('[data-upd-del]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/updates/'+b.dataset.updDel,{method:'DELETE'}),'已刪除'));
 
   // 網站內容
-  on('ct-save','click',()=>doThen(()=>Promise.all([
-    api('/admin/content',{method:'POST',body:{key:'home_notice',value:document.getElementById('ct-notice').value.trim()}}),
-    api('/admin/content',{method:'POST',body:{key:'space_1f',value:document.getElementById('ct-space-1f').value.trim()}}),
-    api('/admin/content',{method:'POST',body:{key:'space_2f',value:document.getElementById('ct-space-2f').value.trim()}}),
-    api('/admin/content',{method:'POST',body:{key:'space_3f',value:document.getElementById('ct-space-3f').value.trim()}})
-  ]),'已儲存'));
+  on('ct-save','click',()=>doThen(()=>{
+    const val = id => (document.getElementById(id)?.value || '').trim();
+    const put = (key, value) => api('/admin/content',{method:'POST',body:{key,value}});
+    const jobs = [
+      put('home_notice', val('ct-notice')),
+      put('space_hero_image', val('ct-space-hero-image')),
+    ];
+    [1,2,3,4].forEach(n => {
+      const zh = val(`ct-space-${n}f-zh`);
+      jobs.push(put(`space_${n}f_zh`, zh));
+      jobs.push(put(`space_${n}f_en`, val(`ct-space-${n}f-en`)));
+      jobs.push(put(`space_${n}f_ja`, val(`ct-space-${n}f-ja`)));
+      jobs.push(put(`space_${n}f_image`, val(`ct-space-${n}f-image`)));
+      if (n <= 3) jobs.push(put(`space_${n}f`, zh)); // 舊版相容
+    });
+    return Promise.all(jobs);
+  },'已儲存'));
+
+  // 網站內容：換圖上傳（multipart，不能走共用的 api()）
+  document.querySelectorAll('[data-space-upload]').forEach(input => input.onchange = async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const targetEl = document.getElementById(input.dataset.target);
+    const previewEl = document.getElementById(input.dataset.preview);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const r = await fetch('/api/admin/upload/space', {
+        method: 'POST',
+        headers: token ? { Authorization: 'Bearer ' + token } : {},
+        body: fd,
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || ('上傳失敗（' + r.status + '）'));
+      if (targetEl) targetEl.value = data.url;
+      if (previewEl) { previewEl.src = data.url; previewEl.style.display = ''; }
+      toast('已上傳圖片，記得按「儲存所有網站內容」');
+    } catch (e) {
+      toast(e.message);
+    } finally {
+      input.value = '';
+    }
+  });
 
   // 管理員
   document.querySelectorAll('[data-admin]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/users/'+b.dataset.admin+'/admin',{method:'POST',body:{admin:b.dataset.on==='1'}}),'已更新管理權限'));
