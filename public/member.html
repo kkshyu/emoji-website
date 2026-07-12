@@ -148,6 +148,10 @@
       generating: '產生中…',
       noQrYet: '尚無有效或待啟用權益，因此目前無法進出二三樓。',
       accessLabel: '進出二三樓狀態',
+      activeShort: 'Active',
+      pendingShort: '待啟用',
+      inactiveShort: '未開通',
+      needPlan: '尚無可用方案，請先加入會員方案。',
       accessTitle: '進出二三樓',
       accessNote: '會員 QR 每 30 秒自動更新，必要時可複製下方 token 備用。',
       activeOn: 'Active（可進出二三樓）',
@@ -228,6 +232,10 @@
       generating: 'Generating…',
       noQrYet: 'No active or pending entitlement — 2F/3F access is unavailable.',
       accessLabel: '2F/3F access status',
+      activeShort: 'Active',
+      pendingShort: 'Pending',
+      inactiveShort: 'Inactive',
+      needPlan: 'No active plan yet — join a membership plan first.',
       accessTitle: '2F / 3F access',
       accessNote: 'Member QR refreshes every 30 seconds. Copy the token below if needed.',
       activeOn: 'Active (2F/3F access)',
@@ -308,6 +316,10 @@
       generating: '生成中…',
       noQrYet: '有効または保留中の権利がないため、現在 2F/3F に入れません。',
       accessLabel: '2F/3F 入退室ステータス',
+      activeShort: 'Active',
+      pendingShort: '保留中',
+      inactiveShort: '未有効',
+      needPlan: '有効なプランがありません。先に会員プランに加入してください。',
       accessTitle: '2F / 3F 入退室',
       accessNote: '会員 QR は30秒ごとに自動更新されます。必要なら下の token をコピーしてください。',
       activeOn: 'Active（2F/3F 利用可）',
@@ -421,35 +433,40 @@
     return `${esc(planName(e.plan))}${range ? '：' + esc(range) : ''}`;
   }
 
-  function renderAccess(data) {
+  const QR_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 17h3v4h-4v-3h4M18 14h3v3"></path></svg>';
+
+  function renderAccessChip(data) {
     const access = data.access || {};
     const activeEntitlements = Array.isArray(access.activeEntitlements) ? access.activeEntitlements : [];
     const pending = Array.isArray(access.pending) ? access.pending : [];
-    const canIssueQr = activeEntitlements.length > 0 || pending.length > 0;
-    const rows = [
-      ...activeEntitlements.map(e => `<li>${entitlementLine(e, false)}</li>`),
-      ...pending.map(e => `<li>${entitlementLine(e, true)}</li>`),
-    ].join('') || `<li>${T.noFloorAccess}</li>`;
-    const qr = canIssueQr
-      ? `<div class="m-qr" id="m-qr">
-           <b>${T.qrTitle}</b>
-           <img id="m-qr-img" alt="${T.qrAlt}" width="200" height="200">
-           <p class="m-note" id="m-qr-meta">${T.qrMaking}</p>
-           <code class="m-token" id="m-qr-token">${T.generating}</code>
-         </div>`
-      : `<p class="m-note">${T.noQrYet}</p>`;
-    return `<section class="m-access" aria-label="${T.accessLabel}">
-      <div class="m-access-head">
-        <div>
-          <h3>${T.accessTitle}</h3>
-          <p class="m-note" style="margin-top:0">${T.accessNote}</p>
-        </div>
-        <span class="m-pill${access.active ? ' on' : ''}">${access.active ? T.activeOn : T.activeOff}</span>
-      </div>
-      <ul class="m-access-list">${rows}</ul>
-      ${qr}
-    </section>`;
+    const canIssue = activeEntitlements.length || pending.length;
+    const active = !!access.active;
+    const label = active ? T.activeShort : (pending.length ? T.pendingShort : T.inactiveShort);
+    return `<button type="button" class="m-chip" id="m-access-chip" aria-label="${esc(T.accessLabel)}"${canIssue ? '' : ' data-blocked="1"'}>
+      <span class="dot${active ? ' on' : ''}"></span>
+      <span>${esc(label)}</span>
+      <span class="qr-ico">${QR_ICON}</span>
+    </button>`;
   }
+
+  function openQrOverlay() {
+    const ov = document.getElementById('m-qr-overlay');
+    if (!ov) return;
+    ov.hidden = false;
+    startQrRefresh(true);
+  }
+  function closeQrOverlay() {
+    const ov = document.getElementById('m-qr-overlay');
+    if (ov) ov.hidden = true;
+    stopQrRefresh();
+  }
+  const qrOverlayEl = document.getElementById('m-qr-overlay');
+  const qrCloseBtn = document.getElementById('m-qr-close');
+  if (qrCloseBtn) qrCloseBtn.onclick = closeQrOverlay;
+  if (qrOverlayEl) qrOverlayEl.addEventListener('click', e => { if (e.target === qrOverlayEl) closeQrOverlay(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && qrOverlayEl && !qrOverlayEl.hidden) closeQrOverlay();
+  });
 
   function stopQrRefresh() {
     qrEnabled = false;
@@ -470,22 +487,19 @@
   }
 
   async function refreshQr() {
-    const img = document.getElementById('m-qr-img');
-    const meta = document.getElementById('m-qr-meta');
-    const tokenEl = document.getElementById('m-qr-token');
-    if (!img || !meta || !tokenEl || !qrEnabled) return;
+    const img = document.getElementById('m-qr-overlay-img');
+    const meta = document.getElementById('m-qr-overlay-meta');
+    if (!img || !meta || !qrEnabled) return;
     try {
       const r = await fetch(FELLOW + '/api/me/access-qr', { headers: { authorization: 'Bearer ' + token } });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) {
         img.style.display = 'none';
-        tokenEl.textContent = '';
         meta.textContent = d.error || T.qrFail;
         return;
       }
       img.style.display = '';
       img.src = await qrDataUrl(d.token);
-      tokenEl.textContent = d.token || '';
       const exp = d.exp ? fmtTime(d.exp * 1000) : '';
       meta.textContent = `${planName(d.plan)}${d.pending_activation ? T.qrPending : ''}${exp ? T.qrUntil + exp : ''}`;
     } catch (e) {
@@ -597,14 +611,16 @@
         <div class="act">${btn}</div></div>`;
     }).join('') || `<div class="m-empty">${T.noEvents}</div>`;
 
-    const access = data.access || {};
-    const canIssueQr = !!(access.active || (access.activeEntitlements || []).length || (access.pending || []).length);
     card.innerHTML = `
-      <h1 class="m-hi">${T.welcome(esc(me.name))}</h1>
-      <p class="m-sub">${esc(me.email || '')}</p>
+      <div class="m-head">
+        <div>
+          <h1 class="m-hi">${T.welcome(esc(me.name))}</h1>
+          <p class="m-sub" style="margin-bottom:0">${esc(me.email || '')}</p>
+        </div>
+        ${renderAccessChip(data)}
+      </div>
       ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin">${T.goAdmin}</a></div>` : ''}
       ${badge}
-      ${renderAccess(data)}
       ${renderPoints(data)}
       <div>${membership}</div>
       <h3 class="m-sec-title">${T.eventsTitle}</h3>
@@ -623,7 +639,12 @@
     card.querySelectorAll('[data-pack]').forEach(b => b.onclick = () => buyPack(b.dataset.pack, b));
     card.querySelectorAll('[data-redeem]').forEach(b => b.onclick = () => redeemService(b.dataset.redeem, Number(b.dataset.hours || 1), b));
     card.querySelectorAll('[data-refund]').forEach(b => b.onclick = () => refundPoints(b.dataset.refund, Number(b.dataset.max), b));
-    startQrRefresh(canIssueQr);
+    const chip = document.getElementById('m-access-chip');
+    if (chip) chip.onclick = () => {
+      if (chip.dataset.blocked === '1') { showToast(T.needPlan); return; }
+      openQrOverlay();
+    };
+    if (qrOverlayEl && !qrOverlayEl.hidden) startQrRefresh(true);
   }
 
   async function buyPack(packId, btn) {
