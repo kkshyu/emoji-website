@@ -172,3 +172,20 @@ test('about en page structure', () => {
 test('resolvePublicHtml resolves about en', () => {
   assert.ok(resolvePublicHtml(PUB, '/en/about').endsWith(`en${path.sep}about.html`));
 });
+
+test('about ja page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'ja', 'about.html'), 'utf8');
+  assert.match(html, /lang="ja"/);
+  assert.match(html, /id="why"/);
+  assert.match(html, /id="kk"/);
+  assert.match(html, /href="\/ja\/space"/);
+  assert.match(html, /href="\/ja\/fellow#about"/);
+  assert.match(html, /canonical" href="https:\/\/www\.emoji\.tw\/ja\/about"/);
+  assert.match(html, /SITE_HEADER/);
+  assert.match(html, /about\.css/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|ホテル/i);
+});
+
+test('resolvePublicHtml resolves about ja', () => {
+  assert.ok(resolvePublicHtml(PUB, '/ja/about').endsWith(`ja${path.sep}about.html`));
+});
