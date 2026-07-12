@@ -179,10 +179,11 @@ function ensureMenuDoc(d) {
 
 // IG 產生器讀 window.MENU_DATA；每次 MENU_DOC 有更新都要同步，確保帶入的是目前顯示中的清單（含未存檔編輯）。
 function syncWindowMenuData() {
-  const items = (MENU_DOC && MENU_DOC.items && MENU_DOC.items.length)
+  const items = MENU_DOC && Array.isArray(MENU_DOC.items)
     ? MENU_DOC.items
     : MenuLib.fromSeedRows(window.__MENU_SEED || window.MENU_DATA || []).items;
   window.MENU_DATA = MenuLib.sortItems(items);
+  window.dispatchEvent(new Event('tth:menu-data'));
 }
 
 /* ---------- 各分頁 ---------- */

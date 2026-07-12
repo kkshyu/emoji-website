@@ -22,6 +22,11 @@
     return avail / canvasW;
   }
 
+  function contentOverflows(scrollHeight, clientHeight) {
+    const scroll = Number(scrollHeight); const client = Number(clientHeight);
+    return Number.isFinite(scroll) && Number.isFinite(client) && scroll > client;
+  }
+
   function itemNeedsAlcoholBand(item) {
     if (!item) return false;
     if (item.alcohol === true) return true;
@@ -50,6 +55,7 @@
     isAllowedPhotoType,
     sanitizeFilename,
     computePreviewScale,
+    contentOverflows,
     itemNeedsAlcoholBand,
     alcoholBandHTML,
     buildDownloadName,

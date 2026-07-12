@@ -37,7 +37,7 @@
     p_eyebrow: '本週精選',
     p_zh: '美式咖啡', p_en: 'AMERICANO', p_note: '', p_desc: '深烘豆現萃，醇厚回甘。',
     p_unit: '單杯', p_price: 170, p_emo: 150,
-    p_menuIdx: '', p_alcohol: false,
+    p_menuId: '', p_alcohol: false,
     // event
     e_title: '七月社群沙龍', e_when: '', e_place: '言文字三樓',
     e_desc: '一晚，把台灣做事的人聚在一起。自由入場，飲品另計。',
@@ -84,6 +84,7 @@
     .igp-photo{width:100%;flex:none;background-size:cover;background-position:center;background-repeat:no-repeat;background-color:#ECE8DE;}
     .igp.dark .igp-photo{background-color:#22201A;}
     .igp-body{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:76px 92px 80px;}
+    .igp-body--alcohol{padding-top:48px;padding-bottom:40px;}
     .igp-eyebrow{font-size:22px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:16px;}
     .igp.dark .igp-eyebrow{color:#B7B0A2;}
     .igp-eyebrow::before{content:"";width:30px;height:12px;background:var(--accent);transform:rotate(45deg);flex:none;}
@@ -132,10 +133,11 @@
   const foot = () => `<div class="igp-foot"><span class="igp-brand">言文字</span><span class="igp-handle">${H(state.place)} · ${H(state.handle)}</span></div>`;
   function renderProduct() {
     const sq = state.format === 'square';
-    const photoH = sq ? 460 : 620;
+    const needsAlcohol = currentNeedsAlcohol();
+    const photoH = needsAlcohol ? (sq ? 160 : 320) : (sq ? 460 : 620);
     const photo = state.photo ? `<div class="igp-photo" style="height:${photoH}px;background-image:url('${state.photo}')"></div>` : '';
-    const band = currentNeedsAlcohol() ? Lib.alcoholBandHTML(DIMS[state.format].h) : '';
-    return photo + `<div class="igp-body">
+    const band = needsAlcohol ? Lib.alcoholBandHTML(DIMS[state.format].h) : '';
+    return photo + `<div class="igp-body${needsAlcohol ? ' igp-body--alcohol' : ''}">
         ${state.p_eyebrow ? `<div class="igp-eyebrow">${H(state.p_eyebrow)}</div>` : ''}
         <h2 class="igp-h2">${hl(state.p_zh)}</h2>
         ${state.showEn && state.p_en ? `<div class="igp-en">${H(state.p_en)}</div>` : ''}
@@ -200,7 +202,7 @@
       <p class="ig-hint">菜單價格尚未核定，僅供內部預覽，勿直接對外發布。</p>
       <label>從菜單帶入
         <select data-menu>${['<option value="">— 手動輸入 —</option>']
-          .concat(MENU().map((m, i) => `<option value="${i}" ${String(i) === String(state.p_menuIdx) ? 'selected' : ''}>${H(m.cat)}｜${H(m.zh)} $${m.price}${m.published ? '' : '（未發布）'}${m.alcohol ? '　🔞' : ''}</option>`)).join('')}</select></label>
+          .concat(MENU().map(m => `<option value="${H(m.id)}" ${m.id === state.p_menuId ? 'selected' : ''}>${H(m.cat)}｜${H(m.zh)} $${m.price}${m.published ? '' : '（未發布）'}${m.alcohol ? '　🔞' : ''}</option>`)).join('')}</select></label>
       <label>小標<input data-k="p_eyebrow" value="${H(state.p_eyebrow)}"></label>
       <label>品名（中）<input data-k="p_zh" value="${H(state.p_zh)}"></label>
       <label>品名（英）<input data-k="p_en" value="${H(state.p_en)}"></label>
@@ -224,7 +226,21 @@
       <label>署名<input data-k="q_by" value="${H(state.q_by)}"></label>`,
   };
 
-  let root, stage;
+  let root, stage, downloading = false;
+
+  function loadMenuItem(id) {
+    const m = MENU().find(m => m.id === id);
+    state.p_menuId = m ? m.id : '';
+    state.p_alcohol = Lib.itemNeedsAlcoholBand(m);
+    if (m) Object.assign(state, { p_zh: m.zh, p_en: m.en, p_note: m.note || '', p_price: m.price, p_emo: m.emo });
+  }
+
+  function refreshMenu() {
+    if (state.p_menuId) loadMenuItem(state.p_menuId);
+    if (!root || currentTypeKey() !== 'product') return;
+    renderForm(); renderPreview();
+  }
+  window.addEventListener('tth:menu-data', refreshMenu);
 
   function renderForm() {
     const box = root.querySelector('#ig-fields');
@@ -241,11 +257,7 @@
     }));
     const menu = box.querySelector('[data-menu]');
     if (menu) menu.addEventListener('change', e => {
-      const idx = e.target.value;
-      const m = MENU()[idx];
-      state.p_menuIdx = idx;
-      state.p_alcohol = Lib.itemNeedsAlcoholBand(m);
-      if (m) Object.assign(state, { p_zh: m.zh, p_en: m.en, p_note: m.note || '', p_price: m.price, p_emo: m.emo });
+      loadMenuItem(e.target.value);
       renderForm(); renderPreview();
     });
   }
@@ -276,7 +288,7 @@
 
   async function download() {
     const btn = root.querySelector('#ig-dl');
-    if (!btn || btn.disabled) return;
+    if (!btn || btn.disabled || downloading) return;
     if (typeof htmlToImage === 'undefined') return toast('匯出元件未載入');
 
     const needsAlcohol = currentNeedsAlcohol();
@@ -300,10 +312,17 @@
     const typeKey = currentTypeKey();
     const title = typeKey === 'product' ? state.p_zh : typeKey === 'event' ? state.e_title : '金句';
     const prevText = btn.textContent;
+    downloading = true;
     btn.disabled = true;
     btn.textContent = '匯出中…';
     try {
       await document.fonts.ready;
+      const overflow = [node, ...node.querySelectorAll('.igp-body,.igp-quote')]
+        .some(el => Lib.contentOverflows(el.scrollHeight, el.clientHeight));
+      if (overflow) {
+        toast('內容超出版面，請縮短文字或移除照片');
+        return;
+      }
       // ponytail: skipFonts —— 不內嵌 CJK 字型（Noto Serif/Sans TC 各數 MB，內嵌會掛住 45s+）。
       // 匯出時瀏覽器以已載入／系統字型繪製；升級路徑：要保證跨機明體保真，改自架 woff2 subset 傳入 fontEmbedCSS。
       const url = await htmlToImage.toPng(node, { width: w, height: h, pixelRatio: 1, skipFonts: true });
@@ -312,6 +331,7 @@
       toast('已下載 PNG');
     } catch (e) { toast('匯出失敗：' + e.message); }
     finally {
+      downloading = false;
       btn.disabled = false;
       btn.textContent = prevText;
       holder.remove();
@@ -330,21 +350,21 @@
 
   function shell() {
     return `<div class="ig-wrap">
-      <div class="ig-form">
+        <div class="ig-form">
         <div class="ig-seg" id="ig-type">
-          <button data-type="product" class="on">單品／價目</button>
-          <button data-type="event">活動預告</button>
-          <button data-type="quote">金句／字</button>
+          <button data-type="product" class="${currentTypeKey() === 'product' ? 'on' : ''}">單品／價目</button>
+          <button data-type="event" class="${currentTypeKey() === 'event' ? 'on' : ''}">活動預告</button>
+          <button data-type="quote" class="${currentTypeKey() === 'quote' ? 'on' : ''}">金句／字</button>
         </div>
         <div class="ig-seg" id="ig-format">
-          <button data-fmt="portrait" class="on">直式 1080×1350</button>
-          <button data-fmt="square">方形 1080×1080</button>
+          <button data-fmt="portrait" class="${state.format === 'portrait' ? 'on' : ''}">直式 1080×1350</button>
+          <button data-fmt="square" class="${state.format === 'square' ? 'on' : ''}">方形 1080×1080</button>
         </div>
         <div class="ig-toggles">
-          <label><input type="checkbox" data-t="dark"> 暗底</label>
-          <label><input type="checkbox" data-t="showEn" checked> 顯示英文</label>
-          <label><input type="checkbox" data-t="showMember" checked> 顯示會員價</label>
-          <label><input type="checkbox" data-t="hl" checked> 標題重點</label>
+          <label><input type="checkbox" data-t="dark"${state.dark ? ' checked' : ''}> 暗底</label>
+          <label><input type="checkbox" data-t="showEn"${state.showEn ? ' checked' : ''}> 顯示英文</label>
+          <label><input type="checkbox" data-t="showMember"${state.showMember ? ' checked' : ''}> 顯示會員價</label>
+          <label><input type="checkbox" data-t="hl"${state.hl ? ' checked' : ''}> 標題重點</label>
         </div>
         <div id="ig-fields"></div>
         <div class="ig-drop" id="ig-drop"><span id="ig-drop-t">上傳照片 · 點此或拖曳</span>

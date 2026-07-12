@@ -11,6 +11,10 @@ const studioCode = fs.readFileSync(
   new URL('../public/ig-studio.js', import.meta.url),
   'utf8',
 );
+const adminCode = fs.readFileSync(
+  new URL('../public/admin.html', import.meta.url),
+  'utf8',
+);
 const window = {};
 vm.runInNewContext(code, { window, console });
 const {
@@ -19,6 +23,7 @@ const {
   itemNeedsAlcoholBand,
   alcoholBandHTML,
   buildDownloadName,
+  contentOverflows,
   PHOTO_MAX_BYTES,
   isAllowedPhotoType,
 } = window.IGStudioLib;
@@ -68,4 +73,50 @@ test('sizeStage skips hidden preview widths', () => {
 
 test('readPhoto reports FileReader errors without changing photo state', () => {
   assert.match(studioCode, /r\.onerror = r\.onabort = \(\) => toast\('照片讀取失敗'\);/);
+});
+
+test('shell and download guard preserve state across remounts', () => {
+  for (const fragment of [
+    "currentTypeKey() === 'product' ? 'on' : ''",
+    "currentTypeKey() === 'event' ? 'on' : ''",
+    "currentTypeKey() === 'quote' ? 'on' : ''",
+    "state.format === 'portrait' ? 'on' : ''",
+    "state.format === 'square' ? 'on' : ''",
+    "state.dark ? ' checked' : ''",
+    "state.showEn ? ' checked' : ''",
+    "state.showMember ? ' checked' : ''",
+    "state.hl ? ' checked' : ''",
+    'let root, stage, downloading = false;',
+    'if (!btn || btn.disabled || downloading) return;',
+    'downloading = true;',
+  ]) assert.ok(studioCode.includes(fragment), fragment);
+  assert.match(studioCode, /finally \{[\s\S]*?downloading = false;/);
+});
+
+test('menu selection uses stable ids and refreshes after menu changes', () => {
+  assert.doesNotMatch(studioCode, /p_menuIdx/);
+  for (const fragment of [
+    "p_menuId: ''",
+    'MENU().find(m => m.id === id)',
+    'value="${H(m.id)}"',
+    "window.addEventListener('tth:menu-data', refreshMenu);",
+  ]) assert.ok(studioCode.includes(fragment), fragment);
+  assert.match(adminCode, /MENU_DOC && Array\.isArray\(MENU_DOC\.items\)[\s\S]*?\? MENU_DOC\.items/);
+  assert.ok(adminCode.includes("window.dispatchEvent(new Event('tth:menu-data'));"));
+});
+
+test('contentOverflows detects clipped content', () => {
+  assert.equal(contentOverflows(101, 100), true);
+  assert.equal(contentOverflows(100, 100), false);
+  assert.equal(contentOverflows(99, 100), false);
+  assert.equal(contentOverflows('bad', 100), false);
+});
+
+test('alcohol layout is compact and export blocks overflow', () => {
+  for (const fragment of [
+    'const photoH = needsAlcohol ? (sq ? 160 : 320)',
+    "needsAlcohol ? ' igp-body--alcohol' : ''",
+    'Lib.contentOverflows(el.scrollHeight, el.clientHeight)',
+    "toast('內容超出版面，請縮短文字或移除照片')",
+  ]) assert.ok(studioCode.includes(fragment), fragment);
 });
