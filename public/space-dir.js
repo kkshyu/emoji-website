@@ -215,29 +215,29 @@
   }
 
   function buildSvg() {
-    var W = 120;
+    var W = 45;
     var D = 200;
-    var H = 14;
-    var gap = 52;
+    var H = 30;
+    var seam = 3;
+    var step = H + seam;
     var baseZ = 0;
-    // 視覺置中偏移
-    var ox = 40;
-    var oy = 20;
+    var ox = 0;
+    var oy = 0;
+    var d4 = Math.round(D * 0.35);
     var floors = [
-      { id: 1, z: baseZ, furn: furn1 },
-      { id: 2, z: baseZ + gap, furn: furn2 },
-      { id: 3, z: baseZ + gap * 2, furn: furn3 },
-      { id: 4, z: baseZ + gap * 3, furn: furn4 },
+      { id: 1, z: baseZ, W: W, D: D, furn: furn1 },
+      { id: 2, z: baseZ + step, W: W, D: D, furn: furn2 },
+      { id: 3, z: baseZ + step * 2, W: W, D: D, furn: furn3 },
+      { id: 4, z: baseZ + step * 3, W: W, D: d4, furn: furn4 },
     ];
 
-    // 由上到下繪製（4F 先畫會被蓋住？等角堆疊應由下往上畫，1F 先）
     var parts = floors.map(function (f) {
-      return slabGroup(ox, oy, f.z, W, D, H, f.furn(ox, oy, f.z, W, D, H), f.id);
+      return slabGroup(ox, oy, f.z, f.W, f.D, H, f.furn(ox, oy, f.z, f.W, f.D, H), f.id);
     });
 
-    // viewBox 包住樓層幾何（約 y=-140…190），頂端少留白以與右側列表對齊
+    // 細長塔：x 約 -173…39，y 約 4F 頂到 1F 底；實作後若裁切再微調
     return (
-      '<svg class="space-dir__svg" viewBox="-172 -148 350 350" role="img" aria-hidden="true">' +
+      '<svg class="space-dir__svg" viewBox="-200 -160 280 420" role="img" aria-hidden="true">' +
         parts.join('') +
       '</svg>'
     );
