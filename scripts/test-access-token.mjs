@@ -26,6 +26,11 @@ test('rejects bad signature', () => {
   assert.equal(verifyAccessToken(token, 'other', { now: 1_000_030 }), null);
 });
 
+test('rejects extra segment', () => {
+  const token = signAccessToken(base, SECRET, { now: 1_000_000, ttlSec: 60 });
+  assert.equal(verifyAccessToken(token + '.extra', SECRET, { now: 1_000_030 }), null);
+});
+
 test('rejects expired', () => {
   const token = signAccessToken(base, SECRET, { now: 1_000_000, ttlSec: 60 });
   assert.equal(verifyAccessToken(token, SECRET, { now: 1_000_061 }), null);
