@@ -88,4 +88,5 @@ test('member page has redesign markers', () => {
   assert.match(member, /m-panel--wallet|ptsAvailable|walletTitle/);
   assert.match(member, /m-toast/);
   assert.doesNotMatch(member, /申購|本金|持倉|贖回/);
+  assert.doesNotMatch(member, /Principal left|残元本/);
 });

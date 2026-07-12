@@ -277,7 +277,7 @@
       redeemEnt: 'Play room 1h (10 pts)',
       needActive: 'Active membership (2F/3F access) is required to redeem shower / capsule / play room.',
       orderPaid: (id) => `Order ${id}`,
-      orderRemain: (n) => `Principal left: ${n} pts`,
+      orderRemain: (n) => `Refundable left: ${n} pts`,
       refund: 'Refund',
       noOrders: 'No paid point orders yet.',
       walletLabel: 'Points wallet',
@@ -384,7 +384,7 @@
       redeemEnt: 'プレイルーム 1h（10 pt）',
       needActive: 'シャワー／カプセル／プレイルームの交換には Active 会員（2F/3F 利用可）が必要です。',
       orderPaid: (id) => `注文 ${id}`,
-      orderRemain: (n) => `残元本 ${n} pt`,
+      orderRemain: (n) => `返金可能の残り ${n} pt`,
       refund: '返金',
       noOrders: '支払い済みのポイント注文はまだありません。',
       walletLabel: 'ポイントウォレット',
@@ -615,7 +615,7 @@
       ${progressHtml}
       ${metaHtml}
       <div class="m-btn-row">
-        <a class="btn btn--solid" href="${FELLOW_PATH}">${esc(primaryLabel)}</a>
+        <button type="button" class="btn btn--solid" id="m-plans-primary">${esc(primaryLabel)}</button>
         <button type="button" class="btn btn--ghost" id="m-plans-toggle">${esc(T.planDetails)}</button>
       </div>
       <div class="m-drawer" id="m-plans-drawer" hidden>${plansDrawerRows}</div>
@@ -858,8 +858,11 @@
     const profileSave = document.getElementById('m-profile-save');
     if (profileSave) profileSave.onclick = () => showToast(T.nameReadonly);
     const plansToggle = document.getElementById('m-plans-toggle');
+    const plansPrimary = document.getElementById('m-plans-primary');
     const plansDrawer = document.getElementById('m-plans-drawer');
-    if (plansToggle && plansDrawer) plansToggle.onclick = () => { plansDrawer.hidden = !plansDrawer.hidden; };
+    const togglePlansDrawer = () => { if (plansDrawer) plansDrawer.hidden = !plansDrawer.hidden; };
+    if (plansToggle) plansToggle.onclick = togglePlansDrawer;
+    if (plansPrimary) plansPrimary.onclick = togglePlansDrawer;
     const buyToggle = card.querySelector('[data-open-buy]');
     const buyDrawer = document.getElementById('m-buy-drawer');
     if (buyToggle && buyDrawer) buyToggle.onclick = () => { buyDrawer.hidden = !buyDrawer.hidden; };
