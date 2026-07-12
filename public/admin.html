@@ -162,11 +162,10 @@ function derived(d){
 
 /* ---------- 菜單（site_content.menu） ---------- */
 function ensureMenuDoc(d) {
-  const raw = (d.content && d.content.menu) || '';
-  const fromDb = MenuLib.parseMenuDoc(raw);
-  if (fromDb.items.length > 0) {
+  const raw = d.content && d.content.menu;
+  if (typeof raw === 'string' && raw.trim()) {
     MENU_SEEDED = false;
-    return fromDb;
+    return MenuLib.parseMenuDoc(raw);
   }
   const seed = window.__MENU_SEED || window.MENU_DATA;
   if (seed) {
@@ -174,7 +173,7 @@ function ensureMenuDoc(d) {
     return MenuLib.fromSeedRows(seed);
   }
   MENU_SEEDED = false;
-  return fromDb;
+  return MenuLib.parseMenuDoc('');
 }
 
 // IG 產生器讀 window.MENU_DATA；每次 MENU_DOC 有更新都要同步，確保帶入的是目前顯示中的清單（含未存檔編輯）。
@@ -399,8 +398,8 @@ function render(d){
   if (!MENU_DIRTY || MENU_DOC === null) {
     MENU_DOC = ensureMenuDoc(d);
   } else {
-    const raw = (d.content && d.content.menu) || '';
-    MENU_SEEDED = MenuLib.parseMenuDoc(raw).items.length === 0;
+    const raw = d.content && d.content.menu;
+    MENU_SEEDED = !(typeof raw === 'string' && raw.trim()) && !!(window.__MENU_SEED || window.MENU_DATA);
     if (!MENU_DIRTY_TOASTED) {
       toast('菜單有未儲存變更，已保留本機編輯');
       MENU_DIRTY_TOASTED = true;

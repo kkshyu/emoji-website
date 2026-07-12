@@ -5,7 +5,7 @@
 
   function coerceAlcohol(item) {
     if (item.cat === 'ALCOHOL') return true;
-    if (item.note && String(item.note).includes('酒精')) return true;
+    if (item.note && String(item.note).includes('含酒精')) return true;
     return !!item.alcohol;
   }
 
@@ -75,7 +75,7 @@
       ...r,
       published: false,
       sort: (i + 1) * 10,
-      alcohol: r.alcohol === true || r.cat === 'ALCOHOL' || (r.note && String(r.note).includes('酒精')),
+      alcohol: r.alcohol === true || r.cat === 'ALCOHOL' || (r.note && String(r.note).includes('含酒精')),
     }));
     return touch({ version: 1, items });
   }

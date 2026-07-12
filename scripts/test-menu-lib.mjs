@@ -26,6 +26,11 @@ test('normalizeItem note 含酒精 → alcohol', () => {
   assert.equal(it.alcohol, true);
 });
 
+test('normalizeItem note 僅「酒精」字樣不強制 alcohol', () => {
+  const it = M.normalizeItem({ cat: 'COFFEE', zh: '特調', note: '無酒精風味', price: 1, emo: 1 });
+  assert.equal(it.alcohol, false);
+});
+
 test('parseMenuDoc empty → empty items', () => {
   const doc = M.parseMenuDoc('');
   assert.equal(doc.version, 1);
