@@ -94,7 +94,7 @@
       <div class="m-center">
         <h1 class="m-hi">會員登入</h1>
         <p class="m-sub">登入後可查看你的會籍狀態與會員專屬動態。</p>
-        ${loginBtn(location.origin + '/member.html')}
+        ${loginBtn(location.origin + '/member')}
         <p class="m-note">使用 Google 帳號一鍵登入，我們只讀取你的姓名與 Email。</p>
       </div>`;
   }
@@ -125,7 +125,7 @@
     card.innerHTML = `
       <h1 class="m-hi">歡迎，${esc(me.name || '會員')}</h1>
       <p class="m-sub">${esc(me.email || '')}</p>
-      ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin.html">前往後台管理 →</a></div>` : ''}
+      ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin">前往後台管理 →</a></div>` : ''}
       ${badge}
       <div>${membership}</div>
       <h3 class="m-sec-title">會員動態</h3>

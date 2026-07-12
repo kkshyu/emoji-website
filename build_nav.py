@@ -57,7 +57,7 @@ def build(lang, ptype):
 {prog_items}
         </div>
       </div>
-      <a href="/member.html">{d['member']}</a>
+      <a href="/member">{d['member']}</a>
       <div class="site-nav__dd site-nav__lang">
         <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false" aria-label="{LANGARIA[lang]}">
           <svg class="site-nav__globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><ellipse cx="12" cy="12" rx="4" ry="9"/></svg>

@@ -41,7 +41,7 @@ if (!GOOGLE_CLIENT_ID) console.warn('[warn] GOOGLE_CLIENT_ID 未設定，Google 
 const WEB_ORIGINS = (process.env.WEB_ORIGINS ||
   'https://www.emoji.tw,https://emoji.tw,http://localhost:5500,http://127.0.0.1:5500')
   .split(',').map(s => s.trim()).filter(Boolean);
-const DEFAULT_MEMBER_URL = (process.env.MEMBER_URL || WEB_ORIGINS[0] + '/member.html');
+const DEFAULT_MEMBER_URL = (process.env.MEMBER_URL || WEB_ORIGINS[0] + '/member');
 function safeRedirect(u) {
   try { return WEB_ORIGINS.includes(new URL(u).origin) ? u : null; } catch { return null; }
 }
@@ -343,7 +343,8 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
     const users = (await q(`SELECT ${SEL_USER} FROM users ORDER BY created_at`)).rows.map(pubUser);
     const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments ORDER BY created_at`)).rows);
     const payments = numify((await q(`SELECT ${SEL_P} FROM payments`)).rows);
-    return res.json({ role: 'admin', super: req.auth.super === true, me: null, bond, users, commitments, payments, updates });
+    const me = users.find(u => u.id === req.auth.sub) || null;  // 管理員自己：供會員頁顯示姓名
+    return res.json({ role: 'admin', super: req.auth.super === true, me, bond, users, commitments, payments, updates });
   }
   const me = pubUser((await q(`SELECT ${SEL_USER} FROM users WHERE id=$1`, [req.auth.sub])).rows[0]);
   if (!me) return res.status(401).json({ error: '帳號不存在，請重新登入。' });

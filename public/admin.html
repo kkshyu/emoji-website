@@ -92,7 +92,7 @@ logoutBtn.onclick = () => { localStorage.removeItem(KEY); location.reload(); };
 
 function renderLogin(msg){
   logoutBtn.style.display='none';
-  const redirect = encodeURIComponent(location.origin + '/admin.html');
+  const redirect = encodeURIComponent(location.origin + '/admin');
   app.innerHTML = `<div class="a-center" style="max-width:460px;margin:0 auto">
     <h1 class="a-h1">後台管理登入</h1>
     <p class="a-sub">${msg || '請以管理員 Google 帳號登入。'}</p>
