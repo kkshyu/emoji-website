@@ -287,6 +287,13 @@ async function memberAccessFor(userId, now = new Date()) {
   return deriveMemberAccess(ents, now);
 }
 
+function accessSummary(access) {
+  return [
+    ...(access.activeEntitlements || []).map(e => e.plan),
+    ...(access.pending || []).map(e => e.plan + '（待啟用）'),
+  ].join('、') || '—';
+}
+
 async function ensureFoundingEntitlement(commitment) {
   // commitment: { id, user_id, start_date, maturity_date, payment_status, membership_status }
   if (commitment.payment_status !== '已付款') return null;
@@ -436,6 +443,11 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
     const users = (await q(`SELECT ${SEL_USER} FROM users ORDER BY created_at`)).rows.map(pubUser);
     const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments ORDER BY created_at`)).rows);
     const entitlements = (await q(`SELECT ${SEL_ENT} FROM entitlements`)).rows.map(rowToEnt);
+    for (const u of users) {
+      const access = await memberAccessFor(u.id);
+      u.access_active = access.active;
+      u.access_summary = accessSummary(access);
+    }
     // 活動 + 每場報名人數（後台總覽用）
     const events = (await q(
       `SELECT ${SEL_EVENT}, (SELECT COUNT(*)::int FROM event_regs r WHERE r.event_id=e.id) AS reg_count
