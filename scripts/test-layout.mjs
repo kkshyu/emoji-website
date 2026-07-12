@@ -189,3 +189,18 @@ test('about ja page structure', () => {
 test('resolvePublicHtml resolves about ja', () => {
   assert.ok(resolvePublicHtml(PUB, '/ja/about').endsWith(`ja${path.sep}about.html`));
 });
+
+test('homepages no longer ship #about section', () => {
+  for (const rel of ['index.html', path.join('en', 'index.html'), path.join('ja', 'index.html')]) {
+    const html = fs.readFileSync(path.join(PUB, rel), 'utf8');
+    assert.doesNotMatch(html, /id="about"/);
+    assert.doesNotMatch(html, /class="about"/);
+  }
+});
+
+test('sitemap includes about locales', () => {
+  const sm = fs.readFileSync(path.join(PUB, 'sitemap.xml'), 'utf8');
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/about/);
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/en\/about/);
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/ja\/about/);
+});
