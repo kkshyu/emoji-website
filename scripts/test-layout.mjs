@@ -266,6 +266,27 @@ test('homepages no longer ship #about section', () => {
   }
 });
 
+test('homepage floors section is dual bridge not price cards', () => {
+  for (const rel of ['index.html', path.join('en', 'index.html'), path.join('ja', 'index.html')]) {
+    const html = fs.readFileSync(path.join(PUB, rel), 'utf8');
+    assert.match(html, /id="floors"/);
+    assert.doesNotMatch(html, /class="floors__grid"/);
+    assert.doesNotMatch(html, /floor__how/);
+    assert.match(html, /\/system/);
+    assert.match(html, /\/space/);
+  }
+});
+
+test('homepage Offer urls point to /system', () => {
+  const zh = fs.readFileSync(path.join(PUB, 'index.html'), 'utf8');
+  assert.match(zh, /emoji\.tw\/system"/);
+  assert.doesNotMatch(zh, /emoji\.tw\/#floors"/);
+  const en = fs.readFileSync(path.join(PUB, 'en', 'index.html'), 'utf8');
+  assert.match(en, /emoji\.tw\/en\/system"/);
+  const ja = fs.readFileSync(path.join(PUB, 'ja', 'index.html'), 'utf8');
+  assert.match(ja, /emoji\.tw\/ja\/system"/);
+});
+
 test('sitemap includes about locales', () => {
   const sm = fs.readFileSync(path.join(PUB, 'sitemap.xml'), 'utf8');
   assert.match(sm, /https:\/\/www\.emoji\.tw\/about/);
