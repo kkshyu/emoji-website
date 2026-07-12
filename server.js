@@ -1252,6 +1252,11 @@ const spaceUpload = multer({
     destination: (req, file, cb) => cb(null, UPLOAD_SPACE_DIR),
     filename: (req, file, cb) => cb(null, buildSafeSpaceFilename(file.originalname, file.mimetype)),
   }),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const err = assertSpaceImageFile({ mimetype: file.mimetype, size: 0 });
+    cb(err ? new Error(err) : null, !err);
+  },
 });
 app.post('/api/admin/upload/space', auth, adminOnly, (req, res) => {
   spaceUpload.single('file')(req, res, (err) => {
