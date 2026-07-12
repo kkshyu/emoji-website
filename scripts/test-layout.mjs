@@ -181,6 +181,27 @@ test('resolvePublicHtml resolves about zh', () => {
   assert.ok(resolvePublicHtml(PUB, '/about').endsWith('about.html'));
 });
 
+test('system zh page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'system.html'), 'utf8');
+  assert.match(html, /SITE_HEADER/);
+  assert.match(html, /SITE_FOOTER/);
+  assert.match(html, /system\.css/);
+  assert.match(html, /id="overview"/);
+  assert.match(html, /id="membership"/);
+  assert.match(html, /id="points"/);
+  assert.match(html, /id="booking"/);
+  assert.match(html, /id="cafe"/);
+  assert.match(html, /href="\/fellow"/);
+  assert.match(html, /href="\/partner"/);
+  assert.match(html, /href="\/space"/);
+  assert.match(html, /NT\$\s*4,000|NT\$4,000/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜/i);
+});
+
+test('resolvePublicHtml resolves system zh', () => {
+  assert.ok(resolvePublicHtml(PUB, '/system').endsWith('system.html'));
+});
+
 test('about en page structure', () => {
   const html = fs.readFileSync(path.join(PUB, 'en', 'about.html'), 'utf8');
   assert.match(html, /lang="en"/);
