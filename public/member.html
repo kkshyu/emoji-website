@@ -220,6 +220,54 @@
     qrTimer = setInterval(refreshQr, 30000);
   }
 
+  function renderPoints(data) {
+    const points = data.points || { balance: 0, lots: [] };
+    const orders = Array.isArray(data.point_orders) ? data.point_orders : [];
+    const active = !!(data.access && data.access.active);
+    const packs = [
+      { id: 'small', label: '小：50 點', pay: 500 },
+      { id: 'mid', label: '中：100＋贈 10', pay: 1000 },
+      { id: 'large', label: '大：300＋贈 45', pay: 3000 },
+      { id: 'xl', label: '超大：500＋贈 100', pay: 5000 },
+    ];
+    const packBtns = packs.map(p =>
+      `<button class="btn btn--ghost" type="button" data-pack="${p.id}">${esc(p.label)}（NT$${p.pay}）</button>`
+    ).join(' ');
+    const soon = (points.lots || []).filter(l => l.available && l.expires_at).slice(0, 3)
+      .map(l => `<li>${esc(l.type)} ${l.remaining} 點 · 至 ${esc(fmtTime(l.expires_at))}</li>`).join('');
+    const redeem = active
+      ? `<div class="m-actions" style="margin-top:1rem">
+           <button class="btn btn--solid" type="button" data-redeem="shower">淋浴（7 點）</button>
+           <button class="btn btn--ghost" type="button" data-redeem="capsule" data-hours="1">膠囊 1h（10 點）</button>
+           <button class="btn btn--ghost" type="button" data-redeem="entertainment" data-hours="1">娛樂室 1h（10 點）</button>
+         </div>`
+      : `<p class="m-note">需為 Active 會員（可進出二三樓）才能兌換淋浴／膠囊／娛樂室。</p>`;
+    const orderRows = orders.filter(o => o.status === 'paid').map(o => {
+      const purchaseLot = (points.lots || []).find(l => l.type === 'purchase' && l.source_id === o.id);
+      const rem = purchaseLot ? purchaseLot.remaining : 0;
+      return `<div class="m-row"><b>${esc(o.pack_id)} 訂單</b>
+        <span>剩餘本金 ${rem} 點
+          ${rem > 0 ? `<button class="btn btn--ghost" type="button" data-refund="${esc(o.id)}" data-max="${rem}" style="margin-left:.5em;padding:.35em .8em">退款</button>` : ''}
+        </span></div>`;
+    }).join('') || `<div class="m-empty">尚無已付款購點訂單。</div>`;
+    return `<section class="m-access" aria-label="點數錢包" style="margin-top:1.4rem">
+      <div class="m-access-head">
+        <div>
+          <h3>點數錢包</h3>
+          <p class="m-note" style="margin-top:0">每點 NT$10。購買本金無效期可退；加贈／會籍贈點預設一年、不退現。效期近者優先扣除。</p>
+        </div>
+        <span class="m-pill on">${Number(points.balance) || 0} 點</span>
+      </div>
+      ${soon ? `<ul class="m-access-list"><li><b>即將到期</b></li>${soon}</ul>` : ''}
+      <h4 class="m-sec-title" style="margin-top:1.2rem;font-size:1rem">購買點數</h4>
+      <div class="m-actions" style="margin-top:.6rem">${packBtns}</div>
+      <h4 class="m-sec-title" style="margin-top:1.2rem;font-size:1rem">兌換服務</h4>
+      ${redeem}
+      <h4 class="m-sec-title" style="margin-top:1.2rem;font-size:1rem">購點訂單／退款</h4>
+      ${orderRows}
+    </section>`;
+  }
+
   function renderLoggedOut() {
     stopQrRefresh();
     card.innerHTML = `
@@ -276,6 +324,7 @@
       ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin">前往後台管理 →</a></div>` : ''}
       ${badge}
       ${renderAccess(data)}
+      ${renderPoints(data)}
       <div>${membership}</div>
       <h3 class="m-sec-title">近期活動</h3>
       <div>${events}</div>
@@ -290,7 +339,83 @@
     };
     card.querySelectorAll('[data-reg]').forEach(b => b.onclick = () => regEvent(b.dataset.reg, 'POST', b));
     card.querySelectorAll('[data-unreg]').forEach(b => b.onclick = () => regEvent(b.dataset.unreg, 'DELETE', b));
+    card.querySelectorAll('[data-pack]').forEach(b => b.onclick = () => buyPack(b.dataset.pack, b));
+    card.querySelectorAll('[data-redeem]').forEach(b => b.onclick = () => redeemService(b.dataset.redeem, Number(b.dataset.hours || 1), b));
+    card.querySelectorAll('[data-refund]').forEach(b => b.onclick = () => refundPoints(b.dataset.refund, Number(b.dataset.max), b));
     startQrRefresh(canIssueQr);
+  }
+
+  async function buyPack(packId, btn) {
+    btn.disabled = true;
+    try {
+      const r = await fetch(FELLOW + '/api/me/points/orders', {
+        method: 'POST',
+        headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
+        body: JSON.stringify({ pack_id: packId }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { alert(d.error || '無法建立購點訂單'); btn.disabled = false; return; }
+      location.href = d.url;
+    } catch (e) {
+      alert('連線失敗，請稍後再試');
+      btn.disabled = false;
+    }
+  }
+
+  async function redeemService(service, hours, btn) {
+    btn.disabled = true;
+    try {
+      const body = service === 'shower' ? { service } : { service, hours };
+      const r = await fetch(FELLOW + '/api/me/points/redeem', {
+        method: 'POST',
+        headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { alert(d.error || '兌換失敗'); btn.disabled = false; return; }
+      await main();
+    } catch (e) {
+      alert('連線失敗，請稍後再試');
+      btn.disabled = false;
+    }
+  }
+
+  async function refundPoints(orderId, max, btn) {
+    const raw = prompt(`退還未使用的購買點（最多 ${max} 點）。退款時該筆訂單剩餘加贈會全部作廢。`, String(max));
+    if (raw == null) return;
+    const n = Number(raw);
+    if (!Number.isInteger(n) || n < 1 || n > max) { alert('請輸入 1～' + max + ' 的整數'); return; }
+    btn.disabled = true;
+    try {
+      const r = await fetch(FELLOW + '/api/me/points/refunds', {
+        method: 'POST',
+        headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
+        body: JSON.stringify({ point_order_id: orderId, principal_points: n }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { alert(d.error || '退款失敗'); btn.disabled = false; return; }
+      alert(`已申請退款 NT$${d.refund?.refund_twd || n * 10}`);
+      await main();
+    } catch (e) {
+      alert('連線失敗，請稍後再試');
+      btn.disabled = false;
+    }
+  }
+
+  async function fulfillPointsIfNeeded() {
+    const q = new URLSearchParams(location.search);
+    if (q.get('points_paid') !== '1') return;
+    const oid = q.get('oid');
+    const s = q.get('s');
+    history.replaceState(null, '', location.pathname);
+    if (!oid || !token) return;
+    try {
+      await fetch(FELLOW + '/api/me/points/orders/' + encodeURIComponent(oid) + '/fulfill', {
+        method: 'POST',
+        headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
+        body: JSON.stringify({ session_id: s }),
+      });
+    } catch (e) {}
   }
 
   async function regEvent(id, method, btn) {
@@ -308,6 +433,7 @@
   async function main() {
     if (!token) return renderLoggedOut();
     try {
+      await fulfillPointsIfNeeded();
       const r = await fetch(FELLOW + '/api/state', { headers: { authorization: 'Bearer ' + token } });
       if (r.status === 401) { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); return renderLoggedOut(); }
       if (!r.ok) throw new Error('state ' + r.status);

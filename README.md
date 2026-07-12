@@ -8,6 +8,8 @@
 | `/cis/`、`/en/cis/`、`/ja/cis/` | 企業識別 CIS（公開 Brand Guidelines） |
 | `/fellow` | 言文字創始會員站（一頁式 SPA，含登入／會員儀表板／後台／Stripe 結帳） |
 | `/api/*`、`/auth/google/*` | 後端 REST API 與 Google 登入；資料存 Postgres |
+| `/member` | 會員專區（進出 QR、點數錢包、購點／兌換／退款） |
+| `/admin` | 後台（會籍、發點、活動、內容） |
 
 前端靜態檔全部在 `public/`（`public/fellow/` 為 fellow 前端），伺服器源碼（`server.js`、`package.json`）不外露。
 
@@ -45,3 +47,10 @@ DB 未設定時伺服器優雅降級：靜態頁照常，`/api/*` 回 503。
 
 - Google OAuth：Console 的授權導回 URI 需設為 `https://www.emoji.tw/auth/google/callback`。
 - Stripe 結帳成功／取消導回 `https://www.emoji.tw/fellow`。
+
+
+## 會員點數（摘要）
+
+- 每點 NT$10；購買本金無效期可退未使用部分；加贈／會籍贈點預設一年、不退現。
+- 兌換（須 Active）：淋浴 7 點、膠囊／娛樂室各 10 點／小時；包場現金。
+- 規格：`docs/superpowers/specs/2026-07-12-member-points-design.md`
