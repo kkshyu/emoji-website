@@ -62,40 +62,6 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="/menu-lib.js"></script>
 <script src="/space-dir.js"></script>
-<style>
-  .space-hero { padding: 80px 0 48px; text-align: center; border-bottom: 1px solid var(--line); }
-  .space-hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; margin-bottom: 20px; }
-  .space-hero .eyebrow { margin-bottom: 16px; }
-  .space-hero .lede { max-width: 36rem; margin: 0 auto; color: var(--ink-soft); font-size: 1.08rem; line-height: 1.8; }
-  .hero-media { max-width: 960px; margin: 40px auto 0; }
-  .hero-media img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 6px; background: var(--paper); box-sizing: border-box; }
-  .hero-media[hidden] { display: none; }
-  .floor-media img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 6px; background: var(--paper); box-sizing: border-box; }
-  .md-content { line-height: 1.8; color: var(--ink-soft); font-size: 1.08rem; }
-  .md-content h2, .md-content h3 { color: var(--ink); margin-top: 1.5em; margin-bottom: 0.5em; }
-  .md-content p { margin-bottom: 1em; }
-  .md-content ul, .md-content ol { margin-bottom: 1em; padding-left: 20px; }
-  .md-content li { margin-bottom: 0.5em; }
-  .menu-empty { padding: 24px 0; text-align: center; color: var(--muted); font-family: var(--serif); font-size: 1.2rem; }
-  .menu-group { margin-bottom: 52px; }
-  .menu-group__head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1.5px solid var(--ink); }
-  .menu-group__zh { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; letter-spacing: .04em; }
-  .menu-group__en { font-family: var(--latin); font-size: .9rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-  .menu-list { list-style: none; padding: 0; }
-  .menu-item { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--line); }
-  .menu-item:last-child { border-bottom: none; }
-  .menu-item__names { min-width: 0; }
-  .menu-item__zh { font-family: var(--serif); font-weight: 500; font-size: 1.08rem; }
-  .menu-item__en { margin-left: .7em; font-family: var(--latin); font-size: .86rem; letter-spacing: .03em; color: var(--muted); }
-  .menu-item__note { margin-top: 5px; font-size: .86rem; color: var(--muted); font-weight: 300; }
-  .menu-item__price { flex: 0 0 auto; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .menu-item__price .now { font-family: var(--latin); font-size: 1.12rem; font-weight: 600; color: var(--ink); }
-  .menu-item__price .orig { display: block; margin-top: 2px; font-size: .78rem; color: var(--muted); }
-  .menu-notice { margin-top: 8px; padding: 16px 20px; background: var(--paper-alt); border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: .86rem; color: var(--ink-soft); }
-  @media(max-width: 640px) {
-    .menu-item__en { display: block; margin-left: 0; margin-top: 2px; }
-  }
-</style>
 </head>
 <body>
 <a href="#content" class="skip-link">本文へスキップ</a>
@@ -106,9 +72,9 @@
 
   <section class="space-hero">
     <div class="wrap">
-      <span class="eyebrow reveal">Taiwan Talent Hub</span>
-      <h1 class="reveal">四層の<em class="swash">リアルな拠点</em></h1>
-      <p class="lede reveal">台湾で最も人材密度の高いハブ。普段は出会えない人と、台北駅のそばで出会う。</p>
+      <span class="eyebrow">言文字｜空間</span>
+      <h1>四層の<em class="swash">リアルな拠点</em></h1>
+      <p class="lede">台湾で最も人材密度の高いハブ。普段は出会えない人と、台北駅のそばで出会う。</p>
       <figure class="hero-media" id="media-hero" hidden>
         <img src="" alt="言文字｜台湾タレントハブ 外観">
       </figure>
@@ -119,7 +85,7 @@
     <div id="space-dir-root"></div>
   </section>
 
-  <section class="space-panel wrap" id="floor-detail" hidden>
+  <div class="space-panel space-panel--accordion" id="floor-detail" hidden>
     <div class="space-panel__inner">
       <div class="space-panel__head">
         <span class="space-panel__no" data-panel-no>1F</span>
@@ -135,7 +101,7 @@
         <div data-panel-menu-body></div>
       </div>
     </div>
-  </section>
+  </div>
 
 </main>
 

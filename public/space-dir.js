@@ -7,7 +7,7 @@
 
   var I18N = {
     zh: {
-      intro: '依原始平面圖繪製的樓層示意。點選樓層展開介紹；一樓可一併查看菜單。',
+      intro: '1F–4F',
       close: '收合',
       menuTitle: '餐飲菜單 Menu',
       areas: {
@@ -36,7 +36,7 @@
       },
     },
     en: {
-      intro: 'Isometric floors from the original plan. Click a level to expand; 1F includes the menu.',
+      intro: '1F–4F',
       close: 'Close',
       menuTitle: 'Menu',
       areas: {
@@ -65,7 +65,7 @@
       },
     },
     ja: {
-      intro: '平面図をもとにした等角フロア図。階層を選ぶと詳細が開きます。1F にはメニューも表示されます。',
+      intro: '1F–4F',
       close: '閉じる',
       menuTitle: 'メニュー Menu',
       areas: {
@@ -235,9 +235,9 @@
       return slabGroup(ox, oy, f.z, W, D, H, f.furn(ox, oy, f.z, W, D, H), f.id);
     });
 
-    // viewBox：計算大致範圍
+    // viewBox 包住樓層幾何（約 y=-140…190），頂端少留白以與右側列表對齊
     return (
-      '<svg class="space-dir__svg" viewBox="-160 -40 420 520" role="img" aria-hidden="true">' +
+      '<svg class="space-dir__svg" viewBox="-172 -148 350 350" role="img" aria-hidden="true">' +
         parts.join('') +
       '</svg>'
     );
@@ -246,14 +246,15 @@
   function buildList(t) {
     return [4, 3, 2, 1].map(function (id) {
       return (
-        '<li class="space-dir__item">' +
-          '<button type="button" class="space-dir__btn" data-floor="' + id + '" aria-pressed="false">' +
+        '<li class="space-dir__item" data-floor-item="' + id + '">' +
+          '<button type="button" class="space-dir__btn" data-floor="' + id + '" aria-pressed="false" aria-expanded="false">' +
             '<span class="space-dir__no">' + id + 'F</span>' +
             '<span class="space-dir__meta">' +
               '<span class="space-dir__kicker">' + t.kickers[id] + '</span>' +
               '<span class="space-dir__name">' + t.names[id] + '</span>' +
               '<span class="space-dir__hint">' + t.hints[id] + '</span>' +
             '</span>' +
+            '<span class="space-dir__chev" aria-hidden="true"></span>' +
           '</button>' +
         '</li>'
       );
@@ -263,11 +264,13 @@
   function mountShell(root, lang) {
     var t = I18N[lang] || I18N.zh;
     root.innerHTML =
-      '<div class="wrap">' +
-        '<p class="space-dir__intro">' + t.intro + '</p>' +
+      '<div class="wrap space-dir__wrap">' +
+        '<p class="space-dir__cue">' + t.intro + '</p>' +
         '<div class="space-dir__grid">' +
           '<div class="space-dir__viz">' + buildSvg() + '</div>' +
-          '<ol class="space-dir__list" aria-label="Floors">' + buildList(t) + '</ol>' +
+          '<div class="space-dir__side">' +
+            '<ol class="space-dir__list" aria-label="Floors">' + buildList(t) + '</ol>' +
+          '</div>' +
         '</div>' +
       '</div>';
     return t;
@@ -281,6 +284,12 @@
     this.active = null;
     this.content = {};
     this.menuHtml = '';
+    if (this.panel) {
+      this.panel.classList.remove('wrap');
+      this.panel.classList.add('space-panel--accordion');
+      // 收合時寄放在目錄根節點，展開時再插入對應樓層 <li>
+      this.root.appendChild(this.panel);
+    }
     this._bind();
   }
 
@@ -332,24 +341,30 @@
 
     this.root.querySelectorAll('.space-dir__btn').forEach(function (btn) {
       var id = Number(btn.getAttribute('data-floor'));
-      btn.setAttribute('aria-pressed', floor != null && id === floor ? 'true' : 'false');
+      var on = floor != null && id === floor;
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    });
+
+    this.root.querySelectorAll('.space-dir__item').forEach(function (item) {
+      var id = Number(item.getAttribute('data-floor-item'));
+      item.classList.toggle('is-open', floor != null && id === floor);
     });
 
     if (floor == null) {
       this.panel.hidden = true;
+      this.root.appendChild(this.panel);
       history.replaceState(null, '', location.pathname + location.search);
       return;
     }
 
     this._paintPanel(floor);
+    var item = this.root.querySelector('.space-dir__item[data-floor-item="' + floor + '"]');
+    if (item) item.appendChild(this.panel);
     this.panel.hidden = false;
-    // hash for deep link: #f1 #menu
+    // hash for deep link: #f1 #menu — 用手風琴展開，不滾動頁面
     var hash = floor === 1 ? '#menu' : ('#f' + floor);
     if (location.hash !== hash) history.replaceState(null, '', hash);
-    var self = this;
-    requestAnimationFrame(function () {
-      self.panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
   };
 
   SpaceDir.prototype._paintPanel = function (floor) {
