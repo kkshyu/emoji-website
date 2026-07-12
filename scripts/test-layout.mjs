@@ -80,6 +80,20 @@ test('localePaths maps member menu and space locales', () => {
   assert.equal(localePaths('/space.html').slug, 'space');
 });
 
+test('localePaths maps system locales', () => {
+  assert.equal(localePaths('/system').slug, 'system');
+  assert.equal(localePaths('/system').zh, '/system');
+  assert.equal(localePaths('/en/system').en, '/en/system');
+  assert.equal(localePaths('/ja/system').ja, '/ja/system');
+  assert.equal(localePaths('/system.html').slug, 'system');
+});
+
+test('composeLayout system page marks system current', () => {
+  const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
+  const html = composeLayout(raw, '/system');
+  assert.match(html, /href="\/system"[^>]*aria-current="page"/);
+});
+
 test('composeLayout injects header and footer with aria-current', () => {
   const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
   const html = composeLayout(raw, '/en/fellow');
@@ -102,12 +116,23 @@ test('resolvePublicHtml resolves known pages', () => {
   assert.ok(resolvePublicHtml(PUB, '/fellow').includes(`${path.sep}fellow${path.sep}index.html`));
 });
 
-test('header partials drop menu and floors system link', () => {
+test('header partials include system link after about, before space', () => {
+  const expect = {
+    zh: { label: '消費方式', href: '/system' },
+    en: { label: 'SYSTEM', href: '/en/system' },
+    ja: { label: 'システム', href: '/ja/system' },
+  };
   for (const lang of ['zh', 'en', 'ja']) {
     const h = fs.readFileSync(path.join(__dirname, '..', 'views', 'partials', `header-${lang}.html`), 'utf8');
     assert.doesNotMatch(h, /href="[^"]*\/menu/);
     assert.doesNotMatch(h, /#floors/);
+    assert.match(h, /NAV_SYSTEM_CURRENT/);
+    assert.match(h, new RegExp(`href="${expect[lang].href}"[^>]*>\\s*${expect[lang].label}`));
     assert.match(h, /\/space/);
+    const iAbout = h.indexOf(lang === 'zh' ? '/about"' : `/${lang}/about"`);
+    const iSys = h.indexOf(`href="${expect[lang].href}"`);
+    const iSpace = h.indexOf(lang === 'zh' ? 'href="/space"' : `href="/${lang}/space"`);
+    assert.ok(iAbout < iSys && iSys < iSpace, `${lang} nav order`);
   }
 });
 
@@ -156,6 +181,49 @@ test('resolvePublicHtml resolves about zh', () => {
   assert.ok(resolvePublicHtml(PUB, '/about').endsWith('about.html'));
 });
 
+test('system zh page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'system.html'), 'utf8');
+  assert.match(html, /SITE_HEADER/);
+  assert.match(html, /SITE_FOOTER/);
+  assert.match(html, /system\.css/);
+  assert.match(html, /id="overview"/);
+  assert.match(html, /id="membership"/);
+  assert.match(html, /id="points"/);
+  assert.match(html, /id="booking"/);
+  assert.match(html, /id="cafe"/);
+  assert.match(html, /href="\/fellow"/);
+  assert.match(html, /href="\/partner"/);
+  assert.match(html, /href="\/space"/);
+  assert.match(html, /NT\$\s*4,000|NT\$4,000/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|共居|居住|入住/i);
+});
+
+test('resolvePublicHtml resolves system zh', () => {
+  assert.ok(resolvePublicHtml(PUB, '/system').endsWith('system.html'));
+});
+
+test('system en page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'en', 'system.html'), 'utf8');
+  assert.match(html, /lang="en"/);
+  assert.match(html, /id="membership"/);
+  assert.match(html, /href="\/en\/fellow"/);
+  assert.match(html, /href="\/en\/partner"/);
+  assert.match(html, /href="\/en\/space"/);
+  assert.match(html, /canonical" href="https:\/\/www\.emoji\.tw\/en\/system"/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|共居|居住|入住/i);
+});
+
+test('system ja page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'ja', 'system.html'), 'utf8');
+  assert.match(html, /lang="ja"/);
+  assert.match(html, /id="membership"/);
+  assert.match(html, /href="\/ja\/fellow"/);
+  assert.match(html, /href="\/ja\/partner"/);
+  assert.match(html, /href="\/ja\/space"/);
+  assert.match(html, /canonical" href="https:\/\/www\.emoji\.tw\/ja\/system"/);
+  assert.doesNotMatch(html, /旅館|hotel|宿泊|ホテル|過夜|共居|居住|入住/i);
+});
+
 test('about en page structure', () => {
   const html = fs.readFileSync(path.join(PUB, 'en', 'about.html'), 'utf8');
   assert.match(html, /lang="en"/);
@@ -198,9 +266,37 @@ test('homepages no longer ship #about section', () => {
   }
 });
 
+test('homepage floors section is dual bridge not price cards', () => {
+  for (const rel of ['index.html', path.join('en', 'index.html'), path.join('ja', 'index.html')]) {
+    const html = fs.readFileSync(path.join(PUB, rel), 'utf8');
+    assert.match(html, /id="floors"/);
+    assert.doesNotMatch(html, /class="floors__grid"/);
+    assert.doesNotMatch(html, /floor__how/);
+    assert.match(html, /\/system/);
+    assert.match(html, /\/space/);
+  }
+});
+
+test('homepage Offer urls point to /system', () => {
+  const zh = fs.readFileSync(path.join(PUB, 'index.html'), 'utf8');
+  assert.match(zh, /emoji\.tw\/system"/);
+  assert.doesNotMatch(zh, /emoji\.tw\/#floors"/);
+  const en = fs.readFileSync(path.join(PUB, 'en', 'index.html'), 'utf8');
+  assert.match(en, /emoji\.tw\/en\/system"/);
+  const ja = fs.readFileSync(path.join(PUB, 'ja', 'index.html'), 'utf8');
+  assert.match(ja, /emoji\.tw\/ja\/system"/);
+});
+
 test('sitemap includes about locales', () => {
   const sm = fs.readFileSync(path.join(PUB, 'sitemap.xml'), 'utf8');
   assert.match(sm, /https:\/\/www\.emoji\.tw\/about/);
   assert.match(sm, /https:\/\/www\.emoji\.tw\/en\/about/);
   assert.match(sm, /https:\/\/www\.emoji\.tw\/ja\/about/);
+});
+
+test('sitemap includes system locales', () => {
+  const sm = fs.readFileSync(path.join(PUB, 'sitemap.xml'), 'utf8');
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/system/);
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/en\/system/);
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/ja\/system/);
 });
