@@ -90,8 +90,8 @@ test('localePaths maps system locales', () => {
 
 test('composeLayout system page marks system current', () => {
   const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
-  // Task 1: keep this light — localePaths only until header has NAV_SYSTEM_CURRENT
-  assert.equal(localePaths('/system').slug, 'system');
+  const html = composeLayout(raw, '/system');
+  assert.match(html, /href="\/system"[^>]*aria-current="page"/);
 });
 
 test('composeLayout injects header and footer with aria-current', () => {
