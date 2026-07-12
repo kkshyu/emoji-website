@@ -1,7 +1,8 @@
 # 會員 Active 與二三樓門禁（QR／JWT）設計
 
 日期：2026-07-12  
-狀態：已核准（方法 A：權益表推導 ＋ QR 地端驗簽）  
+狀態：已核准（方法 A：權益表推導 ＋ QR 地端驗簽）
+實作計畫：`docs/superpowers/plans/2026-07-12-member-active-access.md`  
 分支／工作區：`admin-no-member-badge`（`.tth-worktrees/admin-no-member-badge`）
 
 ## 目標
