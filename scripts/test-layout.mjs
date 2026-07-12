@@ -155,3 +155,20 @@ test('about zh page structure', () => {
 test('resolvePublicHtml resolves about zh', () => {
   assert.ok(resolvePublicHtml(PUB, '/about').endsWith('about.html'));
 });
+
+test('about en page structure', () => {
+  const html = fs.readFileSync(path.join(PUB, 'en', 'about.html'), 'utf8');
+  assert.match(html, /lang="en"/);
+  assert.match(html, /id="why"/);
+  assert.match(html, /id="kk"/);
+  assert.match(html, /href="\/en\/space"/);
+  assert.match(html, /href="\/en\/fellow#about"/);
+  assert.match(html, /canonical" href="https:\/\/www\.emoji\.tw\/en\/about"/);
+  assert.match(html, /SITE_HEADER/);
+  assert.match(html, /about\.css/);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜/i);
+});
+
+test('resolvePublicHtml resolves about en', () => {
+  assert.ok(resolvePublicHtml(PUB, '/en/about').endsWith(`en${path.sep}about.html`));
+});
