@@ -28,15 +28,23 @@ test('localePaths maps programs and cis slash', () => {
   assert.equal(localePaths('/en/cis/').en, '/en/cis/');
 });
 
-test('localePaths maps member and menu specials', () => {
+test('localePaths maps member menu and space locales', () => {
   const m = localePaths('/member');
+  assert.equal(m.lang, 'zh');
   assert.equal(m.zh, '/member');
-  assert.equal(m.en, '/en/');
-  assert.equal(m.ja, '/ja/');
+  assert.equal(m.en, '/en/member');
+  assert.equal(m.ja, '/ja/member');
+  assert.equal(localePaths('/en/member').lang, 'en');
+  assert.equal(localePaths('/en/member').en, '/en/member');
+  assert.equal(localePaths('/ja/member').ja, '/ja/member');
   assert.equal(localePaths('/menu/').zh, '/menu/');
-  assert.equal(localePaths('/menu').en, '/menu/');
+  assert.equal(localePaths('/menu').en, '/en/menu/');
+  assert.equal(localePaths('/en/menu/').en, '/en/menu/');
+  assert.equal(localePaths('/ja/menu/').ja, '/ja/menu/');
   assert.equal(localePaths('/space').slug, 'space');
   assert.equal(localePaths('/space').zh, '/space');
+  assert.equal(localePaths('/en/space').en, '/en/space');
+  assert.equal(localePaths('/ja/space').ja, '/ja/space');
   assert.equal(localePaths('/space.html').slug, 'space');
 });
 

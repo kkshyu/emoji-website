@@ -42,6 +42,8 @@ const I18N = {
   zh: {
     joined: n => `已加入 ${n} 名`,
     confirming: '創始名單陸續確認中',
+    progressRevealed: joined => `${joined} ／ 限量 100 名　·　售罄不補，與一般年費同價、加量不加價`,
+    progressQuiet: confirming => `${confirming}　·　售止 2026-10-31，售罄不補`,
     srvErr: s => `伺服器錯誤（${s}）`,
     buyErr: '購買暫時無法開始，請稍後再試。',
     paid: '✓ 付款完成，歡迎成為創始會員！會籍自 <b>2026-11-01</b> 起算 18 個月（至 <b>2028-04-30</b>）；收據與創始會員證將以 Email 寄出。',
@@ -50,6 +52,8 @@ const I18N = {
   en: {
     joined: n => `${n} joined`,
     confirming: 'Founding members are being confirmed',
+    progressRevealed: joined => `${joined} ／ limited to 100 · no restock · same price as annual, more included`,
+    progressQuiet: confirming => `${confirming} · on sale until 2026-10-31 · no restock`,
     srvErr: s => `Server error (${s})`,
     buyErr: 'Checkout could not start. Please try again shortly.',
     paid: '✓ Payment complete — welcome, Founding Member! Your 18-month membership runs <b>2026-11-01</b> → <b>2028-04-30</b>; your receipt and Founding Member certificate will be emailed to you.',
@@ -58,6 +62,8 @@ const I18N = {
   ja: {
     joined: n => `${n} 名が参加`,
     confirming: '創始メンバーを順次確認中',
+    progressRevealed: joined => `${joined} ／ 限定100名　·　完売後の追加なし、一般年会費と同価格で内容を増量`,
+    progressQuiet: confirming => `${confirming}　·　2026-10-31 まで販売、完売後の追加なし`,
     srvErr: s => `サーバーエラー（${s}）`,
     buyErr: '決済を開始できませんでした。しばらくしてから再度お試しください。',
     paid: '✓ お支払いが完了しました。創始会員へようこそ！会籍は <b>2026-11-01</b> から18か月間（<b>2028-04-30</b> まで）。領収書と創始会員証はメールでお送りします。',
@@ -138,8 +144,8 @@ function renderProgress() {
   if (fund) fund.classList.toggle('fund--quiet', !revealed);   // CSS 隱藏數字/進度條，露出質性文案
   if ($('#hero-fund-pct')) $('#hero-fund-pct').textContent = pct + '%';
   if ($('#hero-fund-raised')) $('#hero-fund-raised').textContent = revealed
-    ? `${T.joined(count)} ／ 限量 100 名　·　售罄不補，與一般年費同價、加量不加價`
-    : `${T.confirming}　·　售止 2026-10-31，售罄不補`;
+    ? T.progressRevealed(T.joined(count))
+    : T.progressQuiet(T.confirming);
   const bar = $('#hero-fund-bar');
   if (!bar) return;
   const fill = () => { bar.style.width = pct + '%'; };

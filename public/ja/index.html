@@ -502,10 +502,65 @@
 
 <!-- ===== CTA / CONTACT / NEWSLETTER ===== -->
 
+<!-- ===== お知らせ／イベント（/api/public；空なら非表示） ===== -->
+<section id="news" hidden style="padding:54px 0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">News &amp; Events · お知らせとイベント</span>
+      <h2>ハブの<span class="swash">近況</span></h2>
+      <p style="color:var(--muted);font-size:.9rem;margin-top:.6rem">イベント名は翻訳公開まで中国語で表示される場合があります。</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px;margin-top:28px">
+      <div id="news-events" hidden>
+        <h3 style="font-family:var(--serif);font-size:1.15rem;margin-bottom:14px">近日のイベント</h3>
+        <div id="news-events-list"></div>
+        <p style="color:var(--muted);font-size:.85rem;margin-top:14px">参加申込には会員ログインが必要です。<a href="/ja/member" style="text-decoration:underline;text-underline-offset:3px">ログインして申し込む →</a></p>
+      </div>
+      <div id="news-updates" hidden>
+        <h3 style="font-family:var(--serif);font-size:1.15rem;margin-bottom:14px">最新のお知らせ</h3>
+        <div id="news-updates-list"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <!--SITE_FOOTER-->
 
 <script src="/script.js"></script>
+<script>
+(function(){
+  var esc = function(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
+  fetch('/api/public').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    if(!d) return;
+    var notice = d.content && d.content.home_notice;
+    if(notice){ var nb=document.getElementById('site-notice'); if(nb){ nb.textContent=notice; nb.hidden=false; } }
+    var events = d.events || [], updates = (d.updates || []).slice(0,5);
+    if(events.length){
+      document.getElementById('news-events-list').innerHTML = events.map(function(e){
+        var meta = esc(e.starts_at||'日時未定') + (e.location?'｜'+esc(e.location):'');
+        return '<div style="padding:12px 0;border-top:1px solid var(--line)">'
+          + '<b style="font-weight:500">'+esc(e.title)+'</b>'
+          + '<div style="color:var(--muted);font-size:.84rem;margin-top:.2em">'+meta+'</div>'
+          + (e.description?'<p style="color:var(--ink-soft);font-size:.9rem;margin-top:.35em">'+esc(e.description)+'</p>':'')
+          + '</div>';
+      }).join('');
+      document.getElementById('news-events').hidden=false;
+    }
+    if(updates.length){
+      document.getElementById('news-updates-list').innerHTML = updates.map(function(u){
+        return '<div style="padding:12px 0;border-top:1px solid var(--line)">'
+          + '<b style="font-weight:500">'+esc(u.title)+'</b>'
+          + '<div style="color:var(--muted);font-size:.84rem;margin-top:.2em">'+esc(u.published_at)+'｜'+esc(u.type)+'</div>'
+          + (u.content?'<p style="color:var(--ink-soft);font-size:.9rem;margin-top:.35em;white-space:pre-wrap">'+esc(u.content)+'</p>':'')
+          + '</div>';
+      }).join('');
+      document.getElementById('news-updates').hidden=false;
+    }
+    if(events.length || updates.length) document.getElementById('news').hidden=false;
+  }).catch(function(){});
+})();
+</script>
 </body>
 </html>

@@ -1020,6 +1020,8 @@ app.post('/api/me/points/orders', auth, requireDb, wrap(async (req, res) => {
   );
 
   const origin = SITE_BASE;
+  const lang = String((req.body && req.body.lang) || 'zh').toLowerCase();
+  const memberBase = lang === 'en' ? '/en/member' : lang === 'ja' ? '/ja/member' : '/member';
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [{
@@ -1033,8 +1035,8 @@ app.post('/api/me/points/orders', auth, requireDb, wrap(async (req, res) => {
       },
       quantity: 1,
     }],
-    success_url: `${origin}/member?points_paid=1&oid=${id}&s={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/member?points_canceled=1`,
+    success_url: `${origin}${memberBase}?points_paid=1&oid=${id}&s={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin}${memberBase}?points_canceled=1`,
     client_reference_id: id,
     metadata: { kind: 'point_pack', point_order_id: id, user_id: req.auth.sub, pack_id: pack.id },
   });

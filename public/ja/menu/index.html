@@ -1,30 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>菜單 · 言文字｜台灣人才聚落</title>
-<meta name="description" content="言文字｜台灣人才聚落菜單：咖啡、飲品、酒精飲品與餐點價目一覽。">
+<title>メニュー｜言文字｜台湾タレントハブ</title>
+<meta name="description" content="言文字｜台湾タレントハブのメニュー：コーヒー、ドリンク、アルコール、フードの価格と会員（Emo）価格の一覧。">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
-<link rel="canonical" href="https://www.emoji.tw/menu/">
+<link rel="canonical" href="https://www.emoji.tw/ja/menu/">
 <link rel="alternate" hreflang="zh-Hant" href="https://www.emoji.tw/menu/">
 <link rel="alternate" hreflang="en" href="https://www.emoji.tw/en/menu/">
 <link rel="alternate" hreflang="ja" href="https://www.emoji.tw/ja/menu/">
 <link rel="alternate" hreflang="x-default" href="https://www.emoji.tw/menu/">
-<meta property="og:url" content="https://www.emoji.tw/menu/">
-<meta property="og:title" content="菜單 · 言文字｜台灣人才聚落">
-<meta property="og:description" content="咖啡、飲品、酒精飲品與餐點價目一覽。">
+<meta property="og:url" content="https://www.emoji.tw/ja/menu/">
+<meta property="og:title" content="メニュー｜言文字｜台湾タレントハブ">
+<meta property="og:description" content="コーヒー、ドリンク、アルコール、フード — 価格一覧。">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="言文字｜台灣人才聚落 Taiwan Talent Hub">
-<meta property="og:locale" content="zh_TW">
+<meta property="og:site_name" content="言文字｜台湾タレントハブ Taiwan Talent Hub">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="zh_TW">
 <meta property="og:locale:alternate" content="en_US">
-<meta property="og:locale:alternate" content="ja_JP">
 <meta property="og:image" content="https://www.emoji.tw/og-cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="菜單 · 言文字｜台灣人才聚落">
-<meta name="twitter:description" content="咖啡、飲品、酒精飲品與餐點價目一覽。">
+<meta name="twitter:title" content="メニュー｜言文字｜台湾タレントハブ">
+<meta name="twitter:description" content="コーヒー、ドリンク、アルコール、フード — 価格一覧。">
 <meta name="twitter:image" content="https://www.emoji.tw/og-cover.jpg">
 <script type="application/ld+json">
 {
@@ -32,16 +32,16 @@
   "@graph": [
     {
       "@type": "WebPage",
-      "name": "言文字菜單",
-      "description": "言文字｜台灣人才聚落的公開菜單：咖啡、飲品、酒精飲品與餐點價目。",
-      "url": "https://www.emoji.tw/menu/",
-      "isPartOf": { "@type": "WebSite", "name": "言文字｜台灣人才聚落", "url": "https://www.emoji.tw/" }
+      "name": "言文字メニュー",
+      "description": "言文字｜台湾タレントハブの公開メニュー：コーヒー、ドリンク、アルコール、フードの価格。",
+      "url": "https://www.emoji.tw/ja/menu/",
+      "isPartOf": { "@type": "WebSite", "name": "言文字｜台湾タレントハブ", "url": "https://www.emoji.tw/ja/" }
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "言文字｜台灣人才聚落", "item": "https://www.emoji.tw/" },
-        { "@type": "ListItem", "position": 2, "name": "菜單", "item": "https://www.emoji.tw/menu/" }
+        { "@type": "ListItem", "position": 1, "name": "言文字｜台湾タレントハブ", "item": "https://www.emoji.tw/ja/" },
+        { "@type": "ListItem", "position": 2, "name": "メニュー", "item": "https://www.emoji.tw/ja/menu/" }
       ]
     }
   ]
@@ -51,11 +51,18 @@
 <link rel="apple-touch-icon" href="/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <link rel="stylesheet" href="/nav.css">
 <script defer src="/nav.js"></script>
 <style>
+  /* ja 版：日本語グリフのため JP フォントを優先 */
+  :root{
+    --serif:"Noto Serif JP","Noto Serif TC",serif;
+    --latin:"Cormorant Garamond","Noto Serif JP",serif;
+    --sans:"Noto Sans JP","Noto Sans TC",system-ui,-apple-system,sans-serif;
+  }
+
   .menu-hero{padding:56px 0 40px;border-bottom:1px solid var(--line)}
   .menu-hero__kicker{font-size:.76rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
   .menu-hero__title{font-family:var(--serif);font-weight:500;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1.28;margin:18px 0 0}
@@ -90,22 +97,22 @@
 </style>
 </head>
 <body>
-<a href="#content" class="skip-link">跳至主要內容</a>
+<a href="#content" class="skip-link">本文へスキップ</a>
 
 <!--SITE_HEADER-->
 
 <main id="content">
   <div class="wrap">
     <header class="menu-hero">
-      <p class="menu-hero__kicker">Menu · 言文字菜單</p>
-      <h1 class="menu-hero__title">白日供咖啡，<br>入夜轉為<span class="hl">酒吧</span>。</h1>
-      <p class="menu-hero__lede">會員價為創始會員與年會員專屬價格。菜單依季節與供應狀況調整，正式品項與售價以現場公告為準。</p>
+      <p class="menu-hero__kicker">Menu · 言文字メニュー</p>
+      <h1 class="menu-hero__title">昼はカフェ、<br>夜は<span class="hl">バー</span>に。</h1>
+      <p class="menu-hero__lede">会員価格（Emo価格）は創始会員および年会員限定です。メニューは季節や在庫状況により変更される場合があります。正式な品目と価格は、店頭の表示をご確認ください。</p>
     </header>
   </div>
 
   <div class="wrap menu-body">
     <div id="menuRoot">
-      <p class="menu-empty">菜單準備中</p>
+      <p class="menu-empty">メニュー準備中</p>
     </div>
   </div>
 </main>
@@ -116,29 +123,29 @@
 <script>
 (function () {
   var CAT_LABEL = {
-    COFFEE: { zh: '咖啡', en: 'Coffee' },
-    BEVERAGE: { zh: '飲品', en: 'Beverage' },
-    ALCOHOL: { zh: '酒精飲品', en: 'Alcohol' },
-    FOOD: { zh: '餐點', en: 'Food' },
-    SNACK: { zh: '點心', en: 'Snack' },
+    COFFEE: { zh: 'コーヒー', en: 'Coffee' },
+    BEVERAGE: { zh: 'ドリンク', en: 'Beverage' },
+    ALCOHOL: { zh: 'アルコール', en: 'Alcohol' },
+    FOOD: { zh: 'フード', en: 'Food' },
+    SNACK: { zh: 'スナック', en: 'Snack' },
   };
   var esc = function (s) {
     return (s == null ? '' : String(s)).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
     });
   };
-  var money = function (n) { return 'NT$' + Number(n || 0).toLocaleString('zh-TW'); };
+  var money = function (n) { return 'NT$' + Number(n || 0).toLocaleString('ja-JP'); };
 
   var root = document.getElementById('menuRoot');
 
   function renderEmpty() {
-    root.innerHTML = '<p class="menu-empty">菜單準備中</p>';
+    root.innerHTML = '<p class="menu-empty">メニュー準備中</p>';
   }
 
   function renderItem(item) {
     var showOrig = item.emo > 0 && item.emo !== item.price;
     var priceHtml = showOrig
-      ? '<span class="now">' + money(item.emo) + '</span><span class="orig">原價 <s>' + money(item.price) + '</s></span>'
+      ? '<span class="now">' + money(item.emo) + '</span><span class="orig">定価 <s>' + money(item.price) + '</s></span>'
       : '<span class="now">' + money(item.price) + '</span>';
     return (
       '<li class="menu-item">' +
@@ -174,7 +181,7 @@
       );
     }).join('');
     if (hasAlcohol) {
-      html += '<p class="menu-notice">未滿十八歲禁止飲酒。禁止酒駕。</p>';
+      html += '<p class="menu-notice">18歳未満の飲酒はできません。飲酒運転は絶対にしないでください。</p>';
     }
     root.innerHTML = html;
   }
