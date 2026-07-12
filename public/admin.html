@@ -87,6 +87,7 @@
 <div class="a-toast" id="toast"></div>
 
 <script src="/vendor/html-to-image.js"></script>
+<script src="/menu-lib.js"></script>
 <script src="/menu-data.js"></script>
 <script src="/ig-studio.js"></script>
 <script>
@@ -98,6 +99,7 @@ const esc = s => (s == null ? '' : String(s)).replace(/[&<>"]/g, c => ({'&':'&am
 const NT = n => 'NT$' + Number(n || 0).toLocaleString('en-US');
 const num = n => Number(n || 0).toLocaleString('en-US');
 let toastT, DATA = null, TAB = 'overview';
+let MENU_DOC = null;
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 
 // datetime-local 值 ↔ ISO
@@ -153,6 +155,16 @@ function derived(d){
   const people = new Set(d.commitments.map(c=>c.user_id)).size;
   const cByUser = {}; d.commitments.forEach(c=>{ if(!cByUser[c.user_id]) cByUser[c.user_id]=c; });
   return { joined, pending, people, cByUser };
+}
+
+/* ---------- 菜單（site_content.menu） ---------- */
+function ensureMenuDoc(d) {
+  const raw = (d.content && d.content.menu) || '';
+  let doc = MenuLib.parseMenuDoc(raw);
+  if (!doc.items.length && window.MENU_DATA) {
+    doc = MenuLib.fromSeedRows(window.MENU_DATA);
+  }
+  return doc;
 }
 
 /* ---------- 各分頁 ---------- */
@@ -278,6 +290,51 @@ function tabUpdates(d){
   </div>`;
 }
 
+function tabMenu(d){
+  const seeded = !(d.content && d.content.menu);
+  const items = MenuLib.sortItems(MENU_DOC.items);
+  const body = items.map(it => `<tr data-q="${esc([it.cat, it.zh, it.en, it.note].join(' ').toLowerCase())}">
+      <td>${esc(it.cat)}</td>
+      <td>${esc(it.zh)}</td>
+      <td class="a-mono">${esc(it.en)}</td>
+      <td class="num">${NT(it.price)}</td>
+      <td class="num">${NT(it.emo)}</td>
+      <td>${it.alcohol ? '<span class="pill pill-wait">酒精</span>' : ''}</td>
+      <td>${it.published ? '<span class="pill pill-ok">已發布</span>' : '<span class="pill pill-wait">未發布</span>'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn--ghost btn-sm" data-mi-edit="${it.id}">編輯</button>
+        <button class="btn btn--ghost btn-sm" data-mi-del="${it.id}">刪除</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="8" class="a-empty">尚無菜單項目</td></tr>';
+  return `<div class="a-sec">
+    <h2>菜單</h2>
+    <p class="hint">未發布項目（<span class="pill pill-wait">未發布</span>）不會顯示於前台 <code>/menu</code>。${seeded ? '目前顯示預設 SEED 資料，尚未寫入資料庫，請按「儲存至伺服器」完成灌入。' : '編輯或刪除項目後，務必按「儲存至伺服器」才會永久保存。'}</p>
+    <div class="a-toolbar">
+      <input type="search" id="mi-search" placeholder="搜尋分類 / 中文 / 英文 / 備註…">
+      <button class="btn btn--solid btn-sm" id="menu-save-server">儲存至伺服器</button>
+    </div>
+    <div class="a-wrap2"><table class="a-tbl">
+      <thead><tr><th>分類</th><th>中文</th><th>英文</th><th class="num">原價</th><th class="num">會員價</th><th>酒精</th><th>發布</th><th>操作</th></tr></thead>
+      <tbody id="mi-body">${body}</tbody></table></div>
+    <div class="a-form" style="margin-top:16px;border-top:1px dashed var(--line);padding-top:16px">
+      <input type="hidden" id="mi-id">
+      <label>分類<select id="mi-cat">${MenuLib.CATS.map(c => `<option value="${c}">${c}</option>`).join('')}</select></label>
+      <label>中文<input id="mi-zh" placeholder="品名（中）"></label>
+      <label>英文<input id="mi-en" placeholder="ITEM NAME"></label>
+      <label>原價<input id="mi-price" type="number" min="0" value="0" style="width:100px"></label>
+      <label>會員價<input id="mi-emo" type="number" min="0" value="0" style="width:100px"></label>
+      <label>排序<input id="mi-sort" type="number" value="0" style="width:80px"></label>
+      <label style="flex:1;min-width:180px">備註<input id="mi-note" placeholder="例：含酒精 / 黑糖 / 焦糖"></label>
+      <label style="flex-direction:row;align-items:center;gap:.4em"><input type="checkbox" id="mi-alcohol" style="width:auto">含酒精</label>
+      <label style="flex-direction:row;align-items:center;gap:.4em"><input type="checkbox" id="mi-published" style="width:auto">發布至前台</label>
+    </div>
+    <div class="a-form" style="align-items:center">
+      <button class="btn btn--solid btn-sm" id="mi-save">新增項目</button>
+      <button class="btn btn--ghost btn-sm" id="mi-reset" style="display:none">取消編輯</button>
+    </div>
+  </div>`;
+}
+
 function tabContent(d){
   const c = d.content || {};
   return `<div class="a-sec">
@@ -313,6 +370,7 @@ const TABS = [
   { id:'commitments', label:'參與紀錄', render:tabCommitments },
   { id:'events',      label:'活動',     render:tabEvents },
   { id:'updates',     label:'最新消息', render:tabUpdates },
+  { id:'menu',        label:'菜單',     render:tabMenu },
   { id:'content',     label:'網站內容', render:tabContent },
   { id:'ig',          label:'IG 貼文',  render:()=>`<div class="a-sec"><h2>IG 貼文產生器</h2><p class="hint">填資訊、上傳照片，即時預覽並下載可直接發布的 IG 貼文圖片（方形／直式）。</p><div id="ig-studio"></div></div>` },
   { id:'admins',      label:'管理員',   render:tabAdmins, super:true },
@@ -320,6 +378,7 @@ const TABS = [
 
 function render(d){
   DATA = d;
+  MENU_DOC = ensureMenuDoc(d);
   if (d.me && d.me.name) try { localStorage.setItem('tth_name', d.me.name); } catch (e) {}
   logoutBtn.style.display='';
   const x = derived(d);
@@ -414,6 +473,94 @@ function bind(d, x){
   // IG 貼文產生器（掛載一次）
   const igHost = document.getElementById('ig-studio');
   if (igHost && window.IGStudio && !igHost.dataset.mounted){ igHost.dataset.mounted='1'; window.IGStudio.mount(igHost); }
+
+  // 菜單
+  bindMenu();
+}
+
+/* ---------- 菜單：局部重繪 + 綁定（不觸發整頁 refresh，避免遺失未存檔編輯） ---------- */
+function paintMenu(){
+  const panel = document.querySelector('[data-panel="menu"]');
+  if (!panel) return;
+  panel.innerHTML = tabMenu(DATA);
+  bindMenu();
+}
+
+function resetMenuForm(){
+  document.getElementById('mi-id').value = '';
+  document.getElementById('mi-cat').value = 'FOOD';
+  ['mi-zh','mi-en','mi-note'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('mi-price').value = 0;
+  document.getElementById('mi-emo').value = 0;
+  document.getElementById('mi-sort').value = 0;
+  document.getElementById('mi-alcohol').checked = false;
+  document.getElementById('mi-published').checked = false;
+  document.getElementById('mi-save').textContent = '新增項目';
+  document.getElementById('mi-reset').style.display = 'none';
+}
+
+function bindMenu(){
+  if (!document.getElementById('mi-body')) return; // 菜單分頁尚未掛載於 DOM
+  const on = (sel,ev,fn)=>{ const el=document.getElementById(sel); if(el) el.addEventListener(ev,fn); };
+
+  on('mi-search','input',e=>{ const qv=e.target.value.trim().toLowerCase();
+    document.querySelectorAll('#mi-body tr').forEach(tr=>{ const qq=(tr.dataset.q||'').toLowerCase();
+      tr.style.display = !qv || qq.includes(qv) ? '' : 'none'; }); });
+
+  on('mi-save','click',()=>{
+    const zh = document.getElementById('mi-zh').value.trim();
+    if (!zh){ toast('請輸入品名（中）'); return; }
+    const editing = !!document.getElementById('mi-id').value;
+    MENU_DOC = MenuLib.upsertItem(MENU_DOC, {
+      id: document.getElementById('mi-id').value || undefined,
+      cat: document.getElementById('mi-cat').value,
+      zh, en: document.getElementById('mi-en').value.trim(),
+      price: Number(document.getElementById('mi-price').value) || 0,
+      emo: Number(document.getElementById('mi-emo').value) || 0,
+      note: document.getElementById('mi-note').value.trim(),
+      alcohol: document.getElementById('mi-alcohol').checked,
+      published: document.getElementById('mi-published').checked,
+      sort: Number(document.getElementById('mi-sort').value) || 0,
+    });
+    toast(editing ? '已更新（尚未存檔）' : '已新增（尚未存檔）');
+    paintMenu();
+  });
+  on('mi-reset','click',()=>resetMenuForm());
+
+  document.querySelectorAll('[data-mi-edit]').forEach(b=>b.onclick=()=>{
+    const it = MENU_DOC.items.find(x=>x.id===b.dataset.miEdit); if(!it) return;
+    document.getElementById('mi-id').value = it.id;
+    document.getElementById('mi-cat').value = it.cat;
+    document.getElementById('mi-zh').value = it.zh;
+    document.getElementById('mi-en').value = it.en;
+    document.getElementById('mi-price').value = it.price;
+    document.getElementById('mi-emo').value = it.emo;
+    document.getElementById('mi-sort').value = it.sort;
+    document.getElementById('mi-note').value = it.note;
+    document.getElementById('mi-alcohol').checked = !!it.alcohol;
+    document.getElementById('mi-published').checked = !!it.published;
+    document.getElementById('mi-save').textContent = '更新項目';
+    document.getElementById('mi-reset').style.display = '';
+    document.getElementById('mi-zh').scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  document.querySelectorAll('[data-mi-del]').forEach(b=>b.onclick=()=>{
+    if (!confirm('確定刪除此菜單項目？')) return;
+    MENU_DOC = MenuLib.removeItem(MENU_DOC, b.dataset.miDel);
+    toast('已刪除（尚未存檔）');
+    paintMenu();
+  });
+
+  on('menu-save-server','click',()=>{
+    const v = MenuLib.validateDoc(MENU_DOC);
+    if (!v.ok){ toast(v.error); return; }
+    (async () => {
+      try {
+        await api('/admin/content', { method:'POST', body:{ key:'menu', value: MenuLib.stringifyDoc(MENU_DOC) } });
+        toast('菜單已儲存至伺服器');
+        await refresh();
+      } catch(e){ toast(e.message); }
+    })();
+  });
 }
 
 function resetEventForm(){
