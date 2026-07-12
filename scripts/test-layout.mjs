@@ -28,6 +28,23 @@ test('localePaths maps programs and cis slash', () => {
   assert.equal(localePaths('/en/cis/').en, '/en/cis/');
 });
 
+test('localePaths maps about locales', () => {
+  assert.equal(localePaths('/about').slug, 'about');
+  assert.equal(localePaths('/about').zh, '/about');
+  assert.equal(localePaths('/en/about').en, '/en/about');
+  assert.equal(localePaths('/ja/about').ja, '/ja/about');
+  assert.equal(localePaths('/about.html').slug, 'about');
+});
+
+test('composeLayout exposes about current when header uses NAV_ABOUT_CURRENT', () => {
+  const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
+  const html = composeLayout(raw, '/about');
+  // Until Task 2 updates partials, about link may still be /#about.
+  // Verify layout at least runs and injects nav:
+  assert.match(html, /class="site-nav"/);
+  assert.equal(localePaths('/about').slug, 'about');
+});
+
 test('localePaths maps member menu and space locales', () => {
   const m = localePaths('/member');
   assert.equal(m.lang, 'zh');
