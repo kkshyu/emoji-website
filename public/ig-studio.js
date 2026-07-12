@@ -174,7 +174,7 @@
         ${state.p_eyebrow ? `<div class="igp-eyebrow">${H(state.p_eyebrow)}</div>` : ''}
         <h2 class="igp-h2" style="font-size:${sq ? 78 : 96}px">${H(state.p_zh)}</h2>
         ${productCopy()}
-        ${photo(photoH, 'igp-photo-square', `width:${sq ? 300 : 420}px;margin-top:${needsAlcohol ? 24 : 42}px;`)}
+        ${photo(photoH, 'igp-photo-square', `width:${photoH}px;margin-top:${needsAlcohol ? 24 : 42}px;`)}
         <div class="igp-spacer"></div>
         ${productPrice()}
         ${foot()}

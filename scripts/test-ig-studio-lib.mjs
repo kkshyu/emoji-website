@@ -174,3 +174,11 @@ test('forms expose required 01-03 fields and escape user text', () => {
 test('photo quote participates in the overflow export guard', () => {
   assert.ok(studioCode.includes("node.querySelectorAll('.igp-body,.igp-quote,.igp-overlay-copy,.igp-layout')"));
 });
+
+test('01b photo stays square in alcohol modes', () => {
+  const body = studioCode.slice(
+    studioCode.indexOf('function render01b() {'),
+    studioCode.indexOf('function render01c() {'),
+  );
+  assert.ok(body.includes("photo(photoH, 'igp-photo-square', `width:${photoH}px;margin-top:"));
+});
