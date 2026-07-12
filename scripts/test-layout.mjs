@@ -80,6 +80,20 @@ test('localePaths maps member menu and space locales', () => {
   assert.equal(localePaths('/space.html').slug, 'space');
 });
 
+test('localePaths maps system locales', () => {
+  assert.equal(localePaths('/system').slug, 'system');
+  assert.equal(localePaths('/system').zh, '/system');
+  assert.equal(localePaths('/en/system').en, '/en/system');
+  assert.equal(localePaths('/ja/system').ja, '/ja/system');
+  assert.equal(localePaths('/system.html').slug, 'system');
+});
+
+test('composeLayout system page marks system current', () => {
+  const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
+  // Task 1: keep this light — localePaths only until header has NAV_SYSTEM_CURRENT
+  assert.equal(localePaths('/system').slug, 'system');
+});
+
 test('composeLayout injects header and footer with aria-current', () => {
   const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
   const html = composeLayout(raw, '/en/fellow');
@@ -102,12 +116,23 @@ test('resolvePublicHtml resolves known pages', () => {
   assert.ok(resolvePublicHtml(PUB, '/fellow').includes(`${path.sep}fellow${path.sep}index.html`));
 });
 
-test('header partials drop menu and floors system link', () => {
+test('header partials include system link after about, before space', () => {
+  const expect = {
+    zh: { label: '消費方式', href: '/system' },
+    en: { label: 'SYSTEM', href: '/en/system' },
+    ja: { label: 'システム', href: '/ja/system' },
+  };
   for (const lang of ['zh', 'en', 'ja']) {
     const h = fs.readFileSync(path.join(__dirname, '..', 'views', 'partials', `header-${lang}.html`), 'utf8');
     assert.doesNotMatch(h, /href="[^"]*\/menu/);
     assert.doesNotMatch(h, /#floors/);
+    assert.match(h, /NAV_SYSTEM_CURRENT/);
+    assert.match(h, new RegExp(`href="${expect[lang].href}"[^>]*>\\s*${expect[lang].label}`));
     assert.match(h, /\/space/);
+    const iAbout = h.indexOf(lang === 'zh' ? '/about"' : `/${lang}/about"`);
+    const iSys = h.indexOf(`href="${expect[lang].href}"`);
+    const iSpace = h.indexOf(lang === 'zh' ? 'href="/space"' : `href="/${lang}/space"`);
+    assert.ok(iAbout < iSys && iSys < iSpace, `${lang} nav order`);
   }
 });
 
