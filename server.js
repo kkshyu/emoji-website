@@ -540,6 +540,11 @@ for (const prog of PROGRAMS) {
     app.get('/' + parts.join('/'), (req, res) => res.sendFile(path.join(PUB, ...parts, 'index.html')));
   }
 }
+// CIS 品牌識別頁（中/en/ja）；無斜線路徑直接 200
+for (const pre of ['', 'en', 'ja']) {
+  const parts = pre ? [pre, 'cis'] : ['cis'];
+  app.get('/' + parts.join('/'), (req, res) => res.sendFile(path.join(PUB, ...parts, 'index.html')));
+}
 app.use('/fellow', express.static(path.join(PUB, 'fellow'), { extensions: ['html'] }));
 // 靜態官網
 app.use(express.static(PUB, { extensions: ['html'] }));

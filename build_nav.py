@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""統一導覽列產生器：全站共用「計畫/Programs」下拉（三計畫）。
-處理全部 12 頁（不存在者略過）；替換 <header class="site-nav" id="nav">...</header>（含 <!--NAV--> 佔位）。
+"""統一導覽列產生器：全站共用「計畫/Programs」下拉（三計畫）＋ CIS 連結。
+處理全部 15 頁（不存在者略過）；替換 <header class="site-nav" id="nav">...</header>（含 <!--NAV--> 佔位）。
 可重複執行（idempotent）。"""
 import re, os
 
@@ -9,23 +9,30 @@ PUB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public')
 PROGRAMS = [('fellow', '/fellow'), ('partner', '/partner'), ('startup', '/startup')]
 
 L = {
- 'zh': dict(base='', about='關於聚落', floors='消費方式', proglabel='聚落計畫',
-   member='會員登入', cta='追蹤我們', ltop='中文', mopen='開啟選單', mclose='關閉選單',
-   baria='言文字——台灣人才聚落 Taiwan Talent Hub 首頁', bsub='台灣人才聚落 · Taiwan Talent Hub',
+ # CIS 定案品牌名：zh「言文字｜台灣人才聚落」／en「Emoji - Taiwan Talent Hub」／ja「言文字｜台湾タレントハブ」
+ 'zh': dict(base='', about='關於聚落', floors='系統', proglabel='聚落計畫',
+   brand='企業識別', member='會員登入', cta='追蹤我們', ltop='中文', mopen='開啟選單', mclose='關閉選單',
+   baria='言文字｜台灣人才聚落 首頁', bsub='台灣人才聚落',
    prog={'fellow':'創始會員計畫','partner':'社群夥伴計畫','startup':'新創陪跑計畫'}),
- 'en': dict(base='/en', about='About', floors='Pricing', proglabel='Programs',
-   member='Member login', cta='Follow us', ltop='English', mopen='Open menu', mclose='Close menu',
-   baria='Taiwan Talent Hub home', bsub='Taiwan Talent Hub · 台灣人才聚落',
+ 'en': dict(base='/en', about='About', floors='Access', proglabel='Programs',
+   brand='Brand', member='Member login', cta='Follow us', ltop='English', mopen='Open menu', mclose='Close menu',
+   baria='Emoji - Taiwan Talent Hub home', bsub='Emoji - Taiwan Talent Hub',
    prog={'fellow':'Founding Member','partner':'Community Partner Program','startup':'Startup Program'}),
- 'ja': dict(base='/ja', about='ハブについて', floors='料金', proglabel='プログラム',
-   member='会員ログイン', cta='フォローする', ltop='日本語', mopen='メニューを開く', mclose='メニューを閉じる',
-   baria='Taiwan Talent Hub ホーム', bsub='Taiwan Talent Hub · 台湾タレントハブ',
+ 'ja': dict(base='/ja', about='ハブについて', floors='システム', proglabel='プログラム',
+   brand='ブランド', member='会員ログイン', cta='フォローする', ltop='日本語', mopen='メニューを開く', mclose='メニューを閉じる',
+   baria='言文字｜台湾タレントハブ ホーム', bsub='台湾タレントハブ',
    prog={'fellow':'創始会員プログラム','partner':'コミュニティパートナー','startup':'スタートアップ支援'}),
 }
 LANG_ORDER = [('zh','中文'),('en','English'),('ja','日本語')]
 LANGARIA = {'zh':'切換語言', 'en':'Change language', 'ja':'言語を切り替え'}
 
 def hreflang(lc): return 'zh-Hant' if lc=='zh' else lc
+
+def lang_target(lc, ptype):
+    b = L[lc]['base']
+    if ptype == 'main': return b + '/'
+    if ptype == 'cis': return (b + '/cis/') if b else '/cis/'
+    return b + dict(PROGRAMS)[ptype]
 
 def build(lang, ptype):
     d = L[lang]; base = d['base']; home = base + '/'
@@ -35,11 +42,12 @@ def build(lang, ptype):
         ac = ' aria-current="page"' if ptype==key else ''
         prog_items.append(f'          <a href="{base}{pth}"{ac}>{d["prog"][key]}</a>')
     prog_items = '\n'.join(prog_items)
-    # 語言下拉（目標：主頁→各語系首頁；計畫頁→各語系同計畫）
-    suffix = '' if ptype=='main' else dict(PROGRAMS)[ptype]
+    brand_ac = ' aria-current="page"' if ptype=='cis' else ''
+    brand_href = (base + '/cis/') if base else '/cis/'
+    # 語言下拉（目標：主頁→各語系首頁；計畫／CIS 頁→各語系同頁）
     litems = []
     for lc, label in LANG_ORDER:
-        tgt = (L[lc]['base'] + '/') if ptype=='main' else (L[lc]['base'] + suffix)
+        tgt = lang_target(lc, ptype)
         ac = ' aria-current="page"' if lc==lang else ''
         litems.append(f'          <a href="{tgt}" hreflang="{hreflang(lc)}" lang="{hreflang(lc)}"{ac}>{label}</a>')
     litems = '\n'.join(litems)
@@ -57,6 +65,7 @@ def build(lang, ptype):
 {prog_items}
         </div>
       </div>
+      <a href="{brand_href}"{brand_ac}>{d['brand']}</a>
       <a href="/member">{d['member']}</a>
       <div class="site-nav__dd site-nav__lang">
         <button type="button" class="site-nav__dd-top" aria-haspopup="true" aria-expanded="false" aria-label="{LANGARIA[lang]}">
@@ -79,6 +88,7 @@ FILES = {
  'fellow/index.html': ('zh','fellow'), 'en/fellow/index.html': ('en','fellow'), 'ja/fellow/index.html': ('ja','fellow'),
  'partner/index.html': ('zh','partner'), 'en/partner/index.html': ('en','partner'), 'ja/partner/index.html': ('ja','partner'),
  'startup/index.html': ('zh','startup'), 'en/startup/index.html': ('en','startup'), 'ja/startup/index.html': ('ja','startup'),
+ 'cis/index.html': ('zh','cis'), 'en/cis/index.html': ('en','cis'), 'ja/cis/index.html': ('ja','cis'),
 }
 
 if __name__ == '__main__':

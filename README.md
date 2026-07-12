@@ -5,6 +5,7 @@
 | 路徑 | 內容 |
 |------|------|
 | `/`、`/en/`、`/ja/` | 靜態官網（中／英／日三語系） |
+| `/cis/`、`/en/cis/`、`/ja/cis/` | 企業識別 CIS（公開 Brand Guidelines） |
 | `/fellow` | 言文字創始會員站（一頁式 SPA，含登入／會員儀表板／後台／Stripe 結帳） |
 | `/api/*`、`/auth/google/*` | 後端 REST API 與 Google 登入；資料存 Postgres |
 

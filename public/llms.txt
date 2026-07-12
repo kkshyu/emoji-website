@@ -55,6 +55,13 @@
 - 計畫網站：https://www.emoji.tw/startup
 - 報名與洽詢：kkshyu.tw@gmail.com、LINE kevin830222
 
+## 企業識別 CIS（Brand Guidelines）
+
+公開企業識別系統，以「余白」為設計哲學。含標誌規則、色彩 token（墨／紙／唯一黃 #FFDE34）、字體與素材下載，供媒體與合作夥伴正確使用品牌。
+- 中文：https://www.emoji.tw/cis/
+- English：https://www.emoji.tw/en/cis/
+- 日本語：https://www.emoji.tw/ja/cis/
+
 ## 社群與活動（為什麼人會在這裡相遇）
 
 - Talent Night 人才之夜：每週固定舉辦——自我介紹＋自由交流＋現場媒合，目標成為圈內人默認的聚會。

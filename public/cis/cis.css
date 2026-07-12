@@ -1,0 +1,410 @@
+/* ============================================================
+   言文字 CIS 公開頁 — Brand Guidelines
+   對齊市面 Brand Guidelines（Stripe / Notion / Linear）：
+   目次導覽 · 標誌規則 · 色票可複製 · 字體標本 · 素材下載
+   色／字全沿 CIS token；每畫面唯一黃擊。
+   ============================================================ */
+
+.cis-page{background:var(--paper);color:var(--ink)}
+.cis-page .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+/* —— Hero：余白為主張，明體「言」為視覺錨 —— */
+.cis-hero{
+  min-height:min(88vh,820px);
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+  gap:48px;
+  align-items:end;
+  padding:120px 0 72px;
+  border-bottom:1px solid var(--line);
+  position:relative;
+  overflow:hidden;
+}
+.cis-hero__mark{
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-start;
+  min-height:clamp(220px,42vw,420px);
+  user-select:none;
+}
+.cis-hero__mark img{
+  width:min(100%,440px);
+  height:auto;
+  display:block;
+  object-fit:contain;
+}
+.cis-hero__copy{padding-bottom:12px;max-width:36ch}
+.cis-hero__kicker{
+  font-family:var(--sans);
+  font-size:.68rem;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:18px;
+}
+.cis-hero__title{
+  font-family:var(--serif);
+  font-weight:700;
+  font-size:clamp(2.2rem,4.4vw,3.4rem);
+  line-height:1.25;
+  letter-spacing:.04em;
+  margin-bottom:20px;
+}
+.cis-hero__title .hl{
+  background:var(--accent);
+  color:var(--on-accent);
+  box-decoration-break:clone;
+  -webkit-box-decoration-break:clone;
+  padding:.04em .18em;
+}
+.cis-hero__lede{
+  font-size:1.02rem;
+  color:var(--ink-soft);
+  line-height:1.85;
+  font-weight:300;
+  max-width:34ch;
+}
+.cis-hero__meta{
+  margin-top:36px;
+  display:flex;flex-wrap:wrap;gap:10px 22px;
+  font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+}
+
+/* —— Sticky TOC（市面 guidelines 慣用） —— */
+.cis-toc{
+  position:sticky;top:0;z-index:20;
+  background:rgba(251,250,246,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.cis-toc__inner{
+  display:flex;gap:4px;overflow-x:auto;
+  padding:14px 0;scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.cis-toc__inner::-webkit-scrollbar{display:none}
+.cis-toc a{
+  flex:0 0 auto;
+  font-size:.78rem;
+  letter-spacing:.06em;
+  color:var(--muted);
+  text-decoration:none;
+  padding:6px 12px;
+  border-radius:2px;
+  transition:color .2s,background .2s;
+  white-space:nowrap;
+}
+.cis-toc a:hover,.cis-toc a.is-active{color:var(--ink);background:var(--paper-alt)}
+
+/* —— Sections —— */
+.cis-sec{padding:88px 0;border-bottom:1px solid var(--line)}
+.cis-sec:last-of-type{border-bottom:0}
+.cis-sec__head{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:18px 28px;
+  align-items:baseline;
+  margin-bottom:48px;
+  max-width:52ch;
+}
+.cis-sec__num{
+  font-family:var(--latin);
+  font-size:1.1rem;
+  font-style:italic;
+  color:var(--muted);
+  letter-spacing:.04em;
+}
+.cis-sec__title{
+  font-family:var(--serif);
+  font-weight:700;
+  font-size:clamp(1.55rem,2.6vw,2.05rem);
+  letter-spacing:.06em;
+  line-height:1.35;
+}
+.cis-sec__lede{
+  grid-column:2;
+  font-size:.98rem;
+  color:var(--ink-soft);
+  font-weight:300;
+  line-height:1.85;
+}
+
+/* —— Philosophy —— */
+.cis-yohaku{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:40px;
+  align-items:start;
+}
+.cis-yohaku__quote{
+  font-family:var(--serif);
+  font-size:clamp(1.35rem,2.4vw,1.85rem);
+  line-height:1.7;
+  letter-spacing:.03em;
+  max-width:22em;
+}
+.cis-yohaku__quote em{font-style:normal;background:linear-gradient(transparent 62%,var(--accent) 62%)}
+.cis-yohaku__side{
+  border-left:1px solid var(--line);
+  padding-left:28px;
+  font-size:.92rem;
+  color:var(--ink-soft);
+  font-weight:300;
+  line-height:1.85;
+}
+.cis-yohaku__side strong{display:block;font-family:var(--serif);font-weight:700;color:var(--ink);margin-bottom:10px;letter-spacing:.08em}
+.cis-not-list{margin-top:36px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.cis-not{
+  padding:22px 20px;
+  background:var(--card);
+  border:1px solid var(--line);
+}
+.cis-not b{display:block;font-family:var(--serif);font-size:1rem;margin-bottom:8px;letter-spacing:.04em}
+.cis-not span{font-size:.88rem;color:var(--muted);font-weight:300;line-height:1.7}
+
+/* —— Naming —— */
+.cis-names{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.cis-name{
+  padding:28px 26px;
+  background:var(--card);
+  border:1px solid var(--line);
+}
+.cis-name__label{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.cis-name__primary{font-family:var(--serif);font-weight:700;font-size:1.35rem;letter-spacing:.1em}
+.cis-name__sub{margin-top:8px;font-size:.9rem;color:var(--ink-soft);font-weight:300;line-height:1.7}
+.cis-name--wide{grid-column:1/-1;background:var(--ink-surface);border-color:transparent;color:var(--on-ink)}
+.cis-name--wide .cis-name__label{color:var(--on-ink-soft)}
+.cis-name--wide .cis-name__primary{color:var(--on-ink)}
+.cis-name--wide .cis-name__sub{color:var(--on-ink-soft)}
+
+/* —— Logo —— */
+.cis-logos{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:40px}
+.cis-logo-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  padding:36px 24px 22px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  min-height:240px;
+}
+.cis-logo-card--ink{background:var(--ink-surface);border-color:transparent}
+/* 透明底示意：棋盤格，證明 favicon 無實心底 */
+.cis-logo-card--check{
+  background-color:var(--card);
+  background-image:
+    linear-gradient(45deg,#E4E0D6 25%,transparent 25%),
+    linear-gradient(-45deg,#E4E0D6 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#E4E0D6 75%),
+    linear-gradient(-45deg,transparent 75%,#E4E0D6 75%);
+  background-size:16px 16px;
+  background-position:0 0,0 8px,8px -8px,-8px 0;
+}
+.cis-logo-card img{max-width:78%;max-height:120px;object-fit:contain}
+.cis-logo-card--check img{max-width:56%;max-height:88px}
+/* 橫式字標：方框 viewBox 內有效圖偏小，需放大顯示 */
+.cis-logo-card--wide{
+  min-height:280px;
+}
+.cis-logo-card--wide img{
+  max-width:96%;
+  max-height:200px;
+  width:100%;
+}
+/* 直式比例高（約 1:2.2），需更高視窗；墨底上深色 fill 要反成紙色才看得見 */
+.cis-logo-card--ink{
+  min-height:320px;
+}
+.cis-logo-card--ink img{
+  max-width:42%;
+  max-height:220px;
+  filter:brightness(0) invert(1);
+}
+.cis-logo-card figcaption{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center}
+.cis-logo-card--ink figcaption{color:var(--on-ink-soft)}
+
+.cis-clear{
+  display:grid;grid-template-columns:1fr 1.2fr;gap:32px;align-items:center;
+  margin:40px 0;padding:36px;background:var(--paper-alt);border:1px solid var(--line);
+}
+.cis-clear__viz{
+  aspect-ratio:1;background:var(--card);border:1px dashed var(--line);
+  display:grid;place-items:center;position:relative;
+}
+.cis-clear__viz img{width:42%;height:auto}
+.cis-clear__viz::before,.cis-clear__viz::after{
+  content:"";position:absolute;inset:14%;
+  border:1px solid rgba(27,26,23,.18);
+  pointer-events:none;
+}
+.cis-clear__viz::after{inset:22%;border-style:dashed;border-color:rgba(27,26,23,.28)}
+.cis-clear__txt h3{font-family:var(--serif);font-size:1.15rem;letter-spacing:.06em;margin-bottom:12px}
+.cis-clear__txt p{font-size:.92rem;color:var(--ink-soft);font-weight:300;line-height:1.8}
+
+.cis-donts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px}
+.cis-dont{
+  border:1px solid var(--line);background:var(--card);padding:18px 14px 16px;text-align:center;
+}
+.cis-dont__viz{
+  height:88px;display:grid;place-items:center;margin-bottom:12px;
+  font-family:var(--serif);font-weight:700;font-size:2rem;color:var(--ink);position:relative;
+}
+.cis-dont__viz::after{
+  content:"";position:absolute;inset:18% 22%;
+  background:linear-gradient(to bottom right,transparent 46%,#B23A2E 46%,#B23A2E 54%,transparent 54%);
+  opacity:.85;pointer-events:none;
+}
+.cis-dont__viz--stretch{transform:scaleX(1.45);transform-origin:center}
+.cis-dont__viz--tilt{transform:rotate(18deg)}
+.cis-dont__viz--recolor{color:#4A90D9}
+.cis-dont__viz--busy{
+  background:repeating-linear-gradient(-45deg,var(--paper-deep),var(--paper-deep) 4px,var(--card) 4px,var(--card) 8px);
+  width:100%;
+}
+.cis-dont span{font-size:.78rem;color:var(--muted);line-height:1.55;display:block}
+
+/* —— Color —— */
+.cis-swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.cis-swatch{border:1px solid var(--line);background:var(--card);overflow:hidden;cursor:pointer;text-align:left;font:inherit;padding:0;transition:transform .2s}
+.cis-swatch:hover{transform:translateY(-2px)}
+.cis-swatch:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.cis-swatch__chip{height:92px;display:block}
+.cis-swatch__meta{padding:14px 14px 16px}
+.cis-swatch__name{font-family:var(--serif);font-weight:700;font-size:.98rem;letter-spacing:.04em}
+.cis-swatch__hex{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;color:var(--muted);margin-top:4px;letter-spacing:.04em}
+.cis-swatch__note{font-size:.78rem;color:var(--ink-soft);font-weight:300;margin-top:8px;line-height:1.55}
+.cis-swatch.is-copied .cis-swatch__hex{color:var(--ink)}
+.cis-swatch.is-copied .cis-swatch__hex::after{content:" · copied";letter-spacing:0}
+
+.cis-accent-rule{
+  margin-top:36px;
+  display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;
+  padding:28px 30px;background:var(--ink-surface);color:var(--on-ink);
+}
+.cis-accent-rule__chip{
+  width:72px;height:72px;background:var(--accent);
+  display:grid;place-items:center;
+  font-family:var(--serif);font-weight:700;font-size:1.4rem;color:var(--on-accent);
+}
+.cis-accent-rule h3{font-family:var(--serif);font-size:1.2rem;letter-spacing:.06em;margin-bottom:8px;color:var(--on-ink)}
+.cis-accent-rule p{font-size:.92rem;color:var(--on-ink-soft);font-weight:300;line-height:1.75;max-width:52ch}
+
+/* —— Type —— */
+.cis-type{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);background:var(--card)}
+.cis-type__row{
+  display:grid;grid-template-columns:140px 1fr;gap:20px;
+  padding:28px 26px;border-bottom:1px solid var(--line);align-items:baseline;
+}
+.cis-type__row:last-child{border-bottom:0}
+.cis-type__role{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.cis-type__sample--display{font-family:var(--serif);font-weight:700;font-size:clamp(1.8rem,3.2vw,2.6rem);letter-spacing:.08em;line-height:1.3}
+.cis-type__sample--latin{font-family:var(--latin);font-weight:600;font-size:clamp(1.6rem,2.8vw,2.2rem);letter-spacing:.02em}
+.cis-type__sample--body{font-family:var(--sans);font-weight:300;font-size:1.05rem;line-height:1.9;color:var(--ink-soft);max-width:42ch}
+.cis-type__meta{margin-top:8px;font-size:.78rem;color:var(--muted)}
+
+/* —— Checklist —— */
+.cis-check{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cis-check li{
+  list-style:none;
+  padding:18px 20px;
+  border:1px solid var(--line);
+  background:var(--card);
+  font-size:.94rem;
+  color:var(--ink-soft);
+  font-weight:300;
+  line-height:1.7;
+  display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;
+}
+.cis-check li::before{
+  content:"";
+  width:14px;height:14px;margin-top:6px;
+  background:var(--accent);
+  flex-shrink:0;
+}
+
+/* —— Downloads（含預覽） —— */
+.cis-dl{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cis-dl__item{
+  display:flex;flex-direction:column;
+  border:1px solid var(--line);background:var(--card);
+  text-decoration:none;color:inherit;
+  transition:border-color .2s,background .2s;
+  overflow:hidden;
+}
+.cis-dl__item:hover{border-color:var(--ink)}
+.cis-dl__item:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.cis-dl__preview{
+  display:grid;place-items:center;
+  height:148px;padding:22px;
+  background:var(--paper-alt);
+  border-bottom:1px solid var(--line);
+}
+.cis-dl__preview img{
+  max-width:88%;max-height:104px;
+  width:auto;height:auto;
+  object-fit:contain;
+}
+.cis-dl__preview--check{
+  background-color:var(--paper-alt);
+  background-image:
+    linear-gradient(45deg,#E4E0D6 25%,transparent 25%),
+    linear-gradient(-45deg,#E4E0D6 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#E4E0D6 75%),
+    linear-gradient(-45deg,transparent 75%,#E4E0D6 75%);
+  background-size:14px 14px;
+  background-position:0 0,0 7px,7px -7px,-7px 0;
+}
+.cis-dl__preview--check img{max-width:56%;max-height:72px}
+.cis-dl__preview--ink{
+  background:var(--ink-surface);
+  border-bottom-color:transparent;
+}
+.cis-dl__preview--ink img{filter:brightness(0) invert(1);max-height:120px;max-width:36%}
+.cis-dl__preview--wide img{max-width:94%;max-height:120px}
+.cis-dl__meta{padding:16px 18px 18px}
+.cis-dl__meta b{display:block;font-family:var(--serif);font-size:1.02rem;letter-spacing:.04em;margin-bottom:4px}
+.cis-dl__meta span{font-size:.8rem;color:var(--muted);font-weight:300}
+.cis-dl__meta em{
+  display:inline-block;margin-top:10px;
+  font-style:normal;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink);
+}
+
+/* —— Colophon —— */
+.cis-colo{
+  padding:64px 0 96px;
+  background:var(--ink-surface);color:var(--on-ink-soft);
+}
+.cis-colo .wrap{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:end}
+.cis-colo h2{
+  font-family:var(--serif);font-weight:700;font-size:clamp(1.4rem,2.4vw,1.9rem);
+  color:var(--on-ink);letter-spacing:.04em;line-height:1.55;max-width:18em;
+}
+.cis-colo h2 .hl{background:var(--accent);color:var(--on-accent);padding:.05em .15em}
+.cis-colo__meta{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;font-size:.78rem;line-height:1.7}
+.cis-colo__meta b{display:block;color:var(--on-ink);letter-spacing:.14em;text-transform:uppercase;font-size:.68rem;margin-bottom:4px;font-weight:500}
+
+/* —— Motion —— */
+.js .cis-reveal{opacity:0;transform:translateY(14px);transition:opacity .45s cubic-bezier(.2,.7,.2,1),transform .45s cubic-bezier(.2,.7,.2,1)}
+.js .cis-reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .cis-reveal,.js .cis-reveal{opacity:1;transform:none;transition:none}
+  .cis-swatch{transition:none}
+}
+
+/* —— Responsive —— */
+@media (max-width:900px){
+  .cis-hero{grid-template-columns:1fr;min-height:auto;padding:100px 0 56px;gap:8px}
+  .cis-hero__mark{min-height:auto;justify-content:center;margin-bottom:8px}
+  .cis-hero__mark img{width:min(72%,280px)}
+  .cis-yohaku,.cis-clear,.cis-colo .wrap{grid-template-columns:1fr}
+  .cis-yohaku__side{border-left:0;border-top:1px solid var(--line);padding:24px 0 0}
+  .cis-not-list,.cis-logos,.cis-donts,.cis-swatches,.cis-dl,.cis-names,.cis-check{grid-template-columns:1fr 1fr}
+  .cis-type__row{grid-template-columns:1fr;gap:8px}
+  .cis-sec__head{grid-template-columns:1fr;gap:8px}
+  .cis-sec__lede{grid-column:1}
+}
+@media (max-width:560px){
+  .cis-page .wrap{padding:0 18px}
+  .cis-not-list,.cis-logos,.cis-donts,.cis-swatches,.cis-dl,.cis-names,.cis-check,.cis-colo__meta{grid-template-columns:1fr}
+  .cis-accent-rule{grid-template-columns:1fr;gap:16px}
+  .cis-sec{padding:64px 0}
+}
