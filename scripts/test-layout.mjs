@@ -36,13 +36,28 @@ test('localePaths maps about locales', () => {
   assert.equal(localePaths('/about.html').slug, 'about');
 });
 
-test('composeLayout exposes about current when header uses NAV_ABOUT_CURRENT', () => {
+test('header and footer link to /about not /#about', () => {
+  for (const lang of ['zh', 'en', 'ja']) {
+    const h = fs.readFileSync(path.join(__dirname, '..', 'views', 'partials', `header-${lang}.html`), 'utf8');
+    const f = fs.readFileSync(path.join(__dirname, '..', 'views', 'partials', `footer-${lang}.html`), 'utf8');
+    assert.doesNotMatch(h, /\/#about/);
+    assert.doesNotMatch(f, /\/#about/);
+    assert.match(h, /NAV_ABOUT_CURRENT/);
+    if (lang === 'zh') {
+      assert.match(h, /href="\/about"/);
+      assert.match(f, /href="\/about"/);
+    } else {
+      assert.match(h, new RegExp(`href="/${lang}/about"`));
+      assert.match(f, new RegExp(`href="/${lang}/about"`));
+    }
+  }
+});
+
+test('composeLayout about page marks about current', () => {
   const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
   const html = composeLayout(raw, '/about');
-  // Until Task 2 updates partials, about link may still be /#about.
-  // Verify layout at least runs and injects nav:
-  assert.match(html, /class="site-nav"/);
-  assert.equal(localePaths('/about').slug, 'about');
+  assert.match(html, /href="\/about"[^>]*aria-current="page"/);
+  assert.doesNotMatch(html, /href="\/#about"/);
 });
 
 test('localePaths maps member menu and space locales', () => {
