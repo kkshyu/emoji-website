@@ -4,7 +4,7 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const {
-  PLAN_DURATION, addMonthsISO, endsAtAfterActivation,
+  PLAN_DURATION, endsAtAfterActivation,
   autoActivateAt, applyLazyAutoActivate, isEntitlementActive,
   deriveMemberAccess, pickEntitlementForQr,
 } = require('../lib/entitlements.js');
@@ -26,8 +26,8 @@ test('endsAtAfterActivation day and month', () => {
     '2026-07-01T14:00:00.000Z'
   );
   assert.equal(
-    endsAtAfterActivation('month', t0).toISOString().slice(0, 10),
-    addMonthsISO('2026-07-01', 1)
+    endsAtAfterActivation('month', t0).toISOString(),
+    '2026-08-01T10:00:00.000Z'
   );
 });
 
