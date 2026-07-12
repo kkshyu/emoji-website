@@ -293,3 +293,10 @@ test('sitemap includes about locales', () => {
   assert.match(sm, /https:\/\/www\.emoji\.tw\/en\/about/);
   assert.match(sm, /https:\/\/www\.emoji\.tw\/ja\/about/);
 });
+
+test('sitemap includes system locales', () => {
+  const sm = fs.readFileSync(path.join(PUB, 'sitemap.xml'), 'utf8');
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/system/);
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/en\/system/);
+  assert.match(sm, /https:\/\/www\.emoji\.tw\/ja\/system/);
+});
