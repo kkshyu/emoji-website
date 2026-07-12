@@ -203,6 +203,8 @@ async function migrate() {
   await q(`DELETE FROM updates WHERE id IN ('up1','up2','up3')`);
   const { rows } = await q('SELECT COUNT(*)::int AS n FROM bonds');
   if (rows[0].n === 0) await seedBond();
+  const paid = (await q(`SELECT ${SEL_C} FROM commitments WHERE payment_status='已付款'`)).rows;
+  for (const c of paid) await ensureFoundingEntitlement(c);
 }
 
 async function seedBond() {
@@ -243,6 +245,7 @@ const SEL_EVENT = `id,title,description,location,capacity,status,
 const SEL_ENT = `id,user_id,plan,source,source_id,
   purchased_at, activated_at, starts_at, ends_at`;
 const numify = rows => rows.map(r => ({ ...r, amount: r.amount != null ? Number(r.amount) : r.amount }));
+const FLOOR_PLANS = ['day_4h', 'day_12h', 'month', 'quarter', 'year'];
 
 function rowToEnt(r) {
   if (!r) return null;
@@ -425,24 +428,35 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
   if (req.auth.role === 'admin') {
     const users = (await q(`SELECT ${SEL_USER} FROM users ORDER BY created_at`)).rows.map(pubUser);
     const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments ORDER BY created_at`)).rows);
+    const entitlements = (await q(`SELECT ${SEL_ENT} FROM entitlements`)).rows.map(rowToEnt);
     // 活動 + 每場報名人數（後台總覽用）
     const events = (await q(
       `SELECT ${SEL_EVENT}, (SELECT COUNT(*)::int FROM event_regs r WHERE r.event_id=e.id) AS reg_count
        FROM events e ORDER BY starts_at DESC NULLS LAST, created_at DESC`)).rows;
     const content = await readContent();
     const me = users.find(u => u.id === req.auth.sub) || null;  // 管理員自己：供會員頁顯示姓名
-    return res.json({ role: 'admin', super: req.auth.super === true, me, bond, users, commitments, events, content, updates });
+    return res.json({ role: 'admin', super: req.auth.super === true, me, bond, users, commitments, entitlements, events, content, updates });
   }
   const me = pubUser((await q(`SELECT ${SEL_USER} FROM users WHERE id=$1`, [req.auth.sub])).rows[0]);
   if (!me) return res.status(401).json({ error: '帳號不存在，請重新登入。' });
   const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments WHERE user_id=$1 ORDER BY created_at`, [me.id])).rows);
+  const access = await memberAccessFor(me.id);
   // 會員專區：報名中的活動 + 我是否已報名（供報名/取消按鈕）
   const events = (await q(
     `SELECT ${SEL_EVENT},
        (SELECT COUNT(*)::int FROM event_regs r WHERE r.event_id=e.id) AS reg_count,
        EXISTS (SELECT 1 FROM event_regs r WHERE r.event_id=e.id AND r.user_id=$1) AS registered
      FROM events e WHERE status='報名中' ORDER BY starts_at ASC NULLS LAST`, [me.id])).rows;
-  res.json({ role: commitments.length ? 'participant' : 'invited', me, bond, users: [me], commitments, events, updates });
+  res.json({
+    role: commitments.length ? 'participant' : 'invited',
+    me, bond, users: [me], commitments, events, updates,
+    access: {
+      active: access.active,
+      entitlements: access.entitlements,
+      pending: access.pending,
+      activeEntitlements: access.activeEntitlements,
+    },
+  });
 }));
 
 // 公開唯讀：進度、專案更新、報名中活動、首頁公告（無 PII，供未登入者瀏覽）
@@ -504,7 +518,27 @@ app.post('/api/admin/commitments/:id/confirm', auth, adminOnly, requireDb, wrap(
   const r = await q(`UPDATE commitments SET payment_status='已付款', membership_status='已啟用' WHERE id=$1 RETURNING user_id`, [req.params.id]);
   if (!r.rows[0]) return res.status(404).json({ error: '找不到參與紀錄。' });
   await q(`UPDATE users SET status='已參與' WHERE id=$1`, [r.rows[0].user_id]);
+  const c = (await q(`SELECT ${SEL_C} FROM commitments WHERE id=$1`, [req.params.id])).rows[0];
+  await ensureFoundingEntitlement(c);
   res.json({ ok: true });
+}));
+
+app.post('/api/admin/entitlements', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const userId = (req.body.user_id || '').trim();
+  const plan = req.body.plan;
+  if (!userId || !FLOOR_PLANS.includes(plan))
+    return res.status(400).json({ error: '需要 user_id 與合法 plan（day_4h／day_12h／month／quarter／year）。' });
+  const u = (await q(`SELECT id FROM users WHERE id=$1`, [userId])).rows[0];
+  if (!u) return res.status(404).json({ error: '找不到使用者。' });
+  const id = uid('en_');
+  const sourceId = req.body.source_id || id;
+  await q(
+    `INSERT INTO entitlements (id,user_id,plan,source,source_id,purchased_at)
+     VALUES ($1,$2,$3,'admin',$4,now())`,
+    [id, userId, plan, sourceId]
+  );
+  const row = rowToEnt((await q(`SELECT ${SEL_ENT} FROM entitlements WHERE id=$1`, [id])).rows[0]);
+  res.json({ entitlement: row });
 }));
 
 app.post('/api/admin/updates', auth, adminOnly, requireDb, wrap(async (req, res) => {
