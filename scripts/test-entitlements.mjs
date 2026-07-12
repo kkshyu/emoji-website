@@ -51,6 +51,20 @@ test('applyLazyAutoActivate activates pending after 7 days', () => {
   assert.ok(out.entitlement.ends_at > now);
 });
 
+test('applyLazyAutoActivate uses due timestamp when now is after 7 days', () => {
+  const e = {
+    id: 'en1', plan: 'month', purchased_at: t0,
+    activated_at: null, starts_at: null, ends_at: null,
+  };
+  const now = new Date('2026-07-11T10:00:00.000Z');
+  const due = autoActivateAt(t0);
+  const out = applyLazyAutoActivate(e, now);
+  assert.ok(out.changed);
+  assert.equal(out.entitlement.activated_at.toISOString(), due.toISOString());
+  assert.equal(out.entitlement.starts_at.toISOString(), due.toISOString());
+  assert.equal(out.entitlement.ends_at.toISOString(), endsAtAfterActivation('month', due).toISOString());
+});
+
 test('applyLazyAutoActivate no-op before 7 days or if already active', () => {
   const e = {
     id: 'en1', plan: 'day_4h', purchased_at: t0,
