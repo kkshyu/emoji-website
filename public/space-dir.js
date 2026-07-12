@@ -143,74 +143,82 @@
   }
 
   function furn1(ox, oy, oz, W, D, H) {
-    // 外帶口／入口（前）→ 廚房 → 吧台 → 座位 → 駐唱（後）
     var p = function (lx, ly, lz) { return localIso(ox, oy, oz, W, D, H, lx, ly, lz); };
-    var win = [p(0.08, 0.06), p(0.42, 0.06), p(0.42, 0.14), p(0.08, 0.14)];
-    var kitchen = [p(0.48, 0.08), p(0.92, 0.08), p(0.92, 0.38), p(0.48, 0.38)];
-    var bar = [p(0.12, 0.42), p(0.78, 0.42), p(0.78, 0.52), p(0.12, 0.52)];
-    var stage = [p(0.22, 0.78), p(0.78, 0.78), p(0.78, 0.92), p(0.22, 0.92)];
-    var stools = [0.2, 0.35, 0.5, 0.65].map(function (x) {
-      var c = p(x, 0.58);
-      return '<circle class="furn" cx="' + c.x.toFixed(1) + '" cy="' + c.y.toFixed(1) + '" r="2.4"/>';
+    var takeout = [p(0.08, 0.02), p(0.42, 0.02), p(0.42, 0.1), p(0.08, 0.1)];
+    var kitchen = [p(0.08, 0.12), p(0.92, 0.12), p(0.92, 0.28), p(0.08, 0.28)];
+    var bar = [p(0.12, 0.34), p(0.82, 0.34), p(0.82, 0.42), p(0.12, 0.42)];
+    var seats = '';
+    for (var i = 0; i < 3; i++) {
+      var y0 = 0.48 + i * 0.1;
+      var desk = [p(0.18, y0), p(0.72, y0), p(0.72, y0 + 0.06), p(0.18, y0 + 0.06)];
+      seats += '<polygon class="furn" points="' + poly(desk) + '"/>';
+    }
+    var stage = [p(0.2, 0.82), p(0.8, 0.82), p(0.8, 0.94), p(0.2, 0.94)];
+    var stools = [0.22, 0.38, 0.54, 0.7].map(function (x) {
+      var c = p(x, 0.46);
+      return '<circle class="furn" cx="' + c.x.toFixed(1) + '" cy="' + c.y.toFixed(1) + '" r="2"/>';
     }).join('');
     return (
-      '<polygon class="furn-fill" points="' + poly(win) + '"/>' +
+      '<polygon class="furn-fill" points="' + poly(takeout) + '"/>' +
       '<polygon class="furn-fill" points="' + poly(kitchen) + '"/>' +
       '<polygon class="furn" points="' + poly(bar) + '"/>' +
-      stools +
+      stools + seats +
       '<polygon class="furn" points="' + poly(stage) + '"/>'
     );
   }
 
   function furn2(ox, oy, oz, W, D, H) {
     var p = function (lx, ly, lz) { return localIso(ox, oy, oz, W, D, H, lx, ly, lz); };
-    var tatami = [p(0.08, 0.08), p(0.55, 0.08), p(0.55, 0.32), p(0.08, 0.32)];
-    var sofa = [p(0.1, 0.4), p(0.7, 0.4), p(0.7, 0.55), p(0.1, 0.55)];
+    var tatami = [p(0.08, 0.04), p(0.92, 0.04), p(0.92, 0.28), p(0.08, 0.28)];
+    var sofa = [p(0.1, 0.34), p(0.55, 0.34), p(0.55, 0.72), p(0.1, 0.72)];
     var cells = '';
-    for (var i = 0; i < 4; i++) {
-      var x0 = 0.72;
-      var y0 = 0.12 + i * 0.18;
-      var cell = [p(x0, y0), p(0.94, y0), p(0.94, y0 + 0.14), p(x0, y0 + 0.14)];
+    for (var i = 0; i < 6; i++) {
+      var y0 = 0.34 + i * 0.07;
+      var cell = [p(0.62, y0), p(0.92, y0), p(0.92, y0 + 0.055), p(0.62, y0 + 0.055)];
       cells += '<polygon class="furn" points="' + poly(cell) + '"/>';
     }
-    var shower = [p(0.72, 0.82), p(0.94, 0.82), p(0.94, 0.94), p(0.72, 0.94)];
+    var wet = [p(0.55, 0.8), p(0.94, 0.8), p(0.94, 0.96), p(0.55, 0.96)];
     return (
       '<polygon class="furn-fill" points="' + poly(tatami) + '"/>' +
       '<polygon class="furn" points="' + poly(sofa) + '"/>' +
       cells +
-      '<polygon class="furn-fill" points="' + poly(shower) + '"/>'
+      '<polygon class="furn-fill" points="' + poly(wet) + '"/>'
     );
   }
 
   function furn3(ox, oy, oz, W, D, H) {
     var p = function (lx, ly, lz) { return localIso(ox, oy, oz, W, D, H, lx, ly, lz); };
+    var screen = [p(0.08, 0.04), p(0.92, 0.04), p(0.92, 0.08), p(0.08, 0.08)];
     var desks = '';
-    for (var row = 0; row < 3; row++) {
-      for (var col = 0; col < 3; col++) {
-        var x0 = 0.12 + col * 0.26;
-        var y0 = 0.18 + row * 0.22;
-        var desk = [p(x0, y0), p(x0 + 0.18, y0), p(x0 + 0.18, y0 + 0.1), p(x0, y0 + 0.1)];
+    for (var row = 0; row < 4; row++) {
+      for (var col = 0; col < 2; col++) {
+        var x0 = 0.12 + col * 0.4;
+        var y0 = 0.14 + row * 0.14;
+        var desk = [p(x0, y0), p(x0 + 0.3, y0), p(x0 + 0.3, y0 + 0.08), p(x0, y0 + 0.08)];
         desks += '<polygon class="furn" points="' + poly(desk) + '"/>';
       }
     }
-    var screen = [p(0.08, 0.06), p(0.9, 0.06), p(0.9, 0.1), p(0.08, 0.1)];
-    var bar = [p(0.7, 0.82), p(0.94, 0.82), p(0.94, 0.94), p(0.7, 0.94)];
+    var snack = [p(0.12, 0.74), p(0.55, 0.74), p(0.55, 0.88), p(0.12, 0.88)];
+    var toilet = [p(0.62, 0.78), p(0.94, 0.78), p(0.94, 0.96), p(0.62, 0.96)];
     return (
       '<polygon class="furn-fill" points="' + poly(screen) + '"/>' +
       desks +
-      '<polygon class="furn-fill" points="' + poly(bar) + '"/>'
+      '<polygon class="furn-fill" points="' + poly(snack) + '"/>' +
+      '<polygon class="furn" points="' + poly(toilet) + '"/>'
     );
   }
 
   function furn4(ox, oy, oz, W, D, H) {
     var p = function (lx, ly, lz) { return localIso(ox, oy, oz, W, D, H, lx, ly, lz); };
-    var indoor = [p(0.55, 0.7), p(0.94, 0.7), p(0.94, 0.94), p(0.55, 0.94)];
-    var t1 = p(0.22, 0.35);
-    var t2 = p(0.42, 0.45);
+    var indoor = [p(0.08, 0.08), p(0.7, 0.08), p(0.7, 0.92), p(0.08, 0.92)];
+    var balcony = [p(0.72, 0.08), p(0.96, 0.08), p(0.96, 0.92), p(0.72, 0.92)];
+    var t1 = p(0.84, 0.35);
+    var t2 = p(0.84, 0.65);
     return (
       '<polygon class="furn-fill" points="' + poly(indoor) + '"/>' +
-      '<circle class="furn" cx="' + t1.x.toFixed(1) + '" cy="' + t1.y.toFixed(1) + '" r="7"/>' +
-      '<circle class="furn" cx="' + t2.x.toFixed(1) + '" cy="' + t2.y.toFixed(1) + '" r="7"/>'
+      '<polygon class="furn" points="' + poly(balcony) + '"/>' +
+      '<circle class="furn" cx="' + t1.x.toFixed(1) + '" cy="' + t1.y.toFixed(1) + '" r="4"/>' +
+      '<circle class="furn" cx="' + t2.x.toFixed(1) + '" cy="' + t2.y.toFixed(1) + '" r="4"/>'
     );
   }
 
