@@ -135,13 +135,28 @@ CREATE TABLE IF NOT EXISTS updates (
   visible_to TEXT DEFAULT 'all',
   published_at DATE
 );
+CREATE TABLE IF NOT EXISTS events (
+  id TEXT PRIMARY KEY,
+  title TEXT, description TEXT, location TEXT,
+  starts_at TIMESTAMPTZ,
+  capacity INT DEFAULT 0,               -- 0 = 不限名額
+  status TEXT DEFAULT '報名中',          -- 草稿 / 報名中 / 已結束
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS event_regs (
+  id TEXT PRIMARY KEY,
+  event_id TEXT REFERENCES events(id) ON DELETE CASCADE,
+  user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+  note TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (event_id, user_id)
+);
+CREATE TABLE IF NOT EXISTS site_content (
+  key TEXT PRIMARY KEY,
+  value TEXT,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
 `;
-
-function genPayments(c) {
-  // 創始會員計畫：單筆會費收款（一次付清，應收日為申請日，供後台收款對帳）
-  return [{ id: uid('p_'), commitment_id: c.id, type: '會費', amount: c.amount,
-    due_date: todayISO(), paid_date: null, status: '未付' }];
-}
 
 async function migrate() {
   await q(SCHEMA_SQL);
@@ -190,10 +205,10 @@ const SEL_C = `id,user_id,amount::bigint,interest_rate,term_years,
   to_char(start_date,'YYYY/MM/DD') AS start_date,
   to_char(maturity_date,'YYYY/MM/DD') AS maturity_date,
   contract_status,payment_status,membership_status,cert_no`;
-const SEL_P = `id,commitment_id,type,amount::bigint,
-  to_char(due_date,'YYYY/MM/DD') AS due_date,
-  to_char(paid_date,'YYYY/MM/DD') AS paid_date,status`;
 const SEL_UPD = `id,title,content,type,to_char(published_at,'YYYY/MM/DD') AS published_at`;
+const SEL_EVENT = `id,title,description,location,capacity,status,
+  to_char(starts_at,'YYYY/MM/DD HH24:MI') AS starts_at,
+  starts_at AS starts_at_iso`;
 const numify = rows => rows.map(r => ({ ...r, amount: r.amount != null ? Number(r.amount) : r.amount }));
 
 /* ---------- app ---------- */
@@ -240,36 +255,8 @@ const wrap = fn => (req, res) => fn(req, res).catch(e => {
   res.status(500).json({ error: '伺服器處理失敗。' });
 });
 
-/* ---- 登入速率限制（防邀請碼暴力嘗試） ---- */
-const hits = new Map();
-function rateLimit(req, res, next) {
-  const ip = (req.headers['x-forwarded-for'] || req.ip || '').toString().split(',')[0].trim();
-  const now = Date.now(), win = 5 * 60 * 1000, max = 30;
-  const arr = (hits.get(ip) || []).filter(t => now - t < win);
-  if (arr.length >= max) return res.status(429).json({ error: '嘗試次數過多，請稍後再試。' });
-  arr.push(now); hits.set(ip, arr); next();
-}
-
 app.get('/api/health', (req, res) =>
   res.json({ ok: true, db: dbReady, dbConfigured: !!pool }));
-
-app.post('/api/login', rateLimit, requireDb, wrap(async (req, res) => {
-  const code = (req.body.code || '').trim();
-  if (!code) return res.status(400).json({ error: '請輸入邀請碼。' });
-  // 後台管理不再用登入代碼：管理員一律走 Google 登入（超管 email 或被指派 is_admin）。
-  const lv = code.toLowerCase();
-  // 安全：登入僅接受「不可猜測的邀請碼」。email 屬可知資訊，不能當憑證
-  // （否則知道受邀者 email 即可冒名登入、讀取其會籍與個資）。
-  // 官網會員專區的 email 登入改走 Google OAuth，由 Google 驗證信箱擁有權。
-  const { rows } = await q(
-    `SELECT ${SEL_USER} FROM users WHERE lower(invite_code)=$1 LIMIT 1`, [lv]);
-  const u = rows[0];
-  if (!u) return res.status(401).json({ error: '查無此邀請碼。本網站僅供受邀對象查看。' });
-  if (u.status === '未開啟') await q(`UPDATE users SET status='已查看' WHERE id=$1`, [u.id]);
-  const cc = await q(`SELECT COUNT(*)::int AS n FROM commitments WHERE user_id=$1`, [u.id]);
-  const role = cc.rows[0].n > 0 ? 'participant' : 'invited';
-  res.json({ token: signToken({ role, sub: u.id }), role });
-}));
 
 /* ---- Google 登入（OAuth 2.0 授權碼流程；重用既有 signToken 與 users 表） ---- */
 app.get('/auth/google', (req, res) => {
@@ -329,37 +316,49 @@ app.get('/auth/google/callback', wrap(async (req, res) => {
   res.redirect(redirect + sep + 'token=' + encodeURIComponent(token));
 }));
 
+// 網站內容（首頁公告等）：讀成 { key: value } 物件
+async function readContent() {
+  const rows = (await q(`SELECT key, value FROM site_content`)).rows;
+  return Object.fromEntries(rows.map(r => [r.key, r.value]));
+}
+
 app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
-  const bondRow = (await q(`SELECT id,project_name,target_amount::bigint,interest_rate,min_term,max_term,status,progress FROM bonds WHERE id='b1'`)).rows[0]
-    || { target_amount: TARGET, interest_rate: 0, status: '預售中', progress: 42 };
   const raised = Number((await q(`SELECT COALESCE(SUM(amount),0)::bigint AS s FROM commitments WHERE payment_status='已付款'`)).rows[0].s);
-  const bond = {
-    target_amount: Number(bondRow.target_amount), interest_rate: Number(bondRow.interest_rate),
-    status: bondRow.status, progress: bondRow.progress, raised,
-  };
+  const bond = { target_amount: TARGET, raised };
   const updates = numify((await q(`SELECT ${SEL_UPD} FROM updates ORDER BY published_at DESC`)).rows);
 
   if (req.auth.role === 'admin') {
     const users = (await q(`SELECT ${SEL_USER} FROM users ORDER BY created_at`)).rows.map(pubUser);
     const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments ORDER BY created_at`)).rows);
-    const payments = numify((await q(`SELECT ${SEL_P} FROM payments`)).rows);
+    // 活動 + 每場報名人數（後台總覽用）
+    const events = (await q(
+      `SELECT ${SEL_EVENT}, (SELECT COUNT(*)::int FROM event_regs r WHERE r.event_id=e.id) AS reg_count
+       FROM events e ORDER BY starts_at DESC NULLS LAST, created_at DESC`)).rows;
+    const content = await readContent();
     const me = users.find(u => u.id === req.auth.sub) || null;  // 管理員自己：供會員頁顯示姓名
-    return res.json({ role: 'admin', super: req.auth.super === true, me, bond, users, commitments, payments, updates });
+    return res.json({ role: 'admin', super: req.auth.super === true, me, bond, users, commitments, events, content, updates });
   }
   const me = pubUser((await q(`SELECT ${SEL_USER} FROM users WHERE id=$1`, [req.auth.sub])).rows[0]);
   if (!me) return res.status(401).json({ error: '帳號不存在，請重新登入。' });
   const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments WHERE user_id=$1 ORDER BY created_at`, [me.id])).rows);
-  const ids = commitments.map(c => c.id);
-  const payments = ids.length
-    ? numify((await q(`SELECT ${SEL_P} FROM payments WHERE commitment_id = ANY($1)`, [ids])).rows) : [];
-  res.json({ role: commitments.length ? 'participant' : 'invited', me, bond, users: [me], commitments, payments, updates });
+  // 會員專區：報名中的活動 + 我是否已報名（供報名/取消按鈕）
+  const events = (await q(
+    `SELECT ${SEL_EVENT},
+       (SELECT COUNT(*)::int FROM event_regs r WHERE r.event_id=e.id) AS reg_count,
+       EXISTS (SELECT 1 FROM event_regs r WHERE r.event_id=e.id AND r.user_id=$1) AS registered
+     FROM events e WHERE status='報名中' ORDER BY starts_at ASC NULLS LAST`, [me.id])).rows;
+  res.json({ role: commitments.length ? 'participant' : 'invited', me, bond, users: [me], commitments, events, updates });
 }));
 
-// 公開唯讀：進度與專案更新（無 PII，供未登入者瀏覽）
+// 公開唯讀：進度、專案更新、報名中活動、首頁公告（無 PII，供未登入者瀏覽）
 app.get('/api/public', requireDb, wrap(async (req, res) => {
   const raised = Number((await q(`SELECT COALESCE(SUM(amount),0)::bigint AS s FROM commitments WHERE payment_status='已付款'`)).rows[0].s);
   const updates = numify((await q(`SELECT ${SEL_UPD} FROM updates ORDER BY published_at DESC`)).rows);
-  res.json({ raised, updates });
+  const events = (await q(
+    `SELECT ${SEL_EVENT}, (SELECT COUNT(*)::int FROM event_regs r WHERE r.event_id=e.id) AS reg_count
+     FROM events e WHERE status='報名中' ORDER BY starts_at ASC NULLS LAST`)).rows;
+  const content = await readContent();
+  res.json({ raised, updates, events, content });
 }));
 
 app.post('/api/commitments', auth, requireDb, wrap(async (req, res) => {
@@ -393,10 +392,6 @@ app.post('/api/commitments', auth, requireDb, wrap(async (req, res) => {
        (id,user_id,amount,interest_rate,term_years,start_date,maturity_date,contract_status,payment_status,membership_status,cert_no,created_at)
      VALUES ($1,$2,$3,0,$4,$5,$6,'已簽','未付款',$7,$8,now())`,
     [id, req.auth.sub, amount, term, start, maturity, b.agree_member ? '待啟用' : '未啟用', certNo(seq)]);
-  const c = { id, term_years: term, amount, start_date: start };
-  for (const p of genPayments(c))
-    await q(`INSERT INTO payments (id,commitment_id,type,amount,due_date,paid_date,status) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [p.id, p.commitment_id, p.type, p.amount, p.due_date, p.paid_date, p.status]);
 
   const row = numify((await q(`SELECT ${SEL_C} FROM commitments WHERE id=$1`, [id])).rows)[0];
   res.json({ commitment: row });
@@ -410,37 +405,10 @@ app.post('/api/admin/users/:id/admin', auth, adminOnly, superOnly, requireDb, wr
   res.json({ ok: true, id: r.rows[0].id, is_admin: makeAdmin });
 }));
 
-app.post('/api/admin/invites', auth, adminOnly, requireDb, wrap(async (req, res) => {
-  const name = (req.body.name || '').trim();
-  if (!name) return res.status(400).json({ error: '請輸入姓名。' });
-  // 邀請碼即登入憑證（見 /api/login）：需足夠熵。改用 80-bit 隨機（透過連結分享、不需手打，長度無妨）。
-  const code = 'TTH-' + crypto.randomBytes(10).toString('hex').toUpperCase();
-  const id = uid('u_');
-  await q(`INSERT INTO users (id,name,email,phone,invite_code,status,created_at)
-           VALUES ($1,$2,$3,$4,$5,'未開啟',now())`,
-    [id, name, (req.body.email || '').trim(), (req.body.phone || '').trim(), code]);
-  res.json({ ok: true, invite_code: code });
-}));
-
 app.post('/api/admin/commitments/:id/confirm', auth, adminOnly, requireDb, wrap(async (req, res) => {
   const r = await q(`UPDATE commitments SET payment_status='已付款', membership_status='已啟用' WHERE id=$1 RETURNING user_id`, [req.params.id]);
   if (!r.rows[0]) return res.status(404).json({ error: '找不到參與紀錄。' });
   await q(`UPDATE users SET status='已參與' WHERE id=$1`, [r.rows[0].user_id]);
-  res.json({ ok: true });
-}));
-
-app.post('/api/admin/payments/:id/toggle', auth, adminOnly, requireDb, wrap(async (req, res) => {
-  const cur = (await q(`SELECT status FROM payments WHERE id=$1`, [req.params.id])).rows[0];
-  if (!cur) return res.status(404).json({ error: '找不到付款紀錄。' });
-  if (cur.status === '已付') await q(`UPDATE payments SET status='未付', paid_date=NULL WHERE id=$1`, [req.params.id]);
-  else await q(`UPDATE payments SET status='已付', paid_date=$2 WHERE id=$1`, [req.params.id, todayISO()]);
-  res.json({ ok: true });
-}));
-
-app.post('/api/admin/bond', auth, adminOnly, requireDb, wrap(async (req, res) => {
-  const p = Math.round(Number(req.body.progress));
-  if (!Number.isFinite(p) || p < 0 || p > 100) return res.status(400).json({ error: '進度需為 0–100 的數字。' });
-  await q(`UPDATE bonds SET progress=$1 WHERE id='b1'`, [p]);
   res.json({ ok: true });
 }));
 
@@ -456,6 +424,73 @@ app.post('/api/admin/updates', auth, adminOnly, requireDb, wrap(async (req, res)
 
 app.delete('/api/admin/updates/:id', auth, adminOnly, requireDb, wrap(async (req, res) => {
   await q(`DELETE FROM updates WHERE id=$1`, [req.params.id]);
+  res.json({ ok: true });
+}));
+
+/* ---- 前台管理：活動（後台建/改/刪＋看報名） ---- */
+const EVENT_STATUS = ['草稿', '報名中', '已結束'];
+app.post('/api/admin/events', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const b = req.body || {};
+  const title = (b.title || '').trim();
+  if (!title) return res.status(400).json({ error: '請輸入活動名稱。' });
+  const status = EVENT_STATUS.includes(b.status) ? b.status : '報名中';
+  const capacity = Math.max(0, Math.round(Number(b.capacity) || 0));
+  const startsAt = b.starts_at ? new Date(b.starts_at) : null;   // ISO 'YYYY-MM-DDTHH:mm'
+  if (startsAt && isNaN(startsAt.getTime())) return res.status(400).json({ error: '活動時間格式不正確。' });
+  if (b.id) {
+    const r = await q(`UPDATE events SET title=$2,description=$3,location=$4,starts_at=$5,capacity=$6,status=$7 WHERE id=$1 RETURNING id`,
+      [b.id, title, (b.description || '').trim(), (b.location || '').trim(), startsAt, capacity, status]);
+    if (!r.rows[0]) return res.status(404).json({ error: '找不到活動。' });
+    return res.json({ ok: true, id: b.id });
+  }
+  const id = uid('e_');
+  await q(`INSERT INTO events (id,title,description,location,starts_at,capacity,status) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+    [id, title, (b.description || '').trim(), (b.location || '').trim(), startsAt, capacity, status]);
+  res.json({ ok: true, id });
+}));
+
+app.delete('/api/admin/events/:id', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  await q(`DELETE FROM events WHERE id=$1`, [req.params.id]);   // event_regs 隨 ON DELETE CASCADE 一併清除
+  res.json({ ok: true });
+}));
+
+app.get('/api/admin/events/:id/regs', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const rows = (await q(
+    `SELECT u.name, u.email, u.phone, r.note, to_char(r.created_at,'YYYY/MM/DD HH24:MI') AS created_at
+     FROM event_regs r JOIN users u ON u.id=r.user_id
+     WHERE r.event_id=$1 ORDER BY r.created_at`, [req.params.id])).rows;
+  res.json({ regs: rows });
+}));
+
+/* ---- 前台管理：網站內容（首頁公告等 key-value） ---- */
+app.post('/api/admin/content', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const key = (req.body.key || '').trim();
+  if (!key) return res.status(400).json({ error: '缺少內容鍵值。' });
+  await q(`INSERT INTO site_content (key,value,updated_at) VALUES ($1,$2,now())
+           ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now()`,
+    [key, String(req.body.value ?? '')]);
+  res.json({ ok: true });
+}));
+
+/* ---- 會員：活動報名／取消（需登入；免費活動，額滿即擋） ---- */
+app.post('/api/events/:id/register', auth, requireDb, wrap(async (req, res) => {
+  if (!req.auth.sub) return res.status(403).json({ error: '請以會員身分登入後報名。' });
+  const ev = (await q(`SELECT id,capacity,status FROM events WHERE id=$1`, [req.params.id])).rows[0];
+  if (!ev) return res.status(404).json({ error: '找不到活動。' });
+  if (ev.status !== '報名中') return res.status(400).json({ error: '此活動目前不開放報名。' });
+  if (ev.capacity > 0) {
+    const n = (await q(`SELECT COUNT(*)::int AS n FROM event_regs WHERE event_id=$1`, [ev.id])).rows[0].n;
+    const mine = (await q(`SELECT 1 FROM event_regs WHERE event_id=$1 AND user_id=$2`, [ev.id, req.auth.sub])).rowCount > 0;
+    if (!mine && n >= ev.capacity) return res.status(400).json({ error: '此活動名額已滿。' });
+  }
+  await q(`INSERT INTO event_regs (id,event_id,user_id,note) VALUES ($1,$2,$3,$4)
+           ON CONFLICT (event_id,user_id) DO UPDATE SET note=EXCLUDED.note`,
+    [uid('r_'), ev.id, req.auth.sub, (req.body.note || '').trim()]);
+  res.json({ ok: true });
+}));
+
+app.delete('/api/events/:id/register', auth, requireDb, wrap(async (req, res) => {
+  await q(`DELETE FROM event_regs WHERE event_id=$1 AND user_id=$2`, [req.params.id, req.auth.sub]);
   res.json({ ok: true });
 }));
 

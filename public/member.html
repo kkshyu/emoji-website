@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>會員專區 · 言文字——台灣人才聚落</title>
+<title>會員專區 · 言文字｜台灣人才聚落</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,6 +26,12 @@
   .m-upd time{color:var(--muted);font-size:.82rem}
   .m-upd p{color:var(--ink-soft);font-size:.94rem;margin-top:.4em;white-space:pre-wrap}
   .m-empty{color:var(--muted);padding:14px 0;border-top:1px solid var(--line)}
+  .m-ev{padding:16px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .m-ev h4{font-weight:500;font-size:1rem;margin-bottom:.2em}
+  .m-ev .meta{color:var(--muted);font-size:.82rem}
+  .m-ev p{color:var(--ink-soft);font-size:.9rem;margin-top:.4em;white-space:pre-wrap}
+  .m-ev .act{flex:0 0 auto;align-self:center}
+  .m-ev .full{color:var(--muted);font-size:.85rem}
   .m-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:2.4rem}
   .m-google{display:inline-flex;align-items:center;gap:.7em}
   .m-google svg{width:20px;height:20px}
@@ -64,7 +70,7 @@
 </main>
 
 <footer class="m-foot">
-  言文字——台灣人才聚落 · <a href="/">回首頁</a> · <a href="mailto:us@emoji.tw">us@emoji.tw</a><br>
+  言文字｜台灣人才聚落 · <a href="/">回首頁</a> · <a href="mailto:us@emoji.tw">us@emoji.tw</a><br>
   © 2026 言文字 Taiwan Talent Hub
 </footer>
 
@@ -122,12 +128,28 @@
         ${u.content ? `<p>${esc(u.content)}</p>` : ''}</div>`).join('')
       || `<div class="m-empty">目前尚無會員動態。</div>`;
 
+    const events = (data.events || []).map(e => {
+      const full = e.capacity > 0 && e.reg_count >= e.capacity && !e.registered;
+      const cap = e.capacity > 0 ? `名額 ${e.reg_count}／${e.capacity}` : `已報名 ${e.reg_count} 人`;
+      const btn = e.registered
+        ? `<button class="btn btn--ghost" data-unreg="${e.id}">取消報名</button>`
+        : full ? `<span class="full">名額已滿</span>`
+        : `<button class="btn btn--solid" data-reg="${e.id}">報名</button>`;
+      return `<div class="m-ev">
+        <div><h4>${esc(e.title)}${e.registered ? '　<span style="color:var(--muted);font-size:.82rem">✓ 已報名</span>' : ''}</h4>
+          <div class="meta">${esc(e.starts_at || '時間待定')}${e.location ? '｜' + esc(e.location) : ''}　·　${cap}</div>
+          ${e.description ? `<p>${esc(e.description)}</p>` : ''}</div>
+        <div class="act">${btn}</div></div>`;
+    }).join('') || `<div class="m-empty">目前沒有開放報名的活動。</div>`;
+
     card.innerHTML = `
       <h1 class="m-hi">歡迎，${esc(me.name || '會員')}</h1>
       <p class="m-sub">${esc(me.email || '')}</p>
       ${data.role === 'admin' ? `<div style="margin:0 0 1.4rem"><a class="btn btn--solid" href="/admin">前往後台管理 →</a></div>` : ''}
       ${badge}
       <div>${membership}</div>
+      <h3 class="m-sec-title">近期活動</h3>
+      <div>${events}</div>
       <h3 class="m-sec-title">會員動態</h3>
       <div>${updates}</div>
       <div class="m-actions">
@@ -136,6 +158,20 @@
     document.getElementById('logout').onclick = () => {
       localStorage.removeItem(KEY); location.reload();
     };
+    card.querySelectorAll('[data-reg]').forEach(b => b.onclick = () => regEvent(b.dataset.reg, 'POST', b));
+    card.querySelectorAll('[data-unreg]').forEach(b => b.onclick = () => regEvent(b.dataset.unreg, 'DELETE', b));
+  }
+
+  async function regEvent(id, method, btn) {
+    btn.disabled = true;
+    try {
+      const r = await fetch(FELLOW + '/api/events/' + id + '/register', {
+        method, headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { alert(d.error || '操作失敗，請稍後再試。'); btn.disabled = false; return; }
+      main();   // 重新載入狀態，更新報名/名額
+    } catch (e) { alert('暫時無法連線，請稍後再試。'); btn.disabled = false; }
   }
 
   async function main() {

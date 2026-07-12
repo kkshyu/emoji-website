@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>後台管理 · 言文字——台灣人才聚落</title>
+<title>後台管理 · 言文字｜台灣人才聚落</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,41 +12,62 @@
 <link rel="stylesheet" href="/style.css">
 <style>
   /* 後台：沿用 CIS token（/style.css），內部工具、務實不華 */
-  .a-top{position:fixed;top:0;left:0;right:0;background:var(--paper);border-bottom:1px solid var(--line);z-index:10}
+  .a-top{position:fixed;top:0;left:0;right:0;background:var(--paper);border-bottom:1px solid var(--line);z-index:20}
   .a-top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
   .a-brand b{font-family:var(--serif);font-weight:700;font-size:1.06rem}
   .a-brand span{color:var(--muted);font-size:.78rem;margin-left:.6em}
-  .a-wrap{max-width:1080px;margin:0 auto;padding:96px 24px 80px}
-  .a-h1{font-family:var(--serif);font-size:1.6rem;font-weight:500;margin-bottom:.2em}
-  .a-sub{color:var(--muted);margin-bottom:2rem}
-  .a-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:2.4rem}
+  /* 版面：側欄分頁 + 內容 */
+  .a-shell{max-width:1180px;margin:0 auto;padding:78px 24px 80px;display:grid;grid-template-columns:200px 1fr;gap:28px}
+  .a-nav{position:sticky;top:78px;align-self:start;display:flex;flex-direction:column;gap:2px}
+  .a-nav button{all:unset;cursor:pointer;padding:.6em .9em;border-radius:10px;color:var(--ink-soft);font-size:.92rem;display:flex;align-items:center;justify-content:space-between;gap:.5em}
+  .a-nav button:hover{background:var(--card)}
+  .a-nav button.on{background:var(--ink);color:var(--paper);font-weight:500}
+  .a-nav .badge{font-size:.7rem;background:var(--accent,#FFDE34);color:#1B1A17;border-radius:999px;padding:.05em .5em;font-weight:600}
+  .a-nav button.on .badge{background:var(--paper);color:var(--ink)}
+  .a-main{min-width:0}
+  .a-h1{font-family:var(--serif);font-size:1.5rem;font-weight:500;margin-bottom:.1em}
+  .a-sub{color:var(--muted);margin-bottom:1.6rem;font-size:.9rem}
+  .a-tab{display:none}.a-tab.on{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .a-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:1.8rem}
   .a-kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
   .a-kpi .kl{color:var(--muted);font-size:.78rem;letter-spacing:.04em}
   .a-kpi .kv{font-family:var(--serif);font-size:1.5rem;font-weight:500;margin-top:.2em}
   .a-kpi .kv .u{font-size:.8rem;color:var(--muted);font-family:var(--sans);margin-right:.15em}
-  .a-sec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px;margin-bottom:22px}
-  .a-sec h2{font-family:var(--serif);font-size:1.14rem;font-weight:500;margin-bottom:1rem;display:flex;align-items:center;gap:.5em}
-  .a-sec h2 .pill{font-family:var(--sans);font-size:.68rem;letter-spacing:.06em;color:var(--on-accent,#1B1A17);background:var(--accent,#FFDE34);border-radius:999px;padding:.15em .7em;font-weight:600}
+  .a-sec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px}
+  .a-sec h2{font-family:var(--serif);font-size:1.1rem;font-weight:500;margin-bottom:.3rem;display:flex;align-items:center;gap:.5em}
+  .a-sec .hint{color:var(--muted);font-size:.82rem;margin-bottom:1rem}
   table.a-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
-  table.a-tbl th{text-align:left;color:var(--muted);font-weight:500;font-size:.76rem;letter-spacing:.04em;padding:8px 10px;border-bottom:1px solid var(--line)}
+  table.a-tbl th{text-align:left;color:var(--muted);font-weight:500;font-size:.76rem;letter-spacing:.04em;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
   table.a-tbl td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
   table.a-tbl td.num{text-align:right;font-variant-numeric:tabular-nums}
   .a-wrap2{overflow-x:auto}
-  .a-form{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+  .a-form{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:14px}
+  .a-form label{font-size:.82rem;color:var(--muted);display:flex;flex-direction:column;gap:.25em}
   .a-form input,.a-form select,.a-form textarea{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
   .a-form textarea{width:100%;min-height:64px;resize:vertical}
-  .pill{display:inline-block;font-size:.76rem;padding:.15em .6em;border-radius:999px;border:1px solid var(--line)}
+  .a-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .a-toolbar input[type=search]{flex:1;min-width:180px;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+  .pill{display:inline-block;font-size:.76rem;padding:.15em .6em;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
   .pill-ok{background:rgba(255,222,52,.2);border-color:transparent}
   .pill-wait{color:var(--muted)}
+  .pill-draft{color:var(--muted)}
+  .pill-live{background:rgba(255,222,52,.2);border-color:transparent}
+  .pill-done{color:var(--muted);text-decoration:line-through}
   .a-mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem}
   .a-empty{color:var(--muted);padding:14px 0}
-  .a-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:2rem}
   .btn-sm{padding:.5em 1em;font-size:.85rem}
+  .a-regs{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
   .a-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);opacity:0;
     background:var(--ink);color:var(--paper);padding:.8em 1.4em;border-radius:999px;font-size:.9rem;
     transition:.25s;pointer-events:none;z-index:50}
   .a-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .a-center{text-align:center;padding:60px 0;color:var(--muted)}
+  @media(max-width:860px){
+    .a-shell{grid-template-columns:1fr;gap:14px}
+    .a-nav{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
+    .a-nav button{white-space:nowrap;border:1px solid var(--line)}
+  }
 </style>
 </head>
 <body>
@@ -57,7 +78,7 @@
   </div>
 </header>
 
-<main class="a-wrap">
+<main>
   <div id="app"><p class="a-center">載入中…</p></div>
 </main>
 <div class="a-toast" id="toast"></div>
@@ -70,8 +91,12 @@ const logoutBtn = document.getElementById('logout');
 const esc = s => (s == null ? '' : String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const NT = n => 'NT$' + Number(n || 0).toLocaleString('en-US');
 const num = n => Number(n || 0).toLocaleString('en-US');
-let toastT;
+let toastT, DATA = null, TAB = 'overview';
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
+
+// datetime-local 值 ↔ ISO
+function toLocalInput(iso){ if(!iso) return ''; const d=new Date(iso); if(isNaN(d)) return ''; const p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
 
 // Google 導回時 token 夾在 fragment
 const hash = new URLSearchParams(location.hash.slice(1));
@@ -92,7 +117,7 @@ logoutBtn.onclick = () => { localStorage.removeItem(KEY); location.reload(); };
 
 function renderLogin(msg){
   logoutBtn.style.display='none';
-  const redirect = encodeURIComponent(location.origin + '/admin');
+  const redirect = encodeURIComponent(location.origin + '/admin.html');
   app.innerHTML = `<div class="a-center" style="max-width:460px;margin:0 auto">
     <h1 class="a-h1">後台管理登入</h1>
     <p class="a-sub">${msg || '請以管理員 Google 帳號登入。'}</p>
@@ -100,131 +125,311 @@ function renderLogin(msg){
   </div>`;
 }
 
-function kpis(data){
-  const paid = data.commitments.filter(c=>c.payment_status==='已付款');
+/* ---------- CSV 匯出（純前端） ---------- */
+function downloadCSV(filename, rows){
+  const csv = rows.map(r => r.map(c => {
+    let s = c == null ? '' : String(c);
+    // 防公式注入：以 = + - @ 或 tab/CR 開頭的儲存格前綴單引號，避免試算表當公式執行
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(',')).join('\r\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});   // BOM 讓 Excel 正確辨識 UTF-8
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ---------- 衍生資料 ---------- */
+function derived(d){
+  const paid = d.commitments.filter(c=>c.payment_status==='已付款');
   const joined = new Set(paid.map(c=>c.user_id)).size;
-  const pending = data.commitments.filter(c=>c.payment_status!=='已付款').reduce((s,c)=>s+Number(c.amount),0);
-  const people = new Set(data.commitments.map(c=>c.user_id)).size;
-  return `<div class="a-kpis">
-    <div class="a-kpi"><div class="kl">已收會費</div><div class="kv"><span class="u">NT$</span>${num(data.bond.raised)}</div></div>
-    <div class="a-kpi"><div class="kl">創始名額</div><div class="kv">${joined}<span class="u"> ／100</span></div></div>
-    <div class="a-kpi"><div class="kl">待入帳</div><div class="kv"><span class="u">NT$</span>${num(pending)}</div></div>
-    <div class="a-kpi"><div class="kl">入會人數</div><div class="kv">${people}<span class="u"> 人</span></div></div>
-    <div class="a-kpi"><div class="kl">建置進度</div><div class="kv"><input id="progress" type="number" min="0" max="100" value="${Number(data.bond.progress)||0}" class="a-mono" style="width:64px;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:transparent;color:inherit;font:inherit"><span class="u">%</span> <button class="btn btn--ghost btn-sm" id="saveProg" style="margin-left:6px">存</button></div></div>
+  const pending = d.commitments.filter(c=>c.payment_status!=='已付款').reduce((s,c)=>s+Number(c.amount),0);
+  const people = new Set(d.commitments.map(c=>c.user_id)).size;
+  const cByUser = {}; d.commitments.forEach(c=>{ if(!cByUser[c.user_id]) cByUser[c.user_id]=c; });
+  return { joined, pending, people, cByUser };
+}
+
+/* ---------- 各分頁 ---------- */
+function tabOverview(d, x){
+  return `
+  <div class="a-kpis">
+    <div class="a-kpi"><div class="kl">已收會費</div><div class="kv"><span class="u">NT$</span>${num(d.bond.raised)}</div></div>
+    <div class="a-kpi"><div class="kl">創始名額</div><div class="kv">${x.joined}<span class="u"> ／100</span></div></div>
+    <div class="a-kpi"><div class="kl">待入帳</div><div class="kv"><span class="u">NT$</span>${num(x.pending)}</div></div>
+    <div class="a-kpi"><div class="kl">入會人數</div><div class="kv">${x.people}<span class="u"> 人</span></div></div>
+    <div class="a-kpi"><div class="kl">使用者</div><div class="kv">${(d.users||[]).length}<span class="u"> 人</span></div></div>
+    <div class="a-kpi"><div class="kl">活動場次</div><div class="kv">${(d.events||[]).length}<span class="u"> 場</span></div></div>
+  </div>
+  <div class="a-sec">
+    <h2>快速指引</h2>
+    <p class="hint">此後台管理創始會員計畫與官網前台內容。左側分頁：<b>會員</b>可搜尋與匯出名單；<b>參與紀錄</b>確認會費入帳；<b>活動</b>建立並查看報名；<b>最新消息</b>會公開顯示於官網首頁；<b>網站內容</b>可編輯首頁公告。</p>
   </div>`;
 }
 
-function render(data){
-  logoutBtn.style.display='';
-  const u = data.users || []; const c = data.commitments || []; const p = data.payments || []; const up = data.updates || [];
-  const userName = id => (u.find(x=>x.id===id)||{}).name || '—';
-
-  const invites = u.map(x=>`<tr>
-    <td>${esc(x.name)}</td>
-    <td>${esc(x.email||'')}<br><span class="a-mono" style="color:var(--muted)">${esc(x.phone||'')}</span></td>
-    <td class="a-mono">${esc(x.invite_code||'—')}</td>
-    <td>${esc(x.status||'')}</td>
-    <td>${x.invite_code?`<button class="btn btn--ghost btn-sm" data-copy="${esc(location.origin+'/fellow?code='+x.invite_code)}">複製連結</button>`:''}</td>
-  </tr>`).join('') || '<tr><td colspan="5" class="a-empty">尚無邀請</td></tr>';
-
-  const comms = c.map(x=>`<tr>
-    <td>${esc(userName(x.user_id))}<br><span class="a-mono" style="color:var(--muted)">${esc(x.cert_no)}</span></td>
-    <td class="num">${NT(x.amount)}</td>
-    <td>${esc(x.contract_status)}</td>
-    <td><span class="pill ${x.payment_status==='已付款'?'pill-ok':'pill-wait'}">${esc(x.payment_status)}</span></td>
-    <td>${esc(x.membership_status)}</td>
-    <td>${x.payment_status==='已付款'?'<span style="color:var(--muted)">已完成</span>':`<button class="btn btn--solid btn-sm" data-confirm="${x.id}">確認入帳</button>`}</td>
-  </tr>`).join('') || '<tr><td colspan="6" class="a-empty">尚無參與紀錄</td></tr>';
-
-  const pays = p.slice().sort((a,b)=>a.due_date<b.due_date?-1:1).map(x=>{
-    const cm = c.find(y=>y.id===x.commitment_id)||{};
-    return `<tr>
-      <td>${esc(userName(cm.user_id))}</td><td>${esc(x.type)}</td><td class="num">${esc(x.due_date)}</td>
-      <td class="num">${NT(x.amount)}</td>
-      <td><span class="pill ${x.status==='已付'?'pill-ok':'pill-wait'}">${esc(x.status)}${x.paid_date?' · '+esc(x.paid_date):''}</span></td>
-      <td><button class="btn btn--ghost btn-sm" data-pay="${x.id}">${x.status==='已付'?'改未付':'標記已付'}</button></td>
+function tabMembers(d, x){
+  const body = (d.users||[]).map(u=>{
+    const c = x.cByUser[u.id];
+    const status = c ? (c.membership_status||'—') : '尚未加入';
+    return `<tr data-q="${esc((u.name||'')+' '+(u.email||'')+' '+(u.phone||''))}">
+      <td>${esc(u.name||'—')}</td>
+      <td class="a-mono">${esc(u.email||'—')}</td>
+      <td class="a-mono">${esc(u.phone||'')}</td>
+      <td>${c?'<span class="pill pill-ok">'+esc(status)+'</span>':'<span class="pill pill-wait">尚未加入</span>'}</td>
+      <td class="a-mono">${esc(c?c.cert_no:'')}</td>
+      <td class="num">${esc(u.created_at||'')}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="6" class="a-empty">尚無收款</td></tr>';
-
-  const upd = up.map(x=>`<tr>
-    <td>${esc(x.type)}</td><td>${esc(x.title)}</td><td class="num">${esc(x.published_at)}</td>
-    <td><button class="btn btn--ghost btn-sm" data-del="${x.id}">刪除</button></td>
-  </tr>`).join('') || '<tr><td colspan="4" class="a-empty">尚無更新</td></tr>';
-
-  // 管理員（僅超管可見）
-  const admins = data.super ? `<div class="a-sec">
-    <h2>管理員 <span class="pill">超管限定</span></h2>
-    <p class="a-sub" style="margin-bottom:1rem">將已登入過的使用者設為管理員；超管（Google 帳號）恆為管理員。</p>
+  }).join('') || '<tr><td colspan="6" class="a-empty">尚無使用者</td></tr>';
+  return `<div class="a-sec">
+    <h2>會員名單</h2>
+    <p class="hint">所有以 Google 登入或已建立的使用者；含會籍狀態與會員編號。</p>
+    <div class="a-toolbar">
+      <input type="search" id="m-search" placeholder="搜尋姓名 / Email / 電話…">
+      <button class="btn btn--ghost btn-sm" id="m-csv">匯出 CSV</button>
+    </div>
     <div class="a-wrap2"><table class="a-tbl">
-      <thead><tr><th>姓名</th><th>Email</th><th>目前</th><th>操作</th></tr></thead>
-      <tbody>${u.filter(x=>x.email).map(x=>`<tr>
-        <td>${esc(x.name)}</td><td class="a-mono">${esc(x.email)}</td>
-        <td>${x.is_admin?'<span class="pill pill-ok">管理員</span>':'<span class="pill pill-wait">一般</span>'}</td>
-        <td><button class="btn btn--ghost btn-sm" data-admin="${x.id}" data-on="${x.is_admin?'0':'1'}">${x.is_admin?'取消管理員':'設為管理員'}</button></td>
-      </tr>`).join('') || '<tr><td colspan="4" class="a-empty">尚無使用者</td></tr>'}</tbody>
-    </table></div>
-  </div>` : '';
-
-  app.innerHTML = `
-    <h1 class="a-h1">後台管理</h1>
-    <p class="a-sub">創始會員計畫・邀請與收款管理${data.super?'（超級管理員）':''}</p>
-    ${kpis(data)}
-    <div class="a-sec">
-      <h2>邀請管理</h2>
-      <div class="a-form">
-        <input id="i-name" placeholder="姓名"><input id="i-email" placeholder="Email"><input id="i-phone" placeholder="電話">
-        <button class="btn btn--solid btn-sm" id="i-add">新增邀請</button>
-      </div>
-      <div class="a-wrap2"><table class="a-tbl">
-        <thead><tr><th>姓名</th><th>Email / 電話</th><th>邀請碼</th><th>狀態</th><th>邀請連結</th></tr></thead>
-        <tbody>${invites}</tbody></table></div>
-    </div>
-    <div class="a-sec">
-      <h2>參與紀錄</h2>
-      <div class="a-wrap2"><table class="a-tbl">
-        <thead><tr><th>會員</th><th class="num">會費</th><th>協議</th><th>付款</th><th>會員狀態</th><th>操作</th></tr></thead>
-        <tbody>${comms}</tbody></table></div>
-    </div>
-    <div class="a-sec">
-      <h2>收款</h2>
-      <div class="a-wrap2"><table class="a-tbl">
-        <thead><tr><th>會員</th><th>項目</th><th>應收日</th><th class="num">金額</th><th>狀態</th><th>操作</th></tr></thead>
-        <tbody>${pays}</tbody></table></div>
-    </div>
-    <div class="a-sec">
-      <h2>專案更新</h2>
-      <div class="a-form">
-        <input id="u-title" placeholder="標題">
-        <select id="u-type"><option>月報</option><option>季報</option><option>重大事項</option><option>活動通知</option><option>財務摘要</option></select>
-        <input id="u-date" type="date">
-      </div>
-      <div class="a-form"><textarea id="u-content" placeholder="內容（可換行）"></textarea></div>
-      <div class="a-form"><button class="btn btn--solid btn-sm" id="u-add">發布更新</button></div>
-      <div class="a-wrap2"><table class="a-tbl">
-        <thead><tr><th>類型</th><th>標題</th><th>發布時間</th><th>操作</th></tr></thead>
-        <tbody>${upd}</tbody></table></div>
-    </div>
-    ${admins}
-  `;
-  bind(data);
+      <thead><tr><th>姓名</th><th>Email</th><th>電話</th><th>會籍狀態</th><th>會員編號</th><th class="num">加入日</th></tr></thead>
+      <tbody id="m-body">${body}</tbody></table></div>
+  </div>`;
 }
 
-function bind(data){
+function tabCommitments(d){
+  const userName = id => ((d.users||[]).find(u=>u.id===id)||{}).name || '—';
+  const body = (d.commitments||[]).map(c=>`<tr>
+    <td>${esc(userName(c.user_id))}<br><span class="a-mono" style="color:var(--muted)">${esc(c.cert_no)}</span></td>
+    <td class="num">${NT(c.amount)}</td>
+    <td>${esc(c.contract_status)}</td>
+    <td><span class="pill ${c.payment_status==='已付款'?'pill-ok':'pill-wait'}">${esc(c.payment_status)}</span></td>
+    <td>${esc(c.membership_status)}</td>
+    <td>${c.payment_status==='已付款'?'<span style="color:var(--muted)">已完成</span>':`<button class="btn btn--solid btn-sm" data-confirm="${c.id}">確認入帳</button>`}</td>
+  </tr>`).join('') || '<tr><td colspan="6" class="a-empty">尚無參與紀錄</td></tr>';
+  return `<div class="a-sec">
+    <h2>參與紀錄</h2>
+    <p class="hint">創始會員計畫的會費與付款；確認入帳後即核發會員身分。</p>
+    <div class="a-wrap2"><table class="a-tbl">
+      <thead><tr><th>會員</th><th class="num">會費</th><th>協議</th><th>付款</th><th>會員狀態</th><th>操作</th></tr></thead>
+      <tbody>${body}</tbody></table></div>
+  </div>`;
+}
+
+function tabEvents(d){
+  const evStatusPill = s => s==='報名中'?'pill-live':(s==='已結束'?'pill-done':'pill-draft');
+  const body = (d.events||[]).map(e=>{
+    const cap = e.capacity>0 ? `${e.reg_count}／${e.capacity}` : `${e.reg_count}／不限`;
+    return `<tr>
+      <td><b style="font-weight:500">${esc(e.title)}</b>${e.description?'<br><span style="color:var(--muted);font-size:.82rem">'+esc(e.description)+'</span>':''}</td>
+      <td class="a-mono">${esc(e.starts_at||'未定')}</td>
+      <td>${esc(e.location||'')}</td>
+      <td class="num">${cap}</td>
+      <td><span class="pill ${evStatusPill(e.status)}">${esc(e.status)}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn--ghost btn-sm" data-ev-edit="${e.id}">編輯</button>
+        <button class="btn btn--ghost btn-sm" data-ev-regs="${e.id}">報名(${e.reg_count})</button>
+        <button class="btn btn--ghost btn-sm" data-ev-del="${e.id}">刪除</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="a-empty">尚無活動</td></tr>';
+  return `<div class="a-sec">
+    <h2>活動管理</h2>
+    <p class="hint">建立社群活動；「報名中」會公開顯示於官網首頁，會員於會員專區報名。</p>
+    <div class="a-form">
+      <input type="hidden" id="ev-id">
+      <label>活動名稱<input id="ev-title" placeholder="例：七月社群沙龍"></label>
+      <label>時間<input id="ev-when" type="datetime-local"></label>
+      <label>地點<input id="ev-loc" placeholder="言文字三樓"></label>
+      <label>名額（0＝不限）<input id="ev-cap" type="number" min="0" value="0" style="width:120px"></label>
+      <label>狀態<select id="ev-status"><option>報名中</option><option>草稿</option><option>已結束</option></select></label>
+    </div>
+    <div class="a-form"><textarea id="ev-desc" placeholder="活動說明（可換行）"></textarea></div>
+    <div class="a-form" style="align-items:center">
+      <button class="btn btn--solid btn-sm" id="ev-save">建立活動</button>
+      <button class="btn btn--ghost btn-sm" id="ev-reset" style="display:none">取消編輯</button>
+    </div>
+    <div class="a-wrap2"><table class="a-tbl">
+      <thead><tr><th>活動</th><th>時間</th><th>地點</th><th class="num">報名／名額</th><th>狀態</th><th>操作</th></tr></thead>
+      <tbody>${body}</tbody></table></div>
+    <div id="ev-regs" class="a-regs" style="display:none"></div>
+  </div>`;
+}
+
+function tabUpdates(d){
+  const body = (d.updates||[]).map(u=>`<tr>
+    <td>${esc(u.type)}</td><td>${esc(u.title)}</td><td class="num">${esc(u.published_at)}</td>
+    <td><button class="btn btn--ghost btn-sm" data-upd-del="${u.id}">刪除</button></td>
+  </tr>`).join('') || '<tr><td colspan="4" class="a-empty">尚無更新</td></tr>';
+  return `<div class="a-sec">
+    <h2>最新消息</h2>
+    <p class="hint">發布後會公開顯示於官網首頁「最新消息」，也顯示於會員專區。</p>
+    <div class="a-form" style="align-items:center">
+      <input id="u-title" placeholder="標題" aria-label="更新標題">
+      <select id="u-type" aria-label="更新類型"><option>月報</option><option>季報</option><option>重大事項</option><option>活動通知</option><option>財務摘要</option></select>
+      <input id="u-date" type="date" aria-label="發布日期">
+    </div>
+    <div class="a-form"><textarea id="u-content" placeholder="內容（可換行）" aria-label="更新內容"></textarea></div>
+    <div class="a-form"><button class="btn btn--solid btn-sm" id="u-add">發布</button></div>
+    <div class="a-wrap2"><table class="a-tbl">
+      <thead><tr><th>類型</th><th>標題</th><th>發布時間</th><th>操作</th></tr></thead>
+      <tbody>${body}</tbody></table></div>
+  </div>`;
+}
+
+function tabContent(d){
+  const c = d.content || {};
+  return `<div class="a-sec">
+    <h2>網站內容</h2>
+    <p class="hint">編輯官網首頁的可變內容，儲存後即時生效，免改程式重新部署。</p>
+    <div class="a-form" style="flex-direction:column;align-items:stretch;max-width:640px">
+      <label style="width:100%">首頁公告橫幅（留空則不顯示）
+        <textarea id="ct-notice" placeholder="例：創始名額倒數中，售至 2026/10/31 止。">${esc(c.home_notice||'')}</textarea>
+      </label>
+      <div><button class="btn btn--solid btn-sm" id="ct-save">儲存</button></div>
+    </div>
+  </div>`;
+}
+
+function tabAdmins(d){
+  const body = (d.users||[]).filter(u=>u.email).map(u=>`<tr>
+    <td>${esc(u.name)}</td><td class="a-mono">${esc(u.email)}</td>
+    <td>${u.is_admin?'<span class="pill pill-ok">管理員</span>':'<span class="pill pill-wait">一般</span>'}</td>
+    <td><button class="btn btn--ghost btn-sm" data-admin="${u.id}" data-on="${u.is_admin?'0':'1'}">${u.is_admin?'取消管理員':'設為管理員'}</button></td>
+  </tr>`).join('') || '<tr><td colspan="4" class="a-empty">尚無使用者</td></tr>';
+  return `<div class="a-sec">
+    <h2>管理員</h2>
+    <p class="hint">將已登入過的使用者設為管理員；超管（Google 帳號）恆為管理員。</p>
+    <div class="a-wrap2"><table class="a-tbl">
+      <thead><tr><th>姓名</th><th>Email</th><th>目前</th><th>操作</th></tr></thead>
+      <tbody>${body}</tbody></table></div>
+  </div>`;
+}
+
+const TABS = [
+  { id:'overview',    label:'總覽',     render:tabOverview },
+  { id:'members',     label:'會員',     render:tabMembers },
+  { id:'commitments', label:'參與紀錄', render:tabCommitments },
+  { id:'events',      label:'活動',     render:tabEvents },
+  { id:'updates',     label:'最新消息', render:tabUpdates },
+  { id:'content',     label:'網站內容', render:tabContent },
+  { id:'admins',      label:'管理員',   render:tabAdmins, super:true },
+];
+
+function render(d){
+  DATA = d;
+  logoutBtn.style.display='';
+  const x = derived(d);
+  const tabs = TABS.filter(t => !t.super || d.super);
+  if (!tabs.find(t=>t.id===TAB)) TAB='overview';
+  const nav = tabs.map(t=>{
+    const badge = t.id==='events' && (d.events||[]).length ? `<span class="badge">${d.events.length}</span>`
+      : t.id==='members' && (d.users||[]).length ? `<span class="badge">${d.users.length}</span>` : '';
+    return `<button data-tab="${t.id}" class="${t.id===TAB?'on':''}">${t.label}${badge}</button>`;
+  }).join('');
+  const panels = tabs.map(t=>`<div class="a-tab ${t.id===TAB?'on':''}" data-panel="${t.id}">${t.render(d,x)}</div>`).join('');
+  app.innerHTML = `<div class="a-shell">
+    <nav class="a-nav">${nav}</nav>
+    <div class="a-main">
+      <h1 class="a-h1">後台管理</h1>
+      <p class="a-sub">創始會員計畫・前台管理${d.super?'（超級管理員）':''}</p>
+      ${panels}
+    </div>
+  </div>`;
+  bindNav(); bind(d, x);
+}
+
+function bindNav(){
+  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
+    TAB=b.dataset.tab;
+    document.querySelectorAll('[data-tab]').forEach(n=>n.classList.toggle('on',n.dataset.tab===TAB));
+    document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('on',p.dataset.panel===TAB));
+  });
+}
+
+function bind(d, x){
   const on = (sel,ev,fn)=>{ const el=document.getElementById(sel); if(el) el.addEventListener(ev,fn); };
   const doThen = async (fn,msg)=>{ try{ await fn(); toast(msg); await refresh(); }catch(e){ toast(e.message); } };
 
-  on('saveProg','click',()=>doThen(()=>api('/admin/bond',{method:'POST',body:{progress:Number(document.getElementById('progress').value)}}),'已更新進度'));
-  on('i-add','click',()=>{ const name=document.getElementById('i-name').value.trim(); if(!name){toast('請輸入姓名');return;}
-    doThen(()=>api('/admin/invites',{method:'POST',body:{name,email:document.getElementById('i-email').value.trim(),phone:document.getElementById('i-phone').value.trim()}}),'已新增邀請'); });
+  // 會員：搜尋 + CSV
+  on('m-search','input',e=>{ const qv=e.target.value.trim().toLowerCase();
+    document.querySelectorAll('#m-body tr').forEach(tr=>{ const qq=(tr.dataset.q||'').toLowerCase();
+      tr.style.display = !qv || qq.includes(qv) ? '' : 'none'; }); });
+  on('m-csv','click',()=>{ const rows=[['姓名','Email','電話','會籍狀態','會員編號','加入日']];
+    (d.users||[]).forEach(u=>{ const c=x.cByUser[u.id];
+      rows.push([u.name||'', u.email||'', u.phone||'', c?(c.membership_status||''):'尚未加入', c?c.cert_no:'', u.created_at||'']); });
+    downloadCSV('會員名單.csv', rows); });
+
+  // 參與紀錄：確認入帳
+  document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/commitments/'+b.dataset.confirm+'/confirm',{method:'POST'}),'已確認入帳'));
+
+  // 活動：建立/更新/編輯/刪除/看報名
+  on('ev-save','click',()=>{ const title=document.getElementById('ev-title').value.trim(); if(!title){toast('請輸入活動名稱');return;}
+    const editing = !!document.getElementById('ev-id').value;
+    doThen(()=>api('/admin/events',{method:'POST',body:{
+      id: document.getElementById('ev-id').value || undefined,
+      title, starts_at: document.getElementById('ev-when').value || undefined,
+      location: document.getElementById('ev-loc').value.trim(),
+      capacity: Number(document.getElementById('ev-cap').value)||0,
+      status: document.getElementById('ev-status').value,
+      description: document.getElementById('ev-desc').value.trim(),
+    }}), editing?'已更新活動':'已建立活動'); });
+  on('ev-reset','click',()=>resetEventForm());
+  document.querySelectorAll('[data-ev-edit]').forEach(b=>b.onclick=()=>{
+    const e=(d.events||[]).find(x=>x.id===b.dataset.evEdit); if(!e) return;
+    document.getElementById('ev-id').value=e.id;
+    document.getElementById('ev-title').value=e.title||'';
+    document.getElementById('ev-when').value=toLocalInput(e.starts_at_iso);
+    document.getElementById('ev-loc').value=e.location||'';
+    document.getElementById('ev-cap').value=e.capacity||0;
+    document.getElementById('ev-status').value=e.status||'報名中';
+    document.getElementById('ev-desc').value=e.description||'';
+    document.getElementById('ev-save').textContent='更新活動';
+    document.getElementById('ev-reset').style.display='';
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  document.querySelectorAll('[data-ev-del]').forEach(b=>b.onclick=()=>{
+    if(!confirm('確定刪除此活動？報名紀錄會一併移除。')) return;
+    doThen(()=>api('/admin/events/'+b.dataset.evDel,{method:'DELETE'}),'已刪除活動'); });
+  document.querySelectorAll('[data-ev-regs]').forEach(b=>b.onclick=()=>showRegs(b.dataset.evRegs, d));
+
+  // 最新消息
   on('u-add','click',()=>{ const title=document.getElementById('u-title').value.trim(); if(!title){toast('請輸入標題');return;}
     doThen(()=>api('/admin/updates',{method:'POST',body:{title,type:document.getElementById('u-type').value,content:document.getElementById('u-content').value.trim(),date:document.getElementById('u-date').value||undefined}}),'已發布'); });
+  document.querySelectorAll('[data-upd-del]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/updates/'+b.dataset.updDel,{method:'DELETE'}),'已刪除'));
 
-  document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/commitments/'+b.dataset.confirm+'/confirm',{method:'POST'}),'已確認入帳'));
-  document.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/payments/'+b.dataset.pay+'/toggle',{method:'POST'}),'已更新收款'));
-  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/updates/'+b.dataset.del,{method:'DELETE'}),'已刪除'));
+  // 網站內容
+  on('ct-save','click',()=>doThen(()=>api('/admin/content',{method:'POST',body:{key:'home_notice',value:document.getElementById('ct-notice').value.trim()}}),'已儲存'));
+
+  // 管理員
   document.querySelectorAll('[data-admin]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/users/'+b.dataset.admin+'/admin',{method:'POST',body:{admin:b.dataset.on==='1'}}),'已更新管理權限'));
-  document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{ const t=b.dataset.copy;
-    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('已複製連結')).catch(()=>prompt('複製連結：',t)); });
+}
+
+function resetEventForm(){
+  ['ev-id','ev-title','ev-when','ev-loc','ev-desc'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('ev-cap').value=0;
+  document.getElementById('ev-status').value='報名中';
+  document.getElementById('ev-save').textContent='建立活動';
+  document.getElementById('ev-reset').style.display='none';
+}
+
+async function showRegs(eventId, d){
+  const host = document.getElementById('ev-regs');
+  const ev = (d.events||[]).find(e=>e.id===eventId) || {};
+  host.style.display=''; host.innerHTML='<p class="a-sub">載入報名名單…</p>';
+  try{
+    const { regs } = await api('/admin/events/'+eventId+'/regs');
+    const body = regs.map(r=>`<tr><td>${esc(r.name||'—')}</td><td class="a-mono">${esc(r.email||'')}</td>
+      <td class="a-mono">${esc(r.phone||'')}</td><td>${esc(r.note||'')}</td><td class="num">${esc(r.created_at)}</td></tr>`).join('')
+      || '<tr><td colspan="5" class="a-empty">尚無報名</td></tr>';
+    host.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap">
+        <b style="font-family:var(--serif)">「${esc(ev.title||'')}」報名名單（${regs.length}）</b>
+        <span><button class="btn btn--ghost btn-sm" id="rg-csv">匯出 CSV</button>
+        <button class="btn btn--ghost btn-sm" id="rg-close">關閉</button></span>
+      </div>
+      <div class="a-wrap2"><table class="a-tbl">
+        <thead><tr><th>姓名</th><th>Email</th><th>電話</th><th>備註</th><th class="num">報名時間</th></tr></thead>
+        <tbody>${body}</tbody></table></div>`;
+    document.getElementById('rg-close').onclick=()=>{ host.style.display='none'; host.innerHTML=''; };
+    document.getElementById('rg-csv').onclick=()=>{ const rows=[['姓名','Email','電話','備註','報名時間']];
+      regs.forEach(r=>rows.push([r.name||'',r.email||'',r.phone||'',r.note||'',r.created_at||''])); downloadCSV('報名名單_'+(ev.title||'活動')+'.csv', rows); };
+    host.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(e){ host.innerHTML='<p class="a-sub">'+esc(e.message)+'</p>'; }
 }
 
 async function refresh(){ const d=await api('/state'); render(d); }

@@ -1,5 +1,5 @@
 /* =========================================================================
-   言文字——台灣人才聚落・創始會員計畫 — frontend logic
+   言文字｜台灣人才聚落・創始會員計畫 — frontend logic
    資料層改打後端 REST API（/api/*），後端以 Postgres 儲存。
    多頁面：每個主題為獨立 view，由 go() 切換。
    ========================================================================= */
@@ -173,7 +173,7 @@ function setNavActive(view) {
    ========================================================================= */
 const CONTRACT_HTML = `
 <h4>言文字創始會員入會協議（摘要）</h4>
-<p>本協議由入會人（乙方）與發起方 徐愷 KK（甲方）就乙方加入「言文字——台灣人才聚落」創始會員計畫事宜訂立。乙方係甲方主動邀請之<strong>特定人</strong>；本計畫為<strong>會籍預售</strong>。</p>
+<p>本協議由入會人（乙方）與發起方 徐愷 KK（甲方）就乙方加入「言文字｜台灣人才聚落」創始會員計畫事宜訂立。乙方係甲方主動邀請之<strong>特定人</strong>；本計畫為<strong>會籍預售</strong>。</p>
 <h4>第一條　會籍內容與期間</h4>
 <p>乙方取得創始會員會籍，期間 18 個月，內容包含：二、三樓會員限定空間進出（人臉辨識門禁）、三樓共享辦公與活動空間自由使用、社群活動與互助網絡資格，以及創始專屬權益（三樓創始牆名錄、創始晚餐邀請、續約鎖價保障）。</p>
 <h4>第二條　休憩額度與時數規則</h4>
@@ -346,8 +346,8 @@ function renderCertificate(certId) {
     <div class="cert-in">
       <div class="cert-top">言文字 Founding Member Certificate</div>
       <h2>Founding Member</h2>
-      <div class="cert-cn">言文字——台灣人才聚落・創始會員證</div>
-      <div class="cert-doc">本會員證證明下列持有人依入會協議為言文字——台灣人才聚落創始會員</div>
+      <div class="cert-cn">言文字｜台灣人才聚落・創始會員證</div>
+      <div class="cert-doc">本會員證證明下列持有人依入會協議為言文字｜台灣人才聚落創始會員</div>
       <hr>
       <div class="cert-rows">
         <div class="cr wide"><div class="crl">持有人　Holder</div><div class="crv">${esc(u.name)}</div></div>
@@ -389,7 +389,7 @@ function renderAgreement(certId) {
       <div class="ag-party"><b>甲方（發起方）</b>徐愷 KK<br>地址：台北市中正區重慶南路一段 11 號</div>
       <div class="ag-party"><b>乙方（入會人）</b>${esc(u.name || '—')}<br>電話：${esc(u.phone || '—')}<br>Email：${esc(u.email || '—')}</div>
     </div>
-    <p>雙方本於誠信，就乙方加入甲方推動之「言文字——台灣人才聚落」創始會員計畫事宜，訂立本協議。乙方係甲方主動邀請之特定人；本計畫為會籍預售。</p>
+    <p>雙方本於誠信，就乙方加入甲方推動之「言文字｜台灣人才聚落」創始會員計畫事宜，訂立本協議。乙方係甲方主動邀請之特定人；本計畫為會籍預售。</p>
     <h4>第一條（會籍內容與期間）</h4>
     <p>乙方取得創始會員會籍，期間 18 個月。會籍權益包含：二、三樓會員限定空間進出（人臉辨識門禁）、三樓共享辦公與活動空間自由使用、社群活動與互助網絡資格，以及創始專屬權益：三樓創始牆名錄、創始晚餐邀請、續約鎖價保障（未來牌價調漲不影響乙方首次續約價格）。</p>
     <h4>第二條（休憩額度與時數規則）</h4>
@@ -432,142 +432,6 @@ function renderUpdates() {
       <h3>${esc(u.title)}</h3>
       <p class="ubody">${esc(u.content)}</p>
     </article>`).join('') : emptyState('尚無專案更新。');
-}
-
-/* =========================================================================
-   後台
-   ========================================================================= */
-function renderAdmin() {
-  const raised = confirmedRaised();
-  const paid = DB.commitments.filter(c => c.payment_status === '已付款');
-  const joined = new Set(paid.map(c => c.user_id)).size;
-  const pending = DB.commitments.filter(c => c.payment_status !== '已付款').reduce((s, c) => s + c.amount, 0);
-  $('#admin-kpis').innerHTML = `
-    <div class="kpi"><div class="kl">已收會費</div><div class="kv"><span class="u">NT$</span>${num(raised)}</div></div>
-    <div class="kpi"><div class="kl">創始名額</div><div class="kv">${joined}<span class="u">／${SLOTS} 名</span></div></div>
-    <div class="kpi"><div class="kl">待入帳</div><div class="kv"><span class="u">NT$</span>${num(pending)}</div></div>
-    <div class="kpi"><div class="kl">入會人數</div><div class="kv">${new Set(DB.commitments.map(c => c.user_id)).size}<span class="u">人</span></div></div>
-    <div class="kpi"><div class="kl">專案建置進度</div><div class="kv"><input id="bond-progress" class="mono" type="number" min="0" max="100" value="${Number(DB.bond.progress) || 0}" style="width:76px;background:transparent;border:1px solid var(--line);border-radius:6px;color:inherit;font:inherit;padding:2px 8px"><span class="u">%</span></div>
-      <button class="btn btn-ghost btn-sm" id="bond-progress-save" style="margin-top:8px">儲存進度</button></div>`;
-  $('#bond-progress-save').addEventListener('click', () =>
-    adminDo(() => api('/admin/bond', { method: 'POST', body: { progress: Number($('#bond-progress').value) } }), '已更新建置進度'));
-  renderAdminInvites();
-  renderAdminCommitments();
-  renderAdminPayments();
-  renderAdminUpdates();
-}
-
-async function adminDo(fn, okMsg) {
-  try { await fn(); await refresh(); renderAdmin(); if (okMsg) toast(okMsg); }
-  catch (err) { toast(err.message); }
-}
-
-function renderAdminInvites() {
-  const host = $('#admin-invites');
-  host.innerHTML = `
-    <div class="inline-form">
-      <div class="row">
-        <input id="ai-name" placeholder="姓名">
-        <input id="ai-email" placeholder="Email">
-        <input id="ai-phone" placeholder="電話">
-      </div>
-      <div class="admin-bar"><button class="btn btn-seal btn-sm" id="ai-add">新增邀請（自動產生邀請碼）</button>
-      <span class="tiny">邀請連結：分享給受邀者，對方以邀請碼登入。</span></div>
-    </div>
-    <div class="table-wrap"><table class="led">
-      <thead><tr><th>姓名</th><th>Email / 電話</th><th>邀請碼</th><th>狀態</th><th>邀請連結</th></tr></thead>
-      <tbody>${DB.users.map(u => `
-        <tr><td>${esc(u.name)}</td>
-          <td>${esc(u.email || '')}<br><span class="tiny">${esc(u.phone || '')}</span></td>
-          <td class="mono">${esc(u.invite_code)}</td>
-          <td>${esc(u.status)}</td>
-          <td><button class="copy-btn" data-copy="${esc(location.origin + location.pathname + '?code=' + u.invite_code)}">複製連結</button></td>
-        </tr>`).join('')}</tbody>
-    </table></div>`;
-  $('#ai-add').addEventListener('click', () => {
-    const name = $('#ai-name').value.trim();
-    if (!name) { toast('請輸入姓名'); return; }
-    adminDo(() => api('/admin/invites', { method: 'POST', body: {
-      name, email: $('#ai-email').value.trim(), phone: $('#ai-phone').value.trim() } }), '已新增邀請');
-  });
-  bindCopy(host);
-}
-
-function renderAdminCommitments() {
-  const host = $('#admin-commitments');
-  host.innerHTML = `
-    <div class="table-wrap"><table class="led">
-      <thead><tr><th>會員</th><th class="num">會費</th><th class="num">會籍</th><th>協議</th><th>付款</th><th>會員</th><th>會籍迄日</th><th>操作</th></tr></thead>
-      <tbody>${DB.commitments.map(c => { const u = userById(c.user_id) || { name: '—' }; return `
-        <tr><td>${esc(u.name)}<br><span class="tiny mono">${esc(c.cert_no)}</span></td>
-          <td class="num">${NT(c.amount)}</td>
-          <td class="num">${c.term_years} 個月</td>
-          <td>${c.contract_status}</td>
-          <td><span class="status-pill ${c.payment_status === '已付款' ? 'pill-ok' : 'pill-wait'}">${c.payment_status}</span></td>
-          <td>${c.membership_status}</td>
-          <td class="num">${c.maturity_date}</td>
-          <td>${c.payment_status === '已付款'
-              ? '<span class="tiny">已完成</span>'
-              : `<button class="btn btn-seal btn-sm" data-confirm="${c.id}">確認入帳</button>`}</td>
-        </tr>`; }).join('')}</tbody>
-    </table></div>
-    <p class="tiny" style="margin-top:12px">「確認入帳」＝手動對帳後標記為已付款，同時保留創始編號、核發創始會員證，會籍於正式開幕日啟用。</p>`;
-  $$('[data-confirm]', host).forEach(b => b.addEventListener('click', () =>
-    adminDo(() => api('/admin/commitments/' + b.dataset.confirm + '/confirm', { method: 'POST' }), '已確認入帳並核發創始會員證')));
-}
-
-function renderAdminPayments() {
-  const host = $('#admin-payments');
-  const pays = DB.payments;
-  const feeDue = pays.reduce((s, p) => s + p.amount, 0);
-  const feePaid = pays.filter(p => p.status === '已付').reduce((s, p) => s + p.amount, 0);
-  host.innerHTML = `
-    <div class="kpis">
-      <div class="kpi"><div class="kl">應收會費合計</div><div class="kv"><span class="u">NT$</span>${num(feeDue)}</div></div>
-      <div class="kpi"><div class="kl">已收會費</div><div class="kv"><span class="u">NT$</span>${num(feePaid)}</div></div>
-      <div class="kpi"><div class="kl">未收會費</div><div class="kv"><span class="u">NT$</span>${num(feeDue - feePaid)}</div></div>
-      <div class="kpi"><div class="kl">收款筆數</div><div class="kv">${pays.filter(p => p.status === '已付').length}<span class="u">／${pays.length}</span></div></div>
-    </div>
-    <div class="table-wrap"><table class="led">
-      <thead><tr><th>會員</th><th>項目</th><th>應收日</th><th class="num">金額</th><th>狀態</th><th>操作</th></tr></thead>
-      <tbody>${pays.slice().sort((a, b) => a.due_date < b.due_date ? -1 : 1).map(p => {
-        const c = DB.commitments.find(x => x.id === p.commitment_id) || {}; const u = userById(c.user_id) || { name: '—' };
-        return `<tr><td>${esc(u.name)}</td><td>${p.type}</td><td class="num">${p.due_date}</td>
-          <td class="num">${NT(p.amount)}</td>
-          <td><span class="status-pill ${p.status === '已付' ? 'pill-paid' : 'pill-due'}">${p.status}${p.paid_date ? ` · ${p.paid_date}` : ''}</span></td>
-          <td><button class="btn btn-ghost btn-sm" data-pay="${p.id}">${p.status === '已付' ? '改未付' : '標記已付'}</button></td>
-        </tr>`; }).join('')}</tbody>
-    </table></div>`;
-  $$('[data-pay]', host).forEach(b => b.addEventListener('click', () =>
-    adminDo(() => api('/admin/payments/' + b.dataset.pay + '/toggle', { method: 'POST' }), '已更新收款狀態')));
-}
-
-function renderAdminUpdates() {
-  const host = $('#admin-updates');
-  host.innerHTML = `
-    <div class="inline-form">
-      <div class="row">
-        <input id="au-title" placeholder="標題">
-        <select id="au-type"><option>月報</option><option>季報</option><option>重大事項</option><option>活動通知</option><option>財務摘要</option></select>
-        <input id="au-date" type="date" value="${todayISO()}">
-      </div>
-      <textarea id="au-content" placeholder="內容（可換行）"></textarea>
-      <div><button class="btn btn-seal btn-sm" id="au-add">發布更新</button></div>
-    </div>
-    <div class="table-wrap"><table class="led">
-      <thead><tr><th>類型</th><th>標題</th><th>發布時間</th><th>操作</th></tr></thead>
-      <tbody>${[...DB.updates].sort((a, b) => a.published_at < b.published_at ? 1 : -1).map(u => `
-        <tr><td><span class="tag ${tagClass(u.type)}">${esc(u.type)}</span></td><td>${esc(u.title)}</td>
-        <td class="num">${esc(u.published_at)}</td>
-        <td><button class="btn btn-ghost btn-sm" data-del="${u.id}">刪除</button></td></tr>`).join('')}</tbody>
-    </table></div>`;
-  $('#au-add').addEventListener('click', () => {
-    const title = $('#au-title').value.trim(); if (!title) { toast('請輸入標題'); return; }
-    adminDo(() => api('/admin/updates', { method: 'POST', body: {
-      title, type: $('#au-type').value, content: $('#au-content').value.trim(), date: $('#au-date').value || todayISO() } }), '已發布專案更新');
-  });
-  $$('[data-del]', host).forEach(b => b.addEventListener('click', () =>
-    adminDo(() => api('/admin/updates/' + b.dataset.del, { method: 'DELETE' }), '已刪除')));
 }
 
 /* =========================================================================
