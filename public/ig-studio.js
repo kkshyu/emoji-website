@@ -112,7 +112,7 @@
     .igp-eyebrow::before{content:"";width:14px;height:14px;background:var(--ig-yellow);transform:rotate(45deg);flex:none;}
     .igp-eyebrow--plain::before{display:none;}
     .igp-h2{font-family:var(--serif);font-weight:500;line-height:1.06;letter-spacing:.02em;margin-top:32px;}
-    .igp .hl{background-image:linear-gradient(var(--ig-yellow),var(--ig-yellow));background-repeat:no-repeat;background-size:100% .24em;background-position:0 .9em;padding:0 .04em;}
+    .igp .hl{background-image:linear-gradient(var(--ig-yellow),var(--ig-yellow));background-repeat:no-repeat;background-size:100% .22em;background-position:0 100%;padding:0 .04em;}   /* 黃帶貼齊行框底部＝底線；置中會像刪除線 */
     .igp-en{font-family:"Cormorant Garamond",var(--serif);font-style:italic;font-size:36px;color:var(--muted);margin-top:14px;}
     .igp.dark .igp-en{color:#B7B0A2;}
     .igp-note{font-size:24px;color:var(--muted);margin-top:12px;letter-spacing:.02em;}
