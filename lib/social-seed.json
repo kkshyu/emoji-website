@@ -11,7 +11,8 @@
   "phase": "品牌重置",
   "cta": "追蹤，看蓋房子的整個過程",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "3年やって、フォロワーはほぼ増えませんでした。\nそれでも、もっと大きな場所へ移ります。\n台北駅のそば、重慶南路一段11号。\n\n1階はカフェ＆バー、2階は会員ラウンジ、3階はコワーキング。\n10/13プレオープン、11/1グランドオープン。\n\nここが建つまでの過程を、全部公開します。"
  },
  {
   "id": "sp_seed_ig_s01",
@@ -30,10 +31,12 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "新的言文字",
-     "comingSub": "台灣人才聚落，在台北車站旁動工中"
+     "comingSub": "台灣人才聚落，在台北車站旁動工中",
+     "en": "Taiwan Talent Hub — under construction by Taipei Main Station"
     }
    }
-  ]
+  ],
+  "caption_en": "言文字 has a new name:\nTaiwan Talent Hub — 言文字｜台灣人才聚落.\n\nIt's more than a new logo.\nWe closed the small café we ran for three years on Kaifeng Street\nand moved to No. 11, Sec. 1, Chongqing S. Rd. —\ndiagonally across from Exit Z10\nof the Taipei Main Station underground mall.\n\nRight now, it's still a construction site.\n1F will be Emoji Café & Bar — a cup of coffee gets you in.\n2F, Member Plaza — a members-only floor for rest.\n3F, Talent Lounge — coworking and events under exposed timber beams.\n\nFrom now on, we'll document the build here every week:\nthe renovation, the choices we make,\neven the decisions we get wrong.\n\nSoft opening October 13. Grand opening November 1.\nBefore you come sit down, come watch the place take shape.\n\nFollow @yanwenzi.tw."
  },
  {
   "id": "sp_seed_ig_w01",
@@ -52,7 +55,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "新言文字",
-     "comingSub": "台北車站旁，正在長出一個聚落"
+     "comingSub": "台北車站旁，正在長出一個聚落",
+     "en": "A hub is taking shape by Taipei Main Station"
     }
    },
    {
@@ -60,7 +64,8 @@
     "fields": {
      "q_text": "我們搬家了",
      "q_sub": "從開封街的小店，搬到重慶南路一段 11 號——台北車站 Z10 出口斜對面",
-     "q_by": "新言文字 · 01"
+     "q_by": "新言文字 · 01",
+     "en": "We've moved — No. 11, Sec. 1, Chongqing S. Rd., by Exit Z10"
     }
    },
    {
@@ -68,7 +73,8 @@
     "fields": {
      "q_text": "一樓，一杯咖啡就能進來",
      "q_sub": "Cafe & Bar，白天工作、晚上小酌，沒有門檻的入口",
-     "q_by": "新言文字 · 02"
+     "q_by": "新言文字 · 02",
+     "en": "1F: a cup of coffee is all it takes to walk in"
     }
    },
    {
@@ -76,7 +82,8 @@
     "fields": {
      "q_text": "二樓，留給會員的休憩",
      "q_sub": "工作累了可以躺平的地方，城市裡的第二個家",
-     "q_by": "新言文字 · 03"
+     "q_by": "新言文字 · 03",
+     "en": "2F: a members-only floor for rest"
     }
    },
    {
@@ -84,14 +91,15 @@
     "fields": {
      "q_text": "三樓，一起工作與相遇",
      "q_sub": "共享工作與活動的樓層，挑高木樑下，遇見不同圈子的人",
-     "q_by": "新言文字 · 04"
+     "q_by": "新言文字 · 04",
+     "en": "3F: work and meet under the timber beams"
     }
    },
    {
     "layout": "06b",
     "fields": {
      "manifesto": "讓你平常不會遇到的人，\n在台北車站旁相遇",
-     "en": "A talent hub next to Taipei Main Station"
+     "en": "Meet the people you'd never usually meet, by Taipei Main Station."
     }
    },
    {
@@ -99,10 +107,12 @@
     "fields": {
      "openingLine": "10.13 試營運",
      "openingDate": "11.01 正式開幕",
-     "openingDesc": "追蹤 @yanwenzi.tw，看我們把聚落蓋起來"
+     "openingDesc": "追蹤 @yanwenzi.tw，看我們把聚落蓋起來",
+     "en": "Soft opening Oct 13 · Grand opening Nov 1"
     }
    }
-  ]
+  ],
+  "caption_en": "We ran a small café for three years.\nOur follower count barely moved.\nNow we're moving into a much bigger building.\n\nBecause those three years made one thing clear —\nwhat people are missing isn't another café.\nIt's a place where you can work, eat,\nand run into people from circles you'd never otherwise cross.\n\nSo we moved next to Taipei Main Station:\nNo. 11, Sec. 1, Chongqing S. Rd.,\ndiagonally across from Exit Z10 of the underground mall.\n\nCoffee on 1F. Rest on 2F.\nWork and events on 3F, under exposed timber beams.\n\nSoft opening October 13. Grand opening November 1.\n\nFollow @yanwenzi.tw to watch this building\nbecome whatever it's going to become.\nWe honestly don't fully know yet — that's part of it."
  },
  {
   "id": "sp_seed_x_w02",
@@ -116,7 +126,8 @@
   "phase": "品牌重置",
   "cta": "回覆：你上一個圈外朋友在哪認識的",
   "audience": "成長型上班族",
-  "pages": []
+  "pages": [],
+  "caption_ja": "25歳からの新しい出会いの入口は\n同僚、同僚の友達、アルゴリズムくらい。\n\n学生時代は隣の席なら友達になれたのに、\n今はご飯一回に日程調整が三往復。\n\n内向的になったのではなく、\n街に自然に出会える場面が足りないだけ。\n\n仕事の輪の外の友達、最後にどこで出会いましたか？"
  },
  {
   "id": "sp_seed_ig_w02",
@@ -136,7 +147,8 @@
     "fields": {
      "q_text": "我們為什麼搬家？",
      "q_sub": "開封街三年，教會我三件事",
-     "q_by": "KK 的建造日記 · 01"
+     "q_by": "KK 的建造日記 · 01",
+     "en": "Three years in a small shop taught us three things"
     }
    },
    {
@@ -144,7 +156,8 @@
     "fields": {
      "q_text": "開封街的店，只有幾張桌子",
      "q_sub": "辦活動要先把桌子搬開",
-     "q_by": "三年的限制"
+     "q_by": "三年的限制",
+     "en": "A shop so small we moved tables to host events"
     }
    },
    {
@@ -152,7 +165,8 @@
     "fields": {
      "q_text": "一、大家想留下來",
      "q_sub": "打烊時間到了，話題還沒結束，我常常站在門口陪大家把話聊完",
-     "q_by": "三年學到的事 · 01"
+     "q_by": "三年學到的事 · 01",
+     "en": "One: people wanted to stay past closing"
     }
    },
    {
@@ -160,7 +174,8 @@
     "fields": {
      "q_text": "二、最受歡迎的不是咖啡",
      "q_sub": "是『我幫你介紹一個人』",
-     "q_by": "三年學到的事 · 02"
+     "q_by": "三年學到的事 · 02",
+     "en": "Two: the best thing on the menu was an introduction"
     }
    },
    {
@@ -168,14 +183,15 @@
     "fields": {
      "q_text": "三、我想做的太多",
      "q_sub": "咖啡、活動、共學、場租，全部塞進一間小店，結果每件事都只做了一半",
-     "q_by": "三年學到的事 · 03"
+     "q_by": "三年學到的事 · 03",
+     "en": "Three: we tried to do too much in one small room"
     }
    },
    {
     "layout": "06b",
     "fields": {
      "manifesto": "這間店裝不下的不是人，\n是人與人的相遇",
-     "en": "So we build a bigger house near Taipei Main Station"
+     "en": "So we're building a bigger house by Taipei Main Station"
     }
    },
    {
@@ -183,10 +199,12 @@
     "fields": {
      "openingLine": "10.13 試營運",
      "openingDate": "11.01 正式開幕",
-     "openingDesc": "留言告訴我們，你希望新空間裡有什麼"
+     "openingDesc": "留言告訴我們，你希望新空間裡有什麼",
+     "en": "Soft opening Oct 13 · Grand opening Nov 1"
     }
    }
-  ]
+  ],
+  "caption_en": "Moving wasn't a sudden decision.\nThree years on Kaifeng Street taught me three things.\n\nOne: people wanted to stay.\nClosing time would come and the conversation wouldn't be finished.\nI often stood by the door, letting people talk it out.\n\nTwo: the most popular thing we served wasn't coffee.\nIt was \"let me introduce you to someone.\"\nSo many collaborations and friendships started\nwith one offhand introduction.\n\nThree: I wanted to do too much.\nCoffee, events, study groups, venue rental —\nall crammed into one small shop.\nEverything ended up half-done.\n\nOne night after closing, looking at the tables\nwe'd dragged aside again, it clicked:\nthe shop wasn't too small for people.\nIt was too small for the meetings between them.\n\nSo we're moving next to Taipei Main Station.\nSoft opening October 13, grand opening November 1.\n\nTell us in the comments —\nwhat do you want to see in the new space?"
  },
  {
   "id": "sp_seed_x_w03",
@@ -200,7 +218,8 @@
   "phase": "品牌重置",
   "cta": "追蹤 @yanwenzi.tw，看這個場景蓋起來",
   "audience": "成長型上班族",
-  "pages": []
+  "pages": [],
+  "caption_ja": "台北にカフェは足りている。\n足りないのは深夜までいられる場所。\n疲れたら食べられて、話せる人がいて、\n副業に本音の感想をくれる場所。\n\nカフェは席をくれる。\nコワーキングはWi-Fiをくれる。\nでも「人」をくれる場所は、ほとんどない。\n\nいま台北駅のそばに建てています。"
  },
  {
   "id": "sp_seed_ig_w03",
@@ -219,7 +238,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "下班之後",
-     "comingSub": "除了回家，你還有地方可以去嗎？"
+     "comingSub": "除了回家，你還有地方可以去嗎？",
+     "en": "After work — is there anywhere to go but home?"
     }
    },
    {
@@ -227,7 +247,8 @@
     "fields": {
      "q_text": "公司、住處，兩點一線",
      "q_sub": "想學的課、想做的副業、想認識的人，全部被擠到「改天」",
-     "q_by": "25–35 歲的生活難題"
+     "q_by": "25–35 歲的生活難題",
+     "en": "Office, home, repeat — everything else waits for 'someday'"
     }
    },
    {
@@ -235,7 +256,8 @@
     "fields": {
      "q_text": "咖啡廳很好，但你得離開",
      "q_sub": "打烊時間一到，就得走",
-     "q_by": "場景的限制 · 01"
+     "q_by": "場景的限制 · 01",
+     "en": "Cafés are great, until closing time"
     }
    },
    {
@@ -243,7 +265,8 @@
     "fields": {
      "q_text": "共享空間有位子，沒有人",
      "q_sub": "大家在隔板裡安靜工作，坐了一年，還是不認識隔壁的人",
-     "q_by": "場景的限制 · 02"
+     "q_by": "場景的限制 · 02",
+     "en": "Coworking gives you a desk, rarely a person"
     }
    },
    {
@@ -251,14 +274,15 @@
     "fields": {
      "q_text": "你缺的，是一個場景",
      "q_sub": "能工作、能吃飯、能遇見人",
-     "q_by": "第三個地方"
+     "q_by": "第三個地方",
+     "en": "What's missing is a place to work, eat, and meet"
     }
    },
    {
     "layout": "06b",
     "fields": {
      "manifesto": "一樓喝咖啡\n二樓休憩\n三樓一起工作",
-     "en": "Work, eat, and meet people you never would"
+     "en": "Work, eat, and meet people you never usually would"
     }
    },
    {
@@ -266,10 +290,12 @@
     "fields": {
      "openingLine": "10.13 試營運",
      "openingDate": "11.01 正式開幕",
-     "openingDesc": "分享給那個一直說「想做點什麼」的朋友"
+     "openingDesc": "分享給那個一直說「想做點什麼」的朋友",
+     "en": "Soft opening Oct 13 · Grand opening Nov 1"
     }
    }
-  ]
+  ],
+  "caption_en": "Life after 25 shrinks fast:\noffice, home, repeat.\nThe course you meant to take, the side project,\nthe people you meant to meet —\nall postponed to \"someday.\"\n\nCafés are great, but closing time comes.\nCoworking spaces give you a desk —\nyou can sit there for a year\nand never learn the name on the other side of the partition.\n\nWe don't think you need another café.\nYou need a scene —\nsomewhere you can work, eat,\nand naturally run into people outside your circle.\n\nThat's what we're building by Taipei Main Station:\ncoffee on 1F, rest on 2F,\ncoworking and events on 3F.\n\nSoft opening October 13. Grand opening November 1.\n\nShare this with the friend who keeps saying\n\"I want to start something.\""
  },
  {
   "id": "sp_seed_x_w04",
@@ -283,7 +309,8 @@
   "phase": "品牌重置",
   "cta": "追蹤，看選址之後的每一步",
   "audience": "通勤上班族",
-  "pages": []
+  "pages": [],
+  "caption_ja": "場所選びで考えたのは、ひとつだけ。\n誰にも「わざわざ」来させないこと。\n\nわざわざ行く場所は、3回で行かなくなる。\n日常になるのは、通り道の場所。\n\n台北駅はMRT、台鉄、高鉄、バスが交わる\n台北中の通勤者の中間地点。\n\n新しい言文字は、駅地下街 Z10 出口の斜め向かいに。"
  },
  {
   "id": "sp_seed_ig_w04",
@@ -303,7 +330,8 @@
     "fields": {
      "q_text": "為什麼選在台北車站？",
      "q_sub": "我的選址邏輯只有一條：大家會不會順路",
-     "q_by": "KK 的建造日記 · 02"
+     "q_by": "KK 的建造日記 · 02",
+     "en": "Why Taipei Main Station? One question: is it on your way?"
     }
    },
    {
@@ -311,7 +339,8 @@
     "fields": {
      "q_text": "聚會最難的是選地點",
      "q_sub": "你在內湖，他在板橋，朋友在中壢。每次約，都有人要跨越半個城市",
-     "q_by": "通勤者的日常"
+     "q_by": "通勤者的日常",
+     "en": "Every meetup starts with the hardest question: where?"
     }
    },
    {
@@ -319,7 +348,8 @@
     "fields": {
      "q_text": "台北車站，是城市的中點",
      "q_sub": "捷運、台鐵、高鐵、客運都在這",
-     "q_by": "選址理由 · 01"
+     "q_by": "選址理由 · 01",
+     "en": "MRT, TRA, HSR, buses — the city's midpoint"
     }
    },
    {
@@ -327,7 +357,8 @@
     "fields": {
      "q_text": "不用特地來，順路就到",
      "q_sub": "特地才能去的地方，去三次就放棄了。下班會經過的地方，才可能成為日常",
-     "q_by": "選址理由 · 02"
+     "q_by": "選址理由 · 02",
+     "en": "A place you make a special trip to gets three visits, then none"
     }
    },
    {
@@ -335,7 +366,8 @@
     "fields": {
      "q_text": "Z10 出口，斜對面",
      "q_sub": "走出地下街就到，雨天不淋雨",
-     "q_by": "重慶南路一段 11 號"
+     "q_by": "重慶南路一段 11 號",
+     "en": "Diagonally across from Exit Z10, dry even in the rain"
     }
    },
    {
@@ -350,10 +382,12 @@
     "fields": {
      "openingLine": "10.13 試營運",
      "openingDate": "11.01 正式開幕",
-     "openingDesc": "點主頁連結，加入試營運優先通知"
+     "openingDesc": "點主頁連結，加入試營運優先通知",
+     "en": "Soft opening Oct 13 · Grand opening Nov 1"
     }
    }
-  ]
+  ],
+  "caption_en": "When we looked for a new location,\nI asked one question:\nwill people pass by anyway?\n\nThree years of running a shop taught me this —\nif a place takes a special trip,\npeople visit three times and then stop going.\nThe places that become part of your routine\nare the ones already on your way.\n\nSo where do the most routes in Taipei overlap?\nTaipei Main Station.\nMRT, TRA, high-speed rail, intercity buses —\nthey all converge here.\nIt's the midpoint of everyone's commute.\n\nThe new address: No. 11, Sec. 1, Chongqing S. Rd.,\ndiagonally across from Exit Z10 of the underground mall.\nStep out of the mall and you're here —\nyou don't even get rained on.\n\nPass by after work, have a coffee before heading home.\nWe want this hub to be on your way.\n\nSoft opening October 13. Grand opening November 1.\nLink in bio to join the soft-opening notice list."
  },
  {
   "id": "sp_seed_x_w05",
@@ -367,7 +401,8 @@
   "phase": "品牌重置",
   "cta": "追蹤，看空間逐步解鎖",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "新しい空間の入口設計。\n\n1階は、コーヒー一杯で誰でも入れる。\n2階と3階は、会員のための場所。\n\n誰かを選別したいわけじゃなく、\n出会いには二種類の空間が要る——\n知らない人が自然に入れる場所と、\n顔なじみが安心して残れる場所。\n\n開かれた入口が先、深さはその後です。"
  },
  {
   "id": "sp_seed_ig_w05",
@@ -386,7 +421,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "一樓解鎖",
-     "comingSub": "一杯咖啡，就能走進一個聚落"
+     "comingSub": "一杯咖啡，就能走進一個聚落",
+     "en": "1F unlocked: a cup of coffee gets you into the hub"
     }
    },
    {
@@ -394,7 +430,8 @@
     "fields": {
      "q_text": "加入社群，聽起來好難",
      "q_sub": "要先報名、先自我介紹、先認識誰？其實都不用",
-     "q_by": "空間逐步解鎖 · 一樓"
+     "q_by": "空間逐步解鎖 · 一樓",
+     "en": "Joining a community sounds hard. Here, it isn't"
     }
    },
    {
@@ -402,7 +439,8 @@
     "fields": {
      "q_text": "入口，是一杯咖啡",
      "q_sub": "不用會員、不用預約",
-     "q_by": "一樓 Cafe & Bar"
+     "q_by": "一樓 Cafe & Bar",
+     "en": "No membership, no booking — just order a coffee"
     }
    },
    {
@@ -410,7 +448,8 @@
     "fields": {
      "q_text": "白天，帶著筆電來工作",
      "q_sub": "點一杯咖啡，找個位子。旁邊可能是接案的設計師，也可能是準備轉職的人",
-     "q_by": "一樓 · 日"
+     "q_by": "一樓 · 日",
+     "en": "Daytime: bring your laptop, find a seat"
     }
    },
    {
@@ -418,7 +457,8 @@
     "fields": {
      "q_text": "晚上，這裡變成 Bar",
      "q_sub": "營業到深夜，下班後還有地方去",
-     "q_by": "一樓 · 夜"
+     "q_by": "一樓 · 夜",
+     "en": "After dark, the bar counter lights up"
     }
    },
    {
@@ -433,10 +473,12 @@
     "fields": {
      "openingLine": "10.13 試營運",
      "openingDate": "11.01 正式開幕",
-     "openingDesc": "留言告訴我們：你會在白天還是深夜來坐坐"
+     "openingDesc": "留言告訴我們：你會在白天還是深夜來坐坐",
+     "en": "Soft opening Oct 13 · Grand opening Nov 1"
     }
    }
-  ]
+  ],
+  "caption_en": "A lot of spaces start with a sign-up form.\nOurs starts with a cup of coffee.\n\n1F is Emoji Café & Bar — fully open.\nNo membership, no booking.\n\nBy day, bring your laptop and work.\nThe person at the next table might be\na freelance designer, or someone preparing to switch careers.\nBy night, the bar counter lights up\nand stays open late —\none more place to go after work.\n\nWe kept the entrance as low as possible,\nbecause meeting people shouldn't require qualifications.\nYou don't have to become impressive first\nto walk into a room full of people worth meeting.\n\n2F and 3F — we'll unlock those in the coming weeks.\n\nSoft opening October 13. Grand opening November 1.\n\nTell us in the comments:\nwould you come by day, or late at night?"
  },
  {
   "id": "sp_seed_x_w06",
@@ -450,7 +492,8 @@
   "phase": "共同打造",
   "cta": "回覆 A 或 B",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "内装工事が進行中。毎日が選択の連続です。\n\n今日はみなさんに直接聞きます。\n\nA. コンセントは取り合いにならないほど多い。ただし照明は普通\nB. 照明には表情がある。ただしコンセントは少し探す\n\n予算で先に叶えられるのは、どちらかひとつ。あなたならどっちですか？"
  },
  {
   "id": "sp_seed_ig_w06",
@@ -469,7 +512,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "裝修選擇題",
-     "comingSub": "插座、燈光、座位、吧檯，全是取捨"
+     "comingSub": "插座、燈光、座位、吧檯，全是取捨",
+     "en": "Renovation is a series of trade-offs"
     }
    },
    {
@@ -477,7 +521,8 @@
     "fields": {
      "q_text": "你找位子，先看什麼",
      "q_sub": "插座、光線、安靜程度——每個人的答案都不一樣",
-     "q_by": "建造日記 · 裝修篇"
+     "q_by": "建造日記 · 裝修篇",
+     "en": "Outlets, light, quiet — what do you look for first?"
     }
    },
    {
@@ -485,7 +530,8 @@
     "fields": {
      "q_text": "插座多一個，預算多一截",
      "q_sub": "但少一個，就有人搶",
-     "q_by": "取捨 01 · 插座"
+     "q_by": "取捨 01 · 插座",
+     "en": "One more outlet, one more dent in the budget"
     }
    },
    {
@@ -493,7 +539,8 @@
     "fields": {
      "q_text": "3000K，還是 4000K",
      "q_sub": "暖光放鬆、白光工作——一棟樓裡，我們想讓兩種都有位置",
-     "q_by": "取捨 02 · 燈光"
+     "q_by": "取捨 02 · 燈光",
+     "en": "3000K or 4000K — warm to unwind, white to work"
     }
    },
    {
@@ -501,7 +548,8 @@
     "fields": {
      "q_text": "多一張桌子，少一分余白",
      "q_sub": "座位密度，是最難的一題",
-     "q_by": "取捨 03 · 座位"
+     "q_by": "取捨 03 · 座位",
+     "en": "One more table means one less breath of space"
     }
    },
    {
@@ -509,7 +557,8 @@
     "fields": {
      "q_text": "吧檯放哪，決定大家怎麼相遇",
      "q_sub": "放中間，陌生人容易搭話；放邊上，各自安靜——你喜歡哪一種？",
-     "q_by": "取捨 04 · 吧檯"
+     "q_by": "取捨 04 · 吧檯",
+     "en": "Where the bar sits decides how people meet"
     }
    },
    {
@@ -517,17 +566,20 @@
     "fields": {
      "q_text": "與其自己猜，不如問你",
      "q_sub": "這棟房子為相遇而蓋，你的留言會真的影響我們的決定",
-     "q_by": "言文字"
+     "q_by": "言文字",
+     "en": "Rather than guess, we're asking you"
     }
    },
    {
     "layout": "06c",
     "fields": {
      "comingTitle": "換你說",
-     "comingSub": "留言：你工作時最在意哪一件？"
+     "comingSub": "留言：你工作時最在意哪一件？",
+     "en": "Tell us: what matters most where you work?"
     }
    }
-  ]
+  ],
+  "caption_en": "Renovation is underway,\nand every day is a multiple-choice test.\n\nHow many outlets? Too many blows the budget;\ntoo few, and people fight over them.\nWhat color light? Warm relaxes, white works.\nHow dense the seating? Every table is revenue;\nevery gap is breathing room.\nWhere does the bar counter go?\nCenter is lively; the side is quiet.\n\nThe budget is finite.\nEverything we choose is paid for\nwith the option we gave up.\n\nRather than guess, we'd rather ask you —\nwhen you work in a space,\nwhat's the one thing you care about most?\n\nLeave a comment. We read them,\nand they really do change what we build.\n\nSoft opening October 13. Grand opening November 1."
  },
  {
   "id": "sp_seed_x_w07",
@@ -541,7 +593,8 @@
   "phase": "共同打造",
   "cta": "轉發給那個需要躺一下的朋友",
   "audience": "成長型上班族、自由工作者",
-  "pages": []
+  "pages": [],
+  "caption_ja": "坪効率なら、2階は席で埋めるのが得です。\n\nでも、そうしないことにしました。\n\nカフェで眠い目をこすって座り続ける人を、たくさん見てきたから。\n疲れたとき必要なのは机ではなく、\n横になれる場所です。\n\nこの建物でいちばん高いのは内装ではなく、\n残すと決めた余白です。"
  },
  {
   "id": "sp_seed_ig_w07",
@@ -561,7 +614,8 @@
     "fields": {
      "q_text": "為什麼不把二樓塞滿座位",
      "q_sub": "照坪效算，這是個虧錢的決定",
-     "q_by": "空間逐步解鎖 · 二樓"
+     "q_by": "空間逐步解鎖 · 二樓",
+     "en": "Why we didn't fill 2F with desks"
     }
    },
    {
@@ -569,7 +623,8 @@
     "fields": {
      "q_text": "在咖啡廳撐著眼皮硬坐過嗎",
      "q_sub": "累了，卻沒地方躺",
-     "q_by": "二樓 · 01"
+     "q_by": "二樓 · 01",
+     "en": "Ever forced yourself to stay upright in a café?"
     }
    },
    {
@@ -577,7 +632,8 @@
     "fields": {
      "q_text": "多一張桌子，多一份營收",
      "q_sub": "這是坪效的算法。我們算過，數字確實很誘人",
-     "q_by": "二樓 · 02"
+     "q_by": "二樓 · 02",
+     "en": "Every extra table is extra revenue. We did the math"
     }
    },
    {
@@ -585,7 +641,8 @@
     "fields": {
      "q_text": "但累的時候，你需要的不是桌子",
      "q_sub": "是一個可以躺平的地方",
-     "q_by": "二樓 · 03"
+     "q_by": "二樓 · 03",
+     "en": "When you're tired, you don't need a desk"
     }
    },
    {
@@ -593,7 +650,8 @@
     "fields": {
      "q_text": "二樓，留給會員休憩",
      "q_sub": "躺平、發呆、放空——有一層樓，允許你什麼都不做",
-     "q_by": "二樓 · 04"
+     "q_by": "二樓 · 04",
+     "en": "2F: a members-only floor where doing nothing is allowed"
     }
    },
    {
@@ -608,10 +666,12 @@
     "fields": {
      "openingLine": "優先通知開放",
      "openingDate": "10.13 試營運",
-     "openingDesc": "連結在個人檔案，二樓的消息第一批告訴你"
+     "openingDesc": "連結在個人檔案，二樓的消息第一批告訴你",
+     "en": "Soft opening Oct 13 · Grand opening Nov 1"
     }
    }
-  ]
+  ],
+  "caption_en": "Filling 2F with desks would be the profitable move.\nEvery extra table, extra revenue.\n\nWe did the math. Then decided against it.\n\nIn three years of running a café,\nwe watched too many people\nforce themselves to stay upright in a chair.\nWhen you're exhausted, what you need isn't a desk.\nIt's somewhere you're allowed to lie down —\nand this city has almost nowhere that lets you.\n\nSo 2F is Member Plaza — a members-only rest floor.\nLie flat, stare at the ceiling, do nothing at all.\nOne floor of this city where you're allowed to stop trying.\n\nThe most expensive thing in this building isn't the fit-out.\nIt's the empty space we decided to keep.\n\nSoft opening October 13. Grand opening November 1.\nThe priority notice list is open — link in bio.\nNews about 2F reaches that list first."
  },
  {
   "id": "sp_seed_x_w08",
@@ -625,7 +685,8 @@
   "phase": "共同打造",
   "cta": "轉發給還在等自己變厲害的朋友",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "すごい人にならないと、\nすごいコミュニティに入る資格がない——\nそんなことはない。\n\n順番はむしろ逆で、\n前に進んでいる人たちのそばに身を置けば、\n自然と自分も動き出します。\n\n「すごい」は結果であって、入場券ではない。\n\n自分はまだ、と思っている友達に届けてください。"
  },
  {
   "id": "sp_seed_ig_w08",
@@ -644,7 +705,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "三種畫像",
-     "comingSub": "未來會在這棟樓相遇的人"
+     "comingSub": "未來會在這棟樓相遇的人",
+     "en": "Three kinds of people we keep meeting"
     }
    },
    {
@@ -652,7 +714,8 @@
     "fields": {
      "q_text": "先說好，這不是真實人物",
      "q_sub": "是三年來，我們在店裡反覆遇見的三種身影",
-     "q_by": "畫像說明"
+     "q_by": "畫像說明",
+     "en": "Not real people — three figures we saw for three years"
     }
    },
    {
@@ -660,7 +723,8 @@
     "fields": {
      "q_text": "下班後才開始的人",
      "q_sub": "白天上班，晚上學 AI、做副業、準備轉職——缺的不是課程，是同伴",
-     "q_by": "畫像 01 · 上班族"
+     "q_by": "畫像 01 · 上班族",
+     "en": "One: the day job ends, the real work begins"
     }
    },
    {
@@ -668,7 +732,8 @@
     "fields": {
      "q_text": "一個人工作的人",
      "q_sub": "接案自由，午餐總是一個人",
-     "q_by": "畫像 02 · 自由工作者"
+     "q_by": "畫像 02 · 自由工作者",
+     "en": "Two: freelance is free, but lunch is always alone"
     }
    },
    {
@@ -676,7 +741,8 @@
     "fields": {
      "q_text": "剛開始創業的人",
      "q_sub": "有想法、缺人手，最需要真實的市場回饋，和願意說真話的人",
-     "q_by": "畫像 03 · 創業者"
+     "q_by": "畫像 03 · 創業者",
+     "en": "Three: a founder who needs someone to tell them the truth"
     }
    },
    {
@@ -684,24 +750,27 @@
     "fields": {
      "q_text": "他們平常不會遇見彼此",
      "q_sub": "不同作息，不同圈子",
-     "q_by": "言文字"
+     "q_by": "言文字",
+     "en": "Different hours, different circles — they never cross"
     }
    },
    {
     "layout": "06b",
     "fields": {
      "manifesto": "讓你平常不會遇到的人\n在台北車站旁相遇",
-     "en": "People you don't usually meet, next door"
+     "en": "Meet the people you'd never usually meet, by Taipei Main Station."
     }
    },
    {
     "layout": "06c",
     "fields": {
      "comingTitle": "你是哪一種",
-     "comingSub": "留言 1、2 或 3，讓我們認識你"
+     "comingSub": "留言 1、2 或 3，讓我們認識你",
+     "en": "Which one are you? Comment 1, 2 or 3"
     }
    }
-  ]
+  ],
+  "caption_en": "First, to be clear: these aren't three real people.\nThey're three figures who kept appearing\nin our old café over three years.\n\nOne — the person whose day starts after work.\nOffice job by day; learning AI, building a side project,\npreparing a career change by night.\nWhat's missing isn't a course. It's company.\n\nTwo — the person who works alone.\nFreelancing means freedom and flexible hours.\nIt also means lunch is always for one.\n\nThree — the person who just started a company.\nFull of ideas, no team yet — and what they want most\nis someone who'll tell them the truth.\n\nDifferent schedules, different circles —\nthese three would normally never meet.\nThe building we're putting up next to Taipei Main Station\nexists to make that meeting happen.\n\nWhich one are you? Comment 1, 2 or 3.\n\nSoft opening October 13. Grand opening November 1."
  },
  {
   "id": "sp_seed_x_w09",
@@ -715,7 +784,8 @@
   "phase": "共同打造",
   "cta": "收藏這個方法，下次活動用",
   "audience": "成長型上班族",
-  "pages": []
+  "pages": [],
+  "caption_ja": "ひとり参加のイベントで、気まずくならない方法。\n\n僕のやり方はひとつだけ。\n全員と知り合おうとせず、\n小さなミッションを自分に出す——\n今日はひとりだけ、ちゃんと知り合えばいい。\n\n合えば続ける、合わなければ次へ。\n一回で名前をひとつ持ち帰れたら、もう十分です。"
  },
  {
   "id": "sp_seed_ig_w09",
@@ -735,7 +805,8 @@
     "fields": {
      "q_text": "出社會後，怎麼認識新朋友",
      "q_sub": "一個很少人說出口，但幾乎每個人都有的難題",
-     "q_by": "生活難題"
+     "q_by": "生活難題",
+     "en": "Making new friends as an adult — why is it so hard?"
     }
    },
    {
@@ -743,7 +814,8 @@
     "fields": {
      "q_text": "不是你孤僻，是結構變了",
      "q_sub": "同事不等於朋友、活動好尷尬、下班只想躺——這些都不是你的錯",
-     "q_by": "難題現場"
+     "q_by": "難題現場",
+     "en": "You're not antisocial. The structure changed"
     }
    },
    {
@@ -751,7 +823,8 @@
     "fields": {
      "q_text": "方法一：固定出現",
      "q_sub": "朋友不是認識來的，是重複遇見來的",
-     "q_by": "方法 01"
+     "q_by": "方法 01",
+     "en": "One: keep showing up at the same place"
     }
    },
    {
@@ -759,7 +832,8 @@
     "fields": {
      "q_text": "方法二：帶著事情去",
      "q_sub": "去工作、去學東西、去做自己的專案——一起做事，比刻意聊天自然",
-     "q_by": "方法 02"
+     "q_by": "方法 02",
+     "en": "Two: bring your own work — doing beats small talk"
     }
    },
    {
@@ -767,7 +841,8 @@
     "fields": {
      "q_text": "方法三：先當提問的人",
      "q_sub": "問對方在做什麼就好",
-     "q_by": "方法 03"
+     "q_by": "方法 03",
+     "en": "Three: ask first. What are you working on?"
     }
    },
    {
@@ -775,7 +850,8 @@
     "fields": {
      "q_text": "我們把空間照這個邏輯蓋",
      "q_sub": "一杯咖啡就能進來，坐著工作也算參與——不必硬社交，相遇自然發生",
-     "q_by": "言文字的回應"
+     "q_by": "言文字的回應",
+     "en": "We're building the space on this exact logic"
     }
    },
    {
@@ -789,10 +865,12 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "傳給一個人",
-     "comingSub": "那個你想一起前進的朋友"
+     "comingSub": "那個你想一起前進的朋友",
+     "en": "Send this to the friend you want to grow with"
     }
    }
-  ]
+  ],
+  "caption_en": "Making new friends after you start working is hard.\n\nIt's not that you've become antisocial —\nthe structure changed.\nCoworkers are nice, but not the same as friends.\nAt networking events you end up in a corner, on your phone.\nAfter work, you just want to lie down.\n\nThree things that actually work:\n\nOne — keep showing up.\nFriends aren't made; they're accumulated\nthrough repeated encounters.\nPick one place and go every week.\n\nTwo — bring something to do.\nWork, study, your own project.\nDoing things side by side beats forced small talk.\n\nThree — be the one who asks first.\n\"What are you working on?\"\nis easier than introducing yourself.\n\nThe building we're putting up follows the same logic:\na coffee gets you in, and working quietly counts as joining.\nNo forced networking. Encounters happen on their own.\n\nSend this to the friend you want to grow with.\n\nSoft opening October 13. Grand opening November 1."
  },
  {
   "id": "sp_seed_x_w10",
@@ -806,7 +884,8 @@
   "phase": "新址揭露",
   "cta": "追蹤 @yanwenzi.tw",
   "audience": "自由工作者、成長型上班族",
-  "pages": []
+  "pages": [],
+  "caption_ja": "なぜ、深夜3時まで営業するのか。\n\n昼にはできないことがあるからです。\n仕事終わりに始まる副業、\n締め切り前のフリーランス、\n終わらせたくない会話。\n\n台北の深夜、コンビニは多いけれど、\nまだ人のいる場所は少ない。\n\n1階のカフェ＆バーが、深夜まで付き合います。"
  },
  {
   "id": "sp_seed_ig_w10",
@@ -825,7 +904,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "三樓解鎖",
-     "comingSub": "同一層樓，一天有三種用法"
+     "comingSub": "同一層樓，一天有三種用法",
+     "en": "3F: the Talent Lounge. One floor, three uses a day."
     }
    },
    {
@@ -833,7 +913,8 @@
     "fields": {
      "q_text": "一天，有三種用法",
      "q_sub": "同一層樓，早上、下午、晚上是三個不同的地方",
-     "q_by": "三樓 · 01"
+     "q_by": "三樓 · 01",
+     "en": "One floor. Three different rooms in a day."
     }
    },
    {
@@ -841,7 +922,8 @@
     "fields": {
      "q_text": "早上，安靜把事做完",
      "q_sub": "找個位子打開筆電，木樑下的光線與安靜，留給需要專注的你",
-     "q_by": "三樓 · 02"
+     "q_by": "三樓 · 02",
+     "en": "Morning: quiet, focused work under the beams."
     }
    },
    {
@@ -849,7 +931,8 @@
     "fields": {
      "q_text": "下午，圍一張桌子討論",
      "q_sub": "提案、對稿、腦力激盪",
-     "q_by": "三樓 · 03"
+     "q_by": "三樓 · 03",
+     "en": "Afternoon: pull up a table and talk it through."
     }
    },
    {
@@ -857,14 +940,15 @@
     "fields": {
      "q_text": "晚上，變成活動現場",
      "q_sub": "桌椅重新排列，講座、分享會與聚會，在木樑下發生",
-     "q_by": "三樓 · 04"
+     "q_by": "三樓 · 04",
+     "en": "Evening: chairs move, and the talk begins."
     }
    },
    {
     "layout": "06b",
     "fields": {
      "manifesto": "工作的地方，\n也是相遇的地方",
-     "en": "Work and meet, under the wooden beams"
+     "en": "Work and meet, under the timber beams."
     }
    },
    {
@@ -872,10 +956,12 @@
     "fields": {
      "openingLine": "10.13 試營運",
      "openingDate": "11.01 正式開幕",
-     "openingDesc": "點主頁連結，登記試營運優先通知"
+     "openingDesc": "點主頁連結，登記試營運優先通知",
+     "en": "Soft opening Oct 13 · Grand opening Nov 1"
     }
    }
-  ]
+  ],
+  "caption_en": "Third floor.\n\nWe kept the exposed timber beams and left the ceiling open. This floor is the Talent Lounge — the one we set aside for work and events.\n\nMorning: find a seat, open the laptop, get focused work done.\nAfternoon: pull a table together with your people and talk something through.\nEvening: the desks fold away, and the same room becomes a venue for talks and gatherings.\n\nOne space, three shapes in a single day.\n\nAnd the person at the next table might come from a circle you'd never usually cross — a founder, a translator, someone building something you've never heard of. That's the point of this floor.\n\nSoft opening October 13, grand opening November 1.\nTap the link in bio to sign up for soft-opening updates."
  },
  {
   "id": "sp_seed_x_w11",
@@ -889,7 +975,8 @@
   "phase": "新址揭露",
   "cta": "留言分享你的清單",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "台北駅のそばで働ける場所。\n何があれば通いたくなりますか？\n\n私の答え：\n電源が多い、Wi-Fiが安定、\n深夜まで居ても追い出されない、\n邪魔はしないけど、\n話したいときに話せる人がいる。\n\nあなたの答えは？\nリプで教えてください。いま、つくっている最中です。"
  },
  {
   "id": "sp_seed_ig_w11",
@@ -908,7 +995,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "言文字怎麼用",
-     "comingSub": "動線、時段與常見問題，一次說完"
+     "comingSub": "動線、時段與常見問題，一次說完",
+     "en": "How this place works: floors, hours, and your questions"
     }
    },
    {
@@ -916,7 +1004,8 @@
     "fields": {
      "q_text": "想來看看，但有點猶豫",
      "q_sub": "要預約嗎？一個人可以嗎？能待多久？——這一篇一次回答",
-     "q_by": "使用說明"
+     "q_by": "使用說明",
+     "en": "Thinking of coming, but not sure how it works?"
     }
    },
    {
@@ -924,7 +1013,8 @@
     "fields": {
      "q_text": "從一樓開始，往上走",
      "q_sub": "一樓 Cafe & Bar，點杯咖啡就能進來；二樓會員休憩；三樓共享工作與活動",
-     "q_by": "使用說明 · 動線"
+     "q_by": "使用說明 · 動線",
+     "en": "Start on 1F. One coffee is all it takes."
     }
    },
    {
@@ -932,7 +1022,8 @@
     "fields": {
      "q_text": "白天工作，下班小酌，深夜趕稿",
      "q_sub": "一樓營業到深夜",
-     "q_by": "使用說明 · 時段"
+     "q_by": "使用說明 · 時段",
+     "en": "Work by day, drinks after dark, deadlines late."
     }
    },
    {
@@ -940,7 +1031,8 @@
     "fields": {
      "q_text": "需要先預約嗎？",
      "q_sub": "一樓不用，門推開就進得來。活動與會員空間的使用方式，開幕前會再公告",
-     "q_by": "常見問題 · 01"
+     "q_by": "常見問題 · 01",
+     "en": "No reservation for 1F. Just push the door."
     }
    },
    {
@@ -948,24 +1040,27 @@
     "fields": {
      "q_text": "一個人來，可以嗎？",
      "q_sub": "這裡大多數人都是",
-     "q_by": "常見問題 · 02"
+     "q_by": "常見問題 · 02",
+     "en": "Come alone? Most people here do."
     }
    },
    {
     "layout": "06b",
     "fields": {
      "manifesto": "一個人走進來，\n不會一直是一個人",
-     "en": "Come alone. You won't stay that way."
+     "en": "How long can you stay? We're open late."
     }
    },
    {
     "layout": "06c",
     "fields": {
      "comingTitle": "來坐坐",
-     "comingSub": "10/13 試營運，來之前先收藏這篇"
+     "comingSub": "10/13 試營運，來之前先收藏這篇",
+     "en": "Soft opening Oct 13 — save this post."
     }
    }
-  ]
+  ],
+  "caption_en": "The question we get most while building this place: how does it actually work?\n\nSimple. Start on 1F.\nOrder a coffee at Emoji Café & Bar — that's your ticket in. No membership, no booking, no explaining yourself.\n\nBy day, it's a place to work.\nAfter hours, dinner and a drink.\nLate at night, deadlines and long conversations.\n\n2F Member Plaza and 3F Talent Lounge are member floors, for the people who want to keep coming back.\n\nThe questions we hear most:\nDo I need a reservation? Not for 1F — just push the door.\nCan I come alone? Most people here do.\nHow long can I stay? We're open late. Take your time.\n\nSoft opening October 13. Save this post for your first visit."
  },
  {
   "id": "sp_seed_x_w12",
@@ -979,7 +1074,8 @@
   "phase": "新址揭露",
   "cta": "10/13 來現場驗證",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "この建物でいちばん高くついたのは、\n内装ではなく、残すと決めた「余白」です。\n\n3階の吹き抜けの木の梁は、そのまま。\n机を置けるはずの角も、あえて空けたまま。\n\n空間に余白があるから、\n人と人が出会う余地が生まれる。\n\n10/13のプレオープンから、確かめに来てください。"
  },
  {
   "id": "sp_seed_ig_w12",
@@ -998,7 +1094,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "第一批的人",
-     "comingSub": "正式開幕前，我們先邀請一群人進來"
+     "comingSub": "正式開幕前，我們先邀請一群人進來",
+     "en": "Before opening day, a first group walks in."
     }
    },
    {
@@ -1006,7 +1103,8 @@
     "fields": {
      "q_text": "房子快蓋好了",
      "q_sub": "裝修進入尾聲。但在開門之前，它需要先被真正用過一次",
-     "q_by": "預覽週 · 預告"
+     "q_by": "預覽週 · 預告",
+     "en": "The building is nearly done. Now it needs to be used."
     }
    },
    {
@@ -1014,7 +1112,8 @@
     "fields": {
      "q_text": "帶著筆電來的接案者",
      "q_sub": "替你測試一整天的工作動線：插座、網路、光線與安靜",
-     "q_by": "會在這裡相遇的人"
+     "q_by": "會在這裡相遇的人",
+     "en": "Freelancers testing outlets, wifi, light, and quiet."
     }
    },
    {
@@ -1022,7 +1121,8 @@
     "fields": {
      "q_text": "辦活動的社群主理人",
      "q_sub": "來看三樓能長出什麼活動",
-     "q_by": "會在這裡相遇的人"
+     "q_by": "會在這裡相遇的人",
+     "en": "Organizers imagining what 3F could host."
     }
    },
    {
@@ -1030,7 +1130,8 @@
     "fields": {
      "q_text": "他們替你先走一遍",
      "q_sub": "動線順不順、座位舒不舒服——這些回饋，會變成開幕前的修正清單",
-     "q_by": "預覽週的任務"
+     "q_by": "預覽週的任務",
+     "en": "Their feedback becomes our fix list before opening."
     }
    },
    {
@@ -1045,10 +1146,12 @@
     "fields": {
      "openingLine": "10.13 試營運",
      "openingDate": "11.01 正式開幕",
-     "openingDesc": "點主頁連結登記，試營運消息第一個通知你"
+     "openingDesc": "點主頁連結登記，試營運消息第一個通知你",
+     "en": "Soft opening Oct 13 · Grand opening Nov 1"
     }
    }
-  ]
+  ],
+  "caption_en": "Before we open, a first group walks in.\n\nOver the next few weeks, we're inviting community partners and creators for an early look — to sit for an afternoon, walk every route through the building, and tell us exactly where it doesn't work yet.\n\nThey're the first ones in: freelancers with laptops, developers, side-project builders, organizers who run their own events. People you'd never usually meet, meeting here before the doors officially open.\n\nThey're testing the things you'll care about later — outlets, wifi, light, quiet, whether the walk from the door to a seat actually makes sense. Every note they leave becomes a line on our fix list.\n\nWant to be in the next group?\nTap the link in bio to sign up, and you'll be the first to hear about the October 13 soft opening."
  },
  {
   "id": "sp_seed_x_w13",
@@ -1062,7 +1165,8 @@
   "phase": "新址揭露",
   "cta": "10/13 來店檢驗",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "10/13、言文字プレオープン。\n\n開店前に、検証してほしいことを3つ。\n一、ひとりで入って気まずくないか\n二、8時間居ても電源とWi-Fiが持つか\n三、帰る前に、誰かと一言でも話せたか\n\n検査員のつもりで来てください。\nダメなところは、そのまま教えてください。"
  },
  {
   "id": "sp_seed_ig_w13",
@@ -1081,7 +1185,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "試營運須知",
-     "comingSub": "10/13 開門，去之前先讀這篇"
+     "comingSub": "10/13 開門，去之前先讀這篇",
+     "en": "Soft opening Oct 13: read this before you come."
     }
    },
    {
@@ -1089,7 +1194,8 @@
     "fields": {
      "q_text": "下週二，我們開門",
      "q_sub": "10/13 起試營運。重慶南路一段 11 號，台北車站 Z10 出口斜對面",
-     "q_by": "試營運須知 · 日期"
+     "q_by": "試營運須知 · 日期",
+     "en": "Doors open Tuesday, Oct 13, by Taipei Main Station."
     }
    },
    {
@@ -1097,7 +1203,8 @@
     "fields": {
      "q_text": "一杯咖啡，就能進來",
      "q_sub": "一樓 Cafe & Bar 開放。二樓與三樓是會員空間，想了解可以現場問我們",
-     "q_by": "試營運須知 · 範圍"
+     "q_by": "試營運須知 · 範圍",
+     "en": "One coffee is all it takes to walk in."
     }
    },
    {
@@ -1105,7 +1212,8 @@
     "fields": {
      "q_text": "不用報名，直接來",
      "q_sub": "門開著，人來就好",
-     "q_by": "試營運須知 · 參與"
+     "q_by": "試營運須知 · 參與",
+     "en": "No sign-up. Just come."
     }
    },
    {
@@ -1113,7 +1221,8 @@
     "fields": {
      "q_text": "有些地方，還不完美",
      "q_sub": "裝修剛完成，細節持續調整中。看到不順的地方，直接告訴我們",
-     "q_by": "試營運須知 · 提醒"
+     "q_by": "試營運須知 · 提醒",
+     "en": "Not everything is perfect yet. Tell us what you find."
     }
    },
    {
@@ -1133,10 +1242,12 @@
      "e_place": "重慶南路一段 11 號・Z10 出口斜對面",
      "e_desc": "一杯咖啡就能進來。裝修剛完成，歡迎來給我們回饋",
      "e_capacity": "免預約",
-     "e_signup": "直接來 @yanwenzi.tw"
+     "e_signup": "直接來 @yanwenzi.tw",
+     "en": "Soft opening from Oct 13 · walk-ins welcome"
     }
    }
-  ]
+  ],
+  "caption_en": "October 13, next Tuesday, we open the doors.\n\nNot the grand opening yet — a soft opening. The building is done; the details aren't.\n\nWhat you need to know:\n· From Tuesday, October 13\n· No. 11, Sec. 1, Chongqing S. Rd. — diagonally across from Exit Z10 of the Taipei Main Station underground mall\n· No sign-up needed. One coffee gets you into 1F Emoji Café & Bar\n· 2F and 3F are member floors — curious? Ask us on site\n\nThe paint is barely dry, and some things won't be perfect. That's what a soft opening is for. If you spot something off, tell us — your feedback becomes the fix list before the November 1 grand opening.\n\nOctober 13. Come sit for a while."
  },
  {
   "id": "sp_seed_ig_s02",
@@ -1161,10 +1272,12 @@
      "e_place": "重慶南路一段 11 號",
      "e_desc": "測試版的言文字，來坐坐，告訴我們哪裡可以更好",
      "e_capacity": "歡迎來坐",
-     "e_signup": "@yanwenzi.tw"
+     "e_signup": "@yanwenzi.tw",
+     "en": "Soft opening today · come tell us what could be better"
     }
    }
-  ]
+  ],
+  "caption_en": "Today, the soft opening begins.\n\nThree months of renovation, and this morning we opened the door. No. 11, Sec. 1, Chongqing S. Rd., diagonally across from Exit Z10 of the Taipei Main Station underground mall.\n\nTo be clear: this is the beta version of the place. Service might be clumsy, the kitchen might be slow, and one outlet in the corner may not have power yet. We chose to open anyway — some problems only show up when real people walk in.\n\n1F Emoji Café & Bar: one coffee gets you in. Work, stare out the window, watch us figure things out — all fine.\n\nIf something feels off, tell the team on site, or DM @yanwenzi.tw. Every word you give us shapes what November 1 looks like.\n\nSoft opening Oct 13 · Grand opening Nov 1"
  },
  {
   "id": "sp_seed_x_s02",
@@ -1178,7 +1291,8 @@
   "phase": "試營運",
   "cta": "來坐坐，幫我們檢驗",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "言文字プレオープン、本日スタート。\n\n重慶南路一段11号\n台北駅地下街 Z10出口の斜め向かい\n\n今の私たちはまだテスト版\n動線もWi-Fiも提供スピードも調整中です\n\nコーヒー一杯で入れます\nぜひ検証しに来てください\n\n#言文字"
  },
  {
   "id": "sp_seed_x_w14",
@@ -1192,7 +1306,8 @@
   "phase": "試營運",
   "cta": "來店回報問題",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "プレオープン2日目。\n\n開店前に100回チェックしても、\nまだ「問題なし」とは言えません。\n座ってもらって初めて見えることがある。\n\n今週、検証してほしいのは\n動線・騒音・Wi-Fi・提供スピード。\n\n気になったことは、その場で教えてください。\nすべて修正リストに入ります。"
  },
  {
   "id": "sp_seed_ig_w14",
@@ -1211,7 +1326,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "修正日記",
-     "comingSub": "試營運第一週，我們在找自己的問題"
+     "comingSub": "試營運第一週，我們在找自己的問題",
+     "en": "Week one: the fix diary."
     }
    },
    {
@@ -1219,7 +1335,8 @@
     "fields": {
      "q_text": "檢查一百次，不如開一次門",
      "q_sub": "有些問題，只有人真的坐下來才會出現",
-     "q_by": "修正日記 · 第一週"
+     "q_by": "修正日記 · 第一週",
+     "en": "A hundred checks can't beat one open door."
     }
    },
    {
@@ -1227,7 +1344,8 @@
     "fields": {
      "q_text": "從門口到座位，會不會卡住",
      "q_sub": "檢查 01：動線",
-     "q_by": "修正日記"
+     "q_by": "修正日記",
+     "en": "Fix 01: the walk from door to seat."
     }
    },
    {
@@ -1235,7 +1353,8 @@
     "fields": {
      "q_text": "想工作的人，會被吵到嗎",
      "q_sub": "檢查 02：噪音——吧檯與音樂的音量，正在調整",
-     "q_by": "修正日記"
+     "q_by": "修正日記",
+     "en": "Fix 02: can you focus over the bar noise?"
     }
    },
    {
@@ -1243,7 +1362,8 @@
     "fields": {
      "q_text": "很多人同時連線，穩不穩",
      "q_sub": "檢查 03：網路",
-     "q_by": "修正日記"
+     "q_by": "修正日記",
+     "en": "Fix 03: wifi under a full house."
     }
    },
    {
@@ -1251,7 +1371,8 @@
     "fields": {
      "q_text": "一杯咖啡，讓你等了多久",
      "q_sub": "檢查 04：出餐速度——尖峰時段的等待，我們在計時",
-     "q_by": "修正日記"
+     "q_by": "修正日記",
+     "en": "Fix 04: how long your coffee takes."
     }
    },
    {
@@ -1265,10 +1386,12 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "幫我們找碴",
-     "comingSub": "留言或私訊，告訴我們哪裡可以更好"
+     "comingSub": "留言或私訊，告訴我們哪裡可以更好",
+     "en": "Spot something off? Comment or DM @yanwenzi.tw"
     }
    }
-  ]
+  ],
+  "caption_en": "Day four of the soft opening.\n\nThere's a list on my desk titled \"things to fix in week one\".\n\nWe checked everything a hundred times before opening, and still wouldn't call it problem-free. Some things only show up when someone actually sits down. So this week, we're watching four of them:\n\n1. Flow — from the door to a seat, does anything get in your way?\n2. Noise — can you focus, or does the bar drown you out?\n3. Wifi — does it hold when the room is full?\n4. Speed — how long your coffee actually takes.\n\nThe list keeps growing. That's good news — every line is something we can fix before November 1.\n\nIf you came this week and something felt off, comment or DM us. One offhand remark might be the next line on the list.\n\nSoft opening now · Grand opening Nov 1"
  },
  {
   "id": "sp_seed_x_w15",
@@ -1282,7 +1405,8 @@
   "phase": "試營運",
   "cta": "試營運期間來坐坐",
   "audience": "25–35 歲成長型上班族與自由工作者",
-  "pages": []
+  "pages": [],
+  "caption_ja": "「偶然、人と知り合う」を日常にしたい。\n\n社会人になると、友人はなかなか増えない。\nあなたのせいではなく、\n自然に会話が始まる場所が街に足りないだけ。\n\n隣の席のフリーランス、\nイベント後の10分の立ち話、\n深夜のカウンターの一杯。\n\n台北駅のそば、プレオープン中です。"
  },
  {
   "id": "sp_seed_ig_w15",
@@ -1302,7 +1426,8 @@
     "fields": {
      "q_text": "你多久沒認識新朋友了",
      "q_sub": "出社會之後，這題越來越難回答",
-     "q_by": "平常不會遇到的人"
+     "q_by": "平常不會遇到的人",
+     "en": "When did you last make a new friend?"
     }
    },
    {
@@ -1310,7 +1435,8 @@
     "fields": {
      "q_text": "公司、住家，兩點一線",
      "q_sub": "名單裡只剩工作聯絡人",
-     "q_by": "平常不會遇到的人"
+     "q_by": "平常不會遇到的人",
+     "en": "Office, apartment, repeat."
     }
    },
    {
@@ -1318,7 +1444,8 @@
     "fields": {
      "q_text": "隔壁桌，剛好懂你的問題",
      "q_sub": "一個人來工作，遇見另一個領域的自由工作者",
-     "q_by": "相遇 · 01"
+     "q_by": "相遇 · 01",
+     "en": "The next table knows the thing you're stuck on."
     }
    },
    {
@@ -1326,7 +1453,8 @@
     "fields": {
      "q_text": "活動散場，多聊十分鐘",
      "q_sub": "同好之間的開始",
-     "q_by": "相遇 · 02"
+     "q_by": "相遇 · 02",
+     "en": "Ten more minutes after the event ends."
     }
    },
    {
@@ -1334,7 +1462,8 @@
     "fields": {
      "q_text": "深夜吧檯，一杯之後",
      "q_sub": "營業到深夜的一樓，很多對話從這裡開始",
-     "q_by": "相遇 · 03"
+     "q_by": "相遇 · 03",
+     "en": "Late at the bar, one drink in, names exchanged."
     }
    },
    {
@@ -1348,10 +1477,12 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "敬請期待",
-     "comingSub": "Talent Night 籌備中，追蹤不錯過"
+     "comingSub": "Talent Night 籌備中，追蹤不錯過",
+     "en": "Talent Night is coming. Follow @yanwenzi.tw"
     }
    }
-  ]
+  ],
+  "caption_en": "When did you last make a new friend?\n\nPast a certain age — and especially in a city that isn't yours — the question gets hard. Office, apartment, the same route every day, and every new name in your phone is a work contact.\n\nWe built this place to change that. Here, meeting someone can look like this:\n\nThe freelancer at the next table who happens to know the thing you're stuck on.\nTen extra minutes of conversation after an event ends.\nA name exchanged at the bar, late, one drink in.\n\nNo forced networking. No business cards. Sit close enough, and the conversation starts on its own.\n\nWe're putting together Talent Night — a regular gathering where people from different circles actually meet. Details soon. Follow @yanwenzi.tw to hear first.\n\nSoft opening now · Grand opening Nov 1"
  },
  {
   "id": "sp_seed_x_w16",
@@ -1365,7 +1496,8 @@
   "phase": "試營運",
   "cta": "查看創始會員計畫",
   "audience": "自由工作者與初期創業者",
-  "pages": []
+  "pages": [],
+  "caption_ja": "グランドオープンまで、あと4日。\n\n7月の移転発表から、\n内装、プレオープン、\n少しずつ短くなっていく修正リスト。\n\n11/1、言文字グランドオープン。\n台北駅のそば、重慶南路一段11号。\n\n初日からこの拠点に加わりたい方へ、\n創始会員プランがあります。詳細は公式サイトで。"
  },
  {
   "id": "sp_seed_ig_w16",
@@ -1384,7 +1516,8 @@
     "layout": "06c",
     "fields": {
      "comingTitle": "倒數 2 天",
-     "comingSub": "11/1，言文字正式開幕"
+     "comingSub": "11/1，言文字正式開幕",
+     "en": "Two days to the grand opening."
     }
    },
    {
@@ -1392,7 +1525,8 @@
     "fields": {
      "q_text": "七月，我們說要搬家",
      "q_sub": "從開封街的小店，搬到台北車站旁——很多人問為什麼",
-     "q_by": "倒數回顧 · 07月"
+     "q_by": "倒數回顧 · 07月",
+     "en": "July: we announced the move to Taipei Main Station."
     }
    },
    {
@@ -1400,7 +1534,8 @@
     "fields": {
      "q_text": "八月九月，一百個決定",
      "q_sub": "插座、燈光、座位與吧檯",
-     "q_by": "倒數回顧 · 08–09月"
+     "q_by": "倒數回顧 · 08–09月",
+     "en": "August, September: a hundred decisions, made in the open."
     }
    },
    {
@@ -1408,7 +1543,8 @@
     "fields": {
      "q_text": "十月，第一批客人進來",
      "q_sub": "試營運的修正清單，一條一條劃掉了",
-     "q_by": "倒數回顧 · 10月"
+     "q_by": "倒數回顧 · 10月",
+     "en": "October: the first guests, and a fix list crossed off."
     }
    },
    {
@@ -1416,7 +1552,8 @@
     "fields": {
      "q_text": "謝謝一路看著的你",
      "q_sub": "留言與投票都蓋進房子裡",
-     "q_by": "言文字"
+     "q_by": "言文字",
+     "en": "Your comments are built into these walls."
     }
    },
    {
@@ -1431,10 +1568,12 @@
     "fields": {
      "openingLine": "還有 2 天",
      "openingDate": "2026.11.01",
-     "openingDesc": "正式開幕，重慶南路一段 11 號，來坐坐"
+     "openingDesc": "正式開幕，重慶南路一段 11 號，來坐坐",
+     "en": "Grand opening Nov 1 · No. 11, Sec. 1, Chongqing S. Rd."
     }
    }
-  ]
+  ],
+  "caption_en": "Two days to the grand opening.\n\nIn July, we announced the move — from a small shop on Kaifeng Street to a building by Taipei Main Station. August and September were renovation: outlets, lighting, seats, the bar, every decision laid out in the open. In October, the soft opening — the first guests walked in and handed us a long fix list.\n\nNow that list is nearly crossed off.\n\nTo everyone who watched this building go up: your comments, your votes, every \"this feels off\" said at the counter — all of it is built into these walls.\n\nNovember 1, we open for good. No. 11, Sec. 1, Chongqing S. Rd., diagonally across from Exit Z10. Coffee on 1F, the Member Plaza on 2F, work and events on 3F.\n\nCome see what you helped build."
  },
  {
   "id": "sp_seed_ig_s03",
@@ -1454,10 +1593,12 @@
     "fields": {
      "openingLine": "正式開幕",
      "openingDate": "2026.11.01",
-     "openingDesc": "言文字｜台灣人才聚落，在台北車站旁等你"
+     "openingDesc": "言文字｜台灣人才聚落，在台北車站旁等你",
+     "en": "Grand opening · November 1, 2026"
     }
    }
-  ]
+  ],
+  "caption_en": "Today, we open for good.\n\nEmoji - Taiwan Talent Hub. No. 11, Sec. 1, Chongqing S. Rd., diagonally across from Exit Z10 of the Taipei Main Station underground mall.\n\n1F, Emoji Café & Bar: one coffee gets you in, and we're open late.\n2F, the Member Plaza: a members-only place to rest.\n3F, the Talent Lounge: coworking and events under the timber beams.\n\nWhat we set out to do hasn't changed since day one — a place where you meet the people you'd never usually meet, by Taipei Main Station.\n\nWhether you've followed the build since July or you're hearing about us for the first time, the door works the same way: push it open, order a coffee, stay a while.\n\nFrom today, this is daily life. If you're passing through the station, come sit."
  },
  {
   "id": "sp_seed_x_s03",
@@ -1471,6 +1612,7 @@
   "phase": "正式開幕",
   "cta": "來坐坐",
   "audience": "全受眾",
-  "pages": []
+  "pages": [],
+  "caption_ja": "言文字｜台湾タレントハブ\n本日グランドオープン。\n\n普段は出会えない人と、\n台北駅のそばで出会う。\n\n重慶南路一段11号\nZ10出口の斜め向かい\n\n1階はコーヒー一杯で入れます\n2階はラウンジ、3階は一緒に働く場所\n\n今日から、ここが日常。\nぜひお立ち寄りください。\n\n#言文字"
  }
 ]

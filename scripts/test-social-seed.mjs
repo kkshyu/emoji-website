@@ -24,16 +24,47 @@ test('涵蓋完整戰役：IG 19 則（16 輪播＋3 單圖）、X 18 則', () =
   assert.ok(x.every(p => p.post_type === 'text'));
 });
 
+// 全欄位文字（含英日文，供一般檢查）
 const textOf = (p) => [
-  p.title, p.caption, p.hashtags, p.cta, p.audience, p.notes,
+  p.title, p.caption, p.caption_en, p.caption_ja, p.hashtags, p.cta, p.audience, p.notes,
   ...(p.pages || []).flatMap(pg => Object.values(pg.fields).map(String)),
 ].join('\n');
+// 僅中文欄位（簡體字檢查用——日文漢字「学実来」等與簡體同形，英日文欄位必須排除）
+const zhTextOf = (p) => [
+  p.title, p.caption, p.hashtags, p.cta, p.audience, p.notes,
+  ...(p.pages || []).flatMap(pg => Object.entries(pg.fields).filter(([k]) => k !== 'en').map(([, v]) => String(v))),
+].join('\n');
 
-test('禁簡體字', () => {
+test('禁簡體字（僅檢查中文欄位）', () => {
   const simplified = /[设为这来时后过还发对问让说动业东车头实应见话语间们个买卖点线约铁号张风书学习员马义乐]/;
   for (const p of seed) {
-    const m = textOf(p).match(simplified);
+    const m = zhTextOf(p).match(simplified);
     assert.equal(m, null, `${p.id} 含簡體字「${m && m[0]}」`);
+  }
+});
+
+test('雙語覆蓋：IG 皆有英文文案、X 皆有日文版且合規', () => {
+  const weighted = (s) => [...String(s)].reduce((n, ch) => n + (ch.codePointAt(0) > 0x2E80 ? 2 : 1), 0);
+  for (const p of seed.filter(p => p.platform === 'ig')) {
+    assert.ok((p.caption_en || '').trim().length >= 80, `${p.id} 缺英文文案或過短`);
+    assert.ok(!/[快來手刀]/.test(p.caption_en), `${p.id} 英文文案混入中文推銷詞`);
+  }
+  for (const p of seed.filter(p => p.platform === 'x')) {
+    assert.ok((p.caption_ja || '').trim().length >= 30, `${p.id} 缺日文版或過短`);
+    assert.ok(weighted(p.caption_ja) <= 280, `${p.id} 日文版全文 ${weighted(p.caption_ja)} 超過 280`);
+    assert.match(p.caption_ja, /[ぁ-んァ-ヶ]/, `${p.id} 日文版沒有假名（疑似不是日文）`);
+  }
+});
+
+test('圖面英文行：每頁 en ≤72 字元、IG 貼文至少半數頁面有英文行', () => {
+  for (const p of seed.filter(p => p.platform === 'ig')) {
+    let withEn = 0;
+    for (const pg of p.pages) {
+      const en = String(pg.fields.en || '');
+      assert.ok(en.length <= 72, `${p.id} 頁面英文行過長（${en.length}）：${en}`);
+      if (en.trim()) withEn++;
+    }
+    assert.ok(withEn >= Math.ceil(p.pages.length / 2), `${p.id} 英文行覆蓋不足（${withEn}/${p.pages.length}）`);
   }
 });
 

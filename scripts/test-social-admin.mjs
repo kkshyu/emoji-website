@@ -121,3 +121,32 @@ test('修復：上傳做 magic-byte 檢查、/uploads 回應 nosniff', () => {
   assert.match(server, /sniffImageType\(head\)/);
   assert.match(server, /X-Content-Type-Options', 'nosniff'/);
 });
+
+/* ---- 雙語化（IG 中英、X 中日） ---- */
+
+test('雙語：DB 欄位、SEL、路由、seed 匯入皆含 caption_en/caption_ja', () => {
+  assert.match(server, /caption_en TEXT NOT NULL DEFAULT ''/);
+  assert.match(server, /ADD COLUMN IF NOT EXISTS caption_ja/);
+  assert.match(server, /caption,caption_en,caption_ja,hashtags/);           // SEL_POST
+  assert.match(server, /caption_en=\$7,caption_ja=\$8/);                    // UPDATE
+  assert.match(server, /caption_en=EXCLUDED\.caption_en/);                  // FORCE seed
+});
+
+test('雙語：編輯器有英/日文案欄位、日文版有獨立字數計、複製日文版', () => {
+  assert.match(admin, /sp-e-caption-en/);
+  assert.match(admin, /sp-e-caption-ja/);
+  assert.match(admin, /sp-xlen-ja/);
+  assert.match(admin, /sp-copy-ja/);
+});
+
+test('雙語：清單有 EN/JA 完備度標記、頁面欄位含英文行', () => {
+  assert.match(admin, /p\.caption_en\?'pill-ok':'pill-wait'/);
+  assert.match(admin, /p\.caption_ja\?'pill-ok':'pill-wait'/);
+  assert.match(admin, /\['en','英文行'\]/);
+});
+
+test('雙語：五個社群版型渲染 state.en（06b 原生支援）', () => {
+  const enLine = /\$\{state\.en \? `<div class="igp-en"/g;
+  const hits = (ig.match(enLine) || []).length;
+  assert.ok(hits >= 5, `英文行渲染出現 ${hits} 處（03a/03b/06a/06c/02a 應各一）`);
+});

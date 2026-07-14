@@ -298,6 +298,7 @@
         <div class="igp-event-weekday">${hl(state.e_weekday)}</div>
         <h2 class="igp-h2" style="font-size:${sq ? 68 : 82}px">${H(state.e_title)}</h2>
         ${state.e_desc ? `<p class="igp-desc">${H(state.e_desc)}</p>` : ''}
+        ${state.en ? `<div class="igp-en" style="font-size:${sq ? 26 : 30}px;margin-top:16px">${H(state.en)}</div>` : ''}
         <div class="igp-meta">
           <div class="r"><span class="lbl">時間</span><span class="val">${H(state.e_when)}</span></div>
           <div class="r"><span class="lbl">地點</span><span class="val">${H(state.e_place)}</span></div>
@@ -356,6 +357,7 @@
         <div style="margin:auto 0"><div class="mk">“</div>
           <div class="tx" style="font-size:${sq ? 72 : 84}px">${H(state.q_text)}</div>
           ${state.q_sub ? `<div class="sb">${H(state.q_sub)}</div>` : ''}
+          ${state.en ? `<div class="igp-en" style="font-size:${sq ? 26 : 30}px;margin-top:22px">${H(state.en)}</div>` : ''}
           ${state.q_by ? `<div class="by">${H(state.q_by)}</div>` : ''}
         </div>
         ${foot()}
@@ -372,6 +374,7 @@
           <div class="mk">「</div>
           <div class="tx" style="font-size:${sq ? 62 : 74}px">${H(state.q_text)}</div>
           ${state.q_sub ? `<div class="sb">— ${H(state.q_sub)} —</div>` : ''}
+          ${state.en ? `<div class="igp-en" style="font-size:${sq ? 26 : 30}px;margin-top:22px">${H(state.en)}</div>` : ''}
           ${state.q_by ? `<div class="by">${H(state.q_by)}</div>` : ''}
         </div>
         ${foot()}
@@ -541,6 +544,7 @@
           <div class="igp-opening-line" style="font-size:${sq ? 96 : 118}px">${hl(state.openingLine)}</div>
           <div class="igp-opening-date" style="font-size:${sq ? 64 : 80}px">${H(state.openingDate)}</div>
           ${state.openingDesc ? `<p class="igp-opening-desc">${H(state.openingDesc)}</p>` : ''}
+          ${state.en ? `<div class="igp-en" style="font-size:${sq ? 26 : 30}px;margin-top:20px">${H(state.en)}</div>` : ''}
         </div>
         ${foot()}
       </div>
@@ -568,6 +572,7 @@
         <div style="margin:auto 0">
           <h2 class="igp-coming-title" style="font-size:${sq ? 104 : 132}px">${H(state.comingTitle)}</h2>
           ${state.comingSub ? `<p class="igp-coming-sub" style="font-size:${sq ? 36 : 42}px">${hl(state.comingSub)}</p>` : ''}
+          ${state.en ? `<div class="igp-en" style="font-size:${sq ? 26 : 30}px;margin-top:20px">${H(state.en)}</div>` : ''}
         </div>
         ${foot()}
       </div>

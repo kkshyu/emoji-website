@@ -273,6 +273,8 @@ CREATE TABLE IF NOT EXISTS social_posts (
   status TEXT NOT NULL DEFAULT 'draft',
   title TEXT NOT NULL DEFAULT '',
   caption TEXT NOT NULL DEFAULT '',
+  caption_en TEXT NOT NULL DEFAULT '',
+  caption_ja TEXT NOT NULL DEFAULT '',
   hashtags TEXT NOT NULL DEFAULT '',
   pages JSONB NOT NULL DEFAULT '[]',
   images JSONB NOT NULL DEFAULT '[]',
@@ -295,6 +297,9 @@ async function migrate() {
   await q(SCHEMA_SQL);
   // 既有 DB 補欄位：管理員旗標（超管以 Google email 認定，其餘管理員存此旗標）
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false`);
+  // 社群貼文雙語欄位（IG 中英、X 中日）
+  await q(`ALTER TABLE social_posts ADD COLUMN IF NOT EXISTS caption_en TEXT NOT NULL DEFAULT ''`);
+  await q(`ALTER TABLE social_posts ADD COLUMN IF NOT EXISTS caption_ja TEXT NOT NULL DEFAULT ''`);
   // Founding rebrand：既有資料的舊編號一次改過（冪等，無舊資料時不影響）
   await q(`UPDATE commitments SET cert_no = replace(replace(cert_no,'TTHB-','TTHM-'),'TTHF-','TTHM-') WHERE cert_no LIKE 'TTHB-%' OR cert_no LIKE 'TTHF-%'`);
   // 創始會員計畫改版：舊版專案參數一次改過（冪等）
@@ -360,7 +365,7 @@ async function seedSocialPosts() {
       continue;
     }
     const vals = [
-      p.id, p.platform, p.post_type, p.status, p.title, p.caption, p.hashtags,
+      p.id, p.platform, p.post_type, p.status, p.title, p.caption, p.caption_en || '', p.caption_ja || '', p.hashtags,
       JSON.stringify(p.pages || []), JSON.stringify(p.images || []),
       scheduledAt,
       p.external_url || '', p.series || '', p.phase || '', p.cta || '', p.audience || '', p.notes || '',
@@ -368,18 +373,19 @@ async function seedSocialPosts() {
     try {
       if (force) {
         await q(
-          `INSERT INTO social_posts (id,platform,post_type,status,title,caption,hashtags,pages,images,scheduled_at,external_url,series,phase,cta,audience,notes)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+          `INSERT INTO social_posts (id,platform,post_type,status,title,caption,caption_en,caption_ja,hashtags,pages,images,scheduled_at,external_url,series,phase,cta,audience,notes)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
            ON CONFLICT (id) DO UPDATE SET platform=EXCLUDED.platform, post_type=EXCLUDED.post_type,
-             title=EXCLUDED.title, caption=EXCLUDED.caption, hashtags=EXCLUDED.hashtags, pages=EXCLUDED.pages,
+             title=EXCLUDED.title, caption=EXCLUDED.caption, caption_en=EXCLUDED.caption_en, caption_ja=EXCLUDED.caption_ja,
+             hashtags=EXCLUDED.hashtags, pages=EXCLUDED.pages,
              scheduled_at=EXCLUDED.scheduled_at, series=EXCLUDED.series, phase=EXCLUDED.phase,
              cta=EXCLUDED.cta, audience=EXCLUDED.audience, notes=EXCLUDED.notes, updated_at=now()`,
           vals
         );
       } else {
         await q(
-          `INSERT INTO social_posts (id,platform,post_type,status,title,caption,hashtags,pages,images,scheduled_at,external_url,series,phase,cta,audience,notes)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+          `INSERT INTO social_posts (id,platform,post_type,status,title,caption,caption_en,caption_ja,hashtags,pages,images,scheduled_at,external_url,series,phase,cta,audience,notes)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
            ON CONFLICT (id) DO NOTHING`,
           vals
         );
@@ -1408,7 +1414,7 @@ app.post('/api/admin/content', auth, adminOnly, requireDb, wrap(async (req, res)
 const SOCIAL_PLATFORMS = ['ig', 'x'];
 const SOCIAL_STATUS = ['draft', 'ready', 'scheduled', 'published', 'archived'];
 // 排程時間一律以台北時間讀寫（與部署環境時區脫鉤）
-const SEL_POST = `id,platform,post_type,status,title,caption,hashtags,pages,images,
+const SEL_POST = `id,platform,post_type,status,title,caption,caption_en,caption_ja,hashtags,pages,images,
   to_char(scheduled_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD"T"HH24:MI') AS scheduled_at,
   to_char(published_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD"T"HH24:MI') AS published_at,
   external_url,series,phase,cta,audience,metrics,notes`;
@@ -1442,23 +1448,23 @@ app.post('/api/admin/social/posts', auth, adminOnly, requireDb, wrap(async (req,
   const images = Array.isArray(b.images) ? b.images : [];
   const metrics = (b.metrics && typeof b.metrics === 'object' && !Array.isArray(b.metrics)) ? b.metrics : {};
   const vals = [
-    title, platform, postType, status, String(b.caption ?? ''), (b.hashtags || '').trim(),
+    title, platform, postType, status, String(b.caption ?? ''), String(b.caption_en ?? ''), String(b.caption_ja ?? ''), (b.hashtags || '').trim(),
     JSON.stringify(pages), JSON.stringify(images), scheduledAt, publishedAt,
     externalUrl, (b.series || '').trim(), (b.phase || '').trim(),
     (b.cta || '').trim(), (b.audience || '').trim(), JSON.stringify(metrics), String(b.notes ?? ''),
   ];
   if (b.id) {
     const r = await q(
-      `UPDATE social_posts SET title=$2,platform=$3,post_type=$4,status=$5,caption=$6,hashtags=$7,pages=$8,images=$9,
-         scheduled_at=$10,published_at=$11,external_url=$12,series=$13,phase=$14,cta=$15,audience=$16,metrics=$17,notes=$18,updated_at=now()
+      `UPDATE social_posts SET title=$2,platform=$3,post_type=$4,status=$5,caption=$6,caption_en=$7,caption_ja=$8,hashtags=$9,pages=$10,images=$11,
+         scheduled_at=$12,published_at=$13,external_url=$14,series=$15,phase=$16,cta=$17,audience=$18,metrics=$19,notes=$20,updated_at=now()
        WHERE id=$1 RETURNING id`, [b.id, ...vals]);
     if (!r.rows[0]) return res.status(404).json({ error: '找不到貼文。' });
     return res.json({ ok: true, id: b.id });
   }
   const id = uid('sp_');
   await q(
-    `INSERT INTO social_posts (id,title,platform,post_type,status,caption,hashtags,pages,images,scheduled_at,published_at,external_url,series,phase,cta,audience,metrics,notes)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`, [id, ...vals]);
+    `INSERT INTO social_posts (id,title,platform,post_type,status,caption,caption_en,caption_ja,hashtags,pages,images,scheduled_at,published_at,external_url,series,phase,cta,audience,metrics,notes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`, [id, ...vals]);
   res.json({ ok: true, id });
 }));
 

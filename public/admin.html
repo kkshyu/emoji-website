@@ -798,12 +798,12 @@ const SOCIAL_STATUS_META = {
 const SOCIAL_SERIES = ['KK 的建造日記','平常不會遇到的人','25–35 歲的生活難題','空間逐步解鎖','產品與活動'];
 // 貼文頁面可用版型（文字類；照片類版型請用「IG 貼文」產生器）
 const SOCIAL_LAYOUTS = {
-  '03a': { label:'金句 · 留白', fields:[['q_text','主句'],['q_sub','補充'],['q_by','署名／集數']] },
-  '03b': { label:'金句 · 深色', fields:[['q_text','主句'],['q_sub','補充'],['q_by','署名／集數']] },
-  '06b': { label:'品牌標語',    fields:[['manifesto','標語（可換行）','ta'],['en','英文小字']] },
-  '06c': { label:'封面 · 深色', fields:[['comingTitle','超大字'],['comingSub','副題（黃底）']] },
-  '06a': { label:'開幕大日期',  fields:[['openingLine','大字（黃底）'],['openingDate','日期／副題'],['openingDesc','說明']] },
-  '02a': { label:'活動大日期',  fields:[['e_title','標題'],['e_dateBig','大日期'],['e_weekday','星期（黃底）'],['e_when','時間'],['e_place','地點'],['e_desc','說明','ta'],['e_capacity','名額'],['e_signup','報名方式']] },
+  '03a': { label:'金句 · 留白', fields:[['q_text','主句'],['q_sub','補充'],['en','英文行'],['q_by','署名／集數']] },
+  '03b': { label:'金句 · 深色', fields:[['q_text','主句'],['q_sub','補充'],['en','英文行'],['q_by','署名／集數']] },
+  '06b': { label:'品牌標語',    fields:[['manifesto','標語（可換行）','ta'],['en','英文行']] },
+  '06c': { label:'封面 · 深色', fields:[['comingTitle','超大字'],['comingSub','副題（黃底）'],['en','英文行']] },
+  '06a': { label:'開幕大日期',  fields:[['openingLine','大字（黃底）'],['openingDate','日期／副題'],['openingDesc','說明'],['en','英文行']] },
+  '02a': { label:'活動大日期',  fields:[['e_title','標題'],['e_dateBig','大日期'],['e_weekday','星期（黃底）'],['e_when','時間'],['e_place','地點'],['e_desc','說明','ta'],['en','英文行'],['e_capacity','名額'],['e_signup','報名方式']] },
 };
 const socialLayoutId = pg => (pg.category||'03') + (pg.variant||'a');
 const socialXLen = s => [...String(s||'')].reduce((n,ch)=>n+(ch.codePointAt(0)>0x2E80?2:1),0);
@@ -859,7 +859,10 @@ function socialListHTML(){
       <td class="a-mono num">${esc(socialFmtSched(p.scheduled_at))}</td>
       <td>${p.platform==='ig'?'IG':'X'}</td>
       <td><a href="#" data-sp-edit="${esc(p.id)}"><b>${esc(p.title)}</b></a><br>
-        <span style="color:var(--muted);font-size:.78rem">${esc(p.series||'—')}${p.platform==='ig'?` · ${pagesN} 頁`:''}</span></td>
+        <span style="color:var(--muted);font-size:.78rem">${esc(p.series||'—')}${p.platform==='ig'?` · ${pagesN} 頁`:''}</span>
+        ${p.platform==='ig'
+          ? `<span class="pill ${p.caption_en?'pill-ok':'pill-wait'}" title="英文文案${p.caption_en?'已備':'未備'}" style="margin-left:6px">EN${p.caption_en?'':'？'}</span>`
+          : `<span class="pill ${p.caption_ja?'pill-ok':'pill-wait'}" title="日文版${p.caption_ja?'已備':'未備'}" style="margin-left:6px">JA${p.caption_ja?'':'？'}</span>`}</td>
       <td><span class="pill ${st.pill}">${st.label}</span></td>
       <td>${rec && rec.eligible ? esc(rec.suitability)+'（'+esc(rec.layer)+'）' : '—'}</td>
       <td class="num">${reach}</td>
@@ -1012,7 +1015,8 @@ function socialEditHTML(){
     <b style="font-family:var(--serif)">${p.id?'編輯貼文':'新增貼文'}</b>
     ${SOCIAL_DIRTY?'<span class="pill pill-wait">未儲存</span>':''}
     <span style="flex:1"></span>
-    <button class="btn btn--ghost btn-sm" id="sp-copy">複製文案</button>
+    <button class="btn btn--ghost btn-sm" id="sp-copy">${isIg?'複製中英文案':'複製中文版'}</button>
+    ${!isIg?`<button class="btn btn--ghost btn-sm" id="sp-copy-ja">複製日文版</button>`:''}
     ${isIg&&(p.pages||[]).length?`<button class="btn btn--ghost btn-sm" id="sp-export">匯出全部 PNG</button>`:''}
     ${p.id?`<button class="btn btn--ghost btn-sm" id="sp-del">刪除</button>`:''}
     <button class="btn btn--solid btn-sm" id="sp-save">儲存</button>
@@ -1029,9 +1033,14 @@ function socialEditHTML(){
         <label>戰役階段<input id="sp-e-phase" value="${esc(p.phase||'')}" placeholder="品牌重置／共同打造…"></label>
         <label>主要受眾<input id="sp-e-aud" value="${esc(p.audience||'')}"></label>
       </div>
-      <div class="a-form"><label style="width:100%">文案（caption）
+      <div class="a-form"><label style="width:100%">文案（中文）
         <textarea id="sp-e-caption" rows="10">${esc(p.caption||'')}</textarea></label></div>
-      ${p.platform==='x'?`<p class="a-sub" id="sp-xlen">全形計 2：${socialXLen(p.caption)}／280</p>`:''}
+      ${p.platform==='x'?`<p class="a-sub" id="sp-xlen">中文版全形計 2：${socialXLen(p.caption)}／280</p>`:''}
+      ${isIg?`<div class="a-form"><label style="width:100%">英文文案（IG 與中文同貼並行）
+        <textarea id="sp-e-caption-en" rows="8">${esc(p.caption_en||'')}</textarea></label></div>`
+      :`<div class="a-form"><label style="width:100%">日文版（另發一則或以串文回覆，勿與中文合併）
+        <textarea id="sp-e-caption-ja" rows="8">${esc(p.caption_ja||'')}</textarea></label></div>
+      <p class="a-sub" id="sp-xlen-ja">日文版全形計 2：${socialXLen(p.caption_ja)}／280</p>`}
       <div class="a-form">
         <label style="width:100%">Hashtags<textarea id="sp-e-tags" rows="2">${esc(p.hashtags||'')}</textarea></label>
         <label>CTA<input id="sp-e-cta" value="${esc(p.cta||'')}"></label>
@@ -1104,6 +1113,10 @@ function socialCollectEdit(){
   p.phase = val('sp-e-phase').trim();
   p.audience = val('sp-e-aud').trim();
   p.caption = val('sp-e-caption');
+  const enEl = document.getElementById('sp-e-caption-en');
+  if (enEl) p.caption_en = enEl.value;
+  const jaEl = document.getElementById('sp-e-caption-ja');
+  if (jaEl) p.caption_ja = jaEl.value;
   p.hashtags = val('sp-e-tags').trim();
   p.cta = val('sp-e-cta').trim();
   p.external_url = val('sp-e-url').trim();
@@ -1153,7 +1166,7 @@ async function socialExportPngs(){
 function socialNewPost(platform){
   SOCIAL_EDIT = {
     id:'', platform, post_type: platform==='x'?'text':'carousel', status:'draft',
-    title:'', caption:'', hashtags: platform==='ig'?'#言文字 #台灣人才聚落':'',
+    title:'', caption:'', caption_en:'', caption_ja:'', hashtags: platform==='ig'?'#言文字 #台灣人才聚落':'',
     pages: platform==='ig'?[{category:'03',variant:'a',format:'portrait',q_text:'',q_sub:'',q_by:''}]:[],
     images:[], scheduled_at:'', published_at:'', external_url:'',
     series:'', phase:'', cta:'', audience:'', metrics:{}, notes:'',
@@ -1218,14 +1231,27 @@ function bindSocial(){
   });
   on('sp-copy','click',async()=>{
     socialCollectEdit();
-    const text = SOCIAL_EDIT.caption + (SOCIAL_EDIT.hashtags?'\n\n'+SOCIAL_EDIT.hashtags:'');
-    try { await navigator.clipboard.writeText(text); toast('已複製文案＋hashtags'); }
+    const p2 = SOCIAL_EDIT;
+    // IG：中英同貼合併；X：中文版（日文版用「複製日文」另發）
+    const text = p2.platform==='ig'
+      ? [p2.caption, p2.caption_en, p2.hashtags].filter(Boolean).join('\n\n')
+      : p2.caption + (p2.hashtags?'\n\n'+p2.hashtags:'');
+    try { await navigator.clipboard.writeText(text); toast(p2.platform==='ig'?'已複製中英文案＋hashtags':'已複製中文版'); }
+    catch(e){ toast('複製失敗：'+e.message); }
+  });
+  on('sp-copy-ja','click',async()=>{
+    socialCollectEdit();
+    try { await navigator.clipboard.writeText(SOCIAL_EDIT.caption_ja||''); toast('已複製日文版'); }
     catch(e){ toast('複製失敗：'+e.message); }
   });
   on('sp-export','click',socialExportPngs);
   on('sp-e-caption','input',e=>{
     const el=document.getElementById('sp-xlen');
-    if (el) el.textContent = `全形計 2：${socialXLen(e.target.value)}／280`;
+    if (el) el.textContent = `中文版全形計 2：${socialXLen(e.target.value)}／280`;
+  });
+  on('sp-e-caption-ja','input',e=>{
+    const el=document.getElementById('sp-xlen-ja');
+    if (el) el.textContent = `日文版全形計 2：${socialXLen(e.target.value)}／280`;
   });
   on('sp-e-platform','change',()=>{ socialCollectEdit(); paintSocial(); });
   on('sp-e-upload','change',async e=>{
