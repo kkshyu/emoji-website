@@ -17,6 +17,7 @@ const {
   applyLazyAutoActivate,
 } = require('./lib/entitlements');
 const { signAccessToken, verifyAccessToken } = require('./lib/access-token');
+const { isAdminApiKey, ADMIN_API_KEY_MIN } = require('./lib/admin-key');
 const {
   POINT_PRICE_TWD, PACKS, MEMBERSHIP_GIFT_POINTS,
   addYears, isLotAvailable, availableBalance, planDebit, planRefund, redeemPointsFor,
@@ -44,6 +45,9 @@ const SUPER_ADMIN_EMAIL = (process.env.SUPER_ADMIN_EMAIL || 'us@twouring.com').t
 const SECRET = process.env.APP_SECRET || 'dev-insecure-secret-change-me';
 const ACCESS_QR_SECRET = process.env.ACCESS_QR_SECRET || '';
 const ACCESS_DOOR_SECRET = process.env.ACCESS_DOOR_SECRET || '';
+// AI agent 管理金鑰：以 Authorization: Bearer <key> 取得超級管理員權限打 /api/admin/*。
+// 等同超管密碼，僅存於環境變數、勿寫入前端；外洩即全後台淪陷，換金鑰即撤銷。
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '';
 // 受邀制會籍預售：限定特定受邀者、名額上限 100 名，售罄不補
 const MAX_PARTICIPANTS = Number(process.env.MAX_PARTICIPANTS || 100);
 // 個資加密金鑰（身分證字號等敏感欄位 at-rest 加密）；建議獨立設 PII_KEY，預設沿用 APP_SECRET 衍生
@@ -52,6 +56,9 @@ const PII_KEY = require('crypto').createHash('sha256').update(process.env.PII_KE
 if (SECRET === 'dev-insecure-secret-change-me') console.warn('[warn] APP_SECRET 未設定，使用不安全的預設值，請於 Zeabur 設定 APP_SECRET。');
 if (!ACCESS_QR_SECRET) console.warn('[warn] ACCESS_QR_SECRET 未設定，進出 QR 停用。');
 if (!ACCESS_DOOR_SECRET) console.warn('[warn] ACCESS_DOOR_SECRET 未設定，access/scan 停用。');
+if (!ADMIN_API_KEY) console.warn('[warn] ADMIN_API_KEY 未設定，AI agent 管理 API 停用（後台 Google 登入不受影響）。');
+else if (ADMIN_API_KEY.length < ADMIN_API_KEY_MIN)
+  console.warn(`[warn] ADMIN_API_KEY 長度不足 ${ADMIN_API_KEY_MIN} 字元，已忽略；請改用 openssl rand -hex 32 產生。`);
 
 /* ---------- Stripe（開放購買；未設金鑰時 /api/checkout 回 503） ---------- */
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
@@ -704,6 +711,11 @@ function requireDb(req, res, next) {
 function auth(req, res, next) {
   const h = req.headers.authorization || '';
   const t = h.startsWith('Bearer ') ? h.slice(7) : '';
+  // AI agent：金鑰即超管身分，sub 為 null（不綁任何會員，故 /api/me/* 一律拒絕）
+  if (isAdminApiKey(t, ADMIN_API_KEY)) {
+    req.auth = { role: 'admin', super: true, sub: null, agent: true };
+    return next();
+  }
   const p = verifyToken(t);
   if (!p) return res.status(401).json({ error: '請先登入。' });
   req.auth = p; next();
@@ -1079,7 +1091,7 @@ app.post('/api/admin/points/grants', auth, adminOnly, requireDb, wrap(async (req
     const { lot } = await creditLot(client, {
       userId, type: 'admin', amount, expiresAt,
       sourceType: 'admin_grant', sourceId: grantId,
-      reason: 'admin', actor: req.auth.sub, note,
+      reason: 'admin', actor: req.auth.sub || 'agent', note,   // agent 無會員 id，軌跡仍留名
     });
     await client.query('COMMIT');
     res.json({ lot, grant_id: grantId, note });
@@ -1323,14 +1335,24 @@ app.post('/api/me/points/refunds', auth, requireDb, wrap(async (req, res) => {
   res.json({ refund: refundRow, balance: (await pointsSummaryFor(req.auth.sub)).balance });
 }));
 
+// 帶 id＝改寫既有消息，否則新增（同 events／social posts 的 upsert 慣例）
 app.post('/api/admin/updates', auth, adminOnly, requireDb, wrap(async (req, res) => {
   const title = (req.body.title || '').trim();
   if (!title) return res.status(400).json({ error: '請輸入標題。' });
   const types = ['月報', '季報', '重大事項', '活動通知', '財務摘要'];
   const type = types.includes(req.body.type) ? req.body.type : '重大事項';
+  const content = (req.body.content || '').trim();
+  const date = req.body.date || todayISO();
+  if (req.body.id) {
+    const r = await q(`UPDATE updates SET title=$2,content=$3,type=$4,published_at=$5 WHERE id=$1 RETURNING id`,
+      [req.body.id, title, content, type, date]);
+    if (!r.rows[0]) return res.status(404).json({ error: '找不到最新消息。' });
+    return res.json({ ok: true, id: req.body.id });
+  }
+  const id = uid('up_');
   await q(`INSERT INTO updates (id,title,content,type,published_at) VALUES ($1,$2,$3,$4,$5)`,
-    [uid('up_'), title, (req.body.content || '').trim(), type, req.body.date || todayISO()]);
-  res.json({ ok: true });
+    [id, title, content, type, date]);
+  res.json({ ok: true, id });
 }));
 
 app.delete('/api/admin/updates/:id', auth, adminOnly, requireDb, wrap(async (req, res) => {
