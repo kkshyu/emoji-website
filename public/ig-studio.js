@@ -112,7 +112,8 @@
     .igp-eyebrow::before{content:"";width:14px;height:14px;background:var(--ig-yellow);transform:rotate(45deg);flex:none;}
     .igp-eyebrow--plain::before{display:none;}
     .igp-h2{font-family:var(--serif);font-weight:500;line-height:1.06;letter-spacing:.02em;margin-top:32px;}
-    .igp .hl{background-image:linear-gradient(var(--ig-yellow),var(--ig-yellow));background-repeat:no-repeat;background-size:100% .22em;background-position:0 100%;padding:0 .04em;}   /* 黃帶貼齊行框底部＝底線；置中會像刪除線 */
+    /* 關鍵字整塊黃底（螢光筆）：字色固定墨色，深色版型上也可讀；跨行時每行各自成塊 */
+    .igp .hl{background:var(--ig-yellow);color:#1B1A17;padding:.04em .12em;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
     .igp-en{font-family:"Cormorant Garamond",var(--serif);font-style:italic;font-size:36px;color:var(--muted);margin-top:14px;}
     .igp.dark .igp-en{color:#B7B0A2;}
     .igp-note{font-size:24px;color:var(--muted);margin-top:12px;letter-spacing:.02em;}
