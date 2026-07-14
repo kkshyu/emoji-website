@@ -63,6 +63,33 @@
     transition:.25s;pointer-events:none;z-index:50}
   .a-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .a-center{text-align:center;padding:60px 0;color:var(--muted)}
+  /* 社群經營分頁 */
+  .sp-h3{font-family:var(--serif);font-size:1.02rem;margin:22px 0 10px;display:flex;align-items:center}
+  .sp-week{border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;background:var(--card)}
+  .sp-week-h{display:flex;gap:10px;align-items:center;margin-bottom:8px;font-family:var(--serif)}
+  .sp-week-b{display:flex;flex-wrap:wrap;gap:8px}
+  .sp-chip{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;
+    background:var(--paper);padding:6px 10px;font:inherit;font-size:.82rem;cursor:pointer;text-align:left}
+  .sp-chip:hover{border-color:var(--ink)}
+  .sp-chip-p{font-weight:700;font-size:.72rem;border:1px solid var(--line);border-radius:4px;padding:0 .35em}
+  .sp-chip-d{font-family:ui-monospace,Menlo,monospace;color:var(--muted);font-size:.76rem}
+  .sp-edit{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+  .sp-side{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;background:var(--card);position:sticky;top:12px}
+  .sp-ul{margin:.4em 0 .8em;padding-left:1.2em;font-size:.85rem}
+  .sp-ul li{margin:.2em 0}
+  .sp-page{display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;border:1px solid var(--line);
+    border-radius:var(--radius);padding:12px;margin-bottom:12px;background:var(--card)}
+  .sp-page-prev{overflow:hidden;border:1px solid var(--line);border-radius:6px;background:var(--paper)}
+  .sp-page-ops{display:flex;gap:4px;align-items:center;margin-top:6px}
+  .sp-page-form label{font-size:.82rem;color:var(--muted);display:flex;flex-direction:column;gap:.25em;margin-bottom:8px}
+  .sp-page-form input,.sp-page-form select,.sp-page-form textarea{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+  .sp-imgs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  .sp-img{position:relative;display:inline-block}
+  .sp-img img{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+  .sp-img button{position:absolute;top:-6px;right:-6px;border:1px solid var(--line);border-radius:999px;
+    background:var(--paper);cursor:pointer;font-size:.7rem;line-height:1.4}
+  #social-body select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+  @media(max-width:1020px){.sp-edit{grid-template-columns:1fr}.sp-side{position:static}}
   @media(max-width:860px){
     .a-shell{grid-template-columns:1fr;gap:14px}
     .a-nav{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
@@ -100,6 +127,12 @@ let MENU_DOC = null;
 let MENU_DIRTY = false;
 let MENU_DIRTY_TOASTED = false;
 let MENU_SEEDED = false;
+/* 社群經營分頁狀態（資料按需載入；編輯狀態存全域，refresh 重繪不遺失） */
+let SOCIAL_POSTS = null;          // null=未載入
+let SOCIAL_VIEW = 'list';         // list | calendar | ads | edit
+let SOCIAL_EDIT = null;           // 編輯中的貼文（複本）
+let SOCIAL_DIRTY = false;
+let SOCIAL_FILTER = { platform:'', status:'', q:'' };
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 
 // datetime-local 值 ↔ ISO
@@ -442,11 +475,14 @@ const TABS = [
   { id:'menu',        label:'菜單',     render:tabMenu },
   { id:'content',     label:'網站內容', render:tabContent },
   { id:'ig',          label:'IG 貼文',  render:()=>`<div class="a-sec"><h2>IG 貼文產生器</h2><p class="hint">填資訊、上傳照片，即時預覽並下載可直接發布的 IG 貼文圖片（方形／直式）。</p><div id="ig-studio"></div></div>` },
+  { id:'social',      label:'社群經營', render:tabSocial },
   { id:'admins',      label:'管理員',   render:tabAdmins, super:true },
 ];
 
 function render(d){
   DATA = d;
+  // 社群編輯器若在畫面上，先把 DOM 現值收回 SOCIAL_EDIT，整頁重繪才不會洗掉輸入
+  if (SOCIAL_VIEW==='edit' && SOCIAL_EDIT && document.getElementById('sp-e-title')) socialCollectEdit();
   if (!MENU_DIRTY || MENU_DOC === null) {
     MENU_DOC = ensureMenuDoc(d);
   } else {
@@ -488,6 +524,8 @@ function bindNav(){
     if (TAB === 'ig' && window.IGStudio && typeof window.IGStudio.resize === 'function') {
       requestAnimationFrame(() => window.IGStudio.resize());
     }
+    // 社群經營：首次切入才載入貼文資料
+    if (TAB === 'social' && SOCIAL_POSTS === null) loadSocialPosts();
   });
 }
 
@@ -607,6 +645,12 @@ function bind(d, x){
 
   // 菜單
   bindMenu();
+
+  // 社群經營：refresh 後由目前狀態重繪（編輯中內容存於 SOCIAL_EDIT，不遺失）
+  if (SOCIAL_POSTS !== null || TAB === 'social') {
+    if (SOCIAL_POSTS === null) loadSocialPosts();
+    else paintSocial();
+  }
 }
 
 /* ---------- 菜單：局部重繪 + 綁定（不觸發整頁 refresh，避免遺失未存檔編輯） ---------- */
@@ -743,6 +787,512 @@ async function showRegs(eventId, d){
   }catch(e){ host.innerHTML='<p class="a-sub">'+esc(e.message)+'</p>'; }
 }
 
+/* ---------- 社群經營：IG/X 貼文規劃、內容日曆、廣告建議（不串接平台 API） ---------- */
+const SOCIAL_STATUS_META = {
+  draft:     { label:'草稿',   pill:'pill-draft' },
+  ready:     { label:'已定稿', pill:'pill-wait' },
+  scheduled: { label:'已排程', pill:'pill-live' },
+  published: { label:'已發布', pill:'pill-ok' },
+  archived:  { label:'封存',   pill:'pill-done' },
+};
+const SOCIAL_SERIES = ['KK 的建造日記','平常不會遇到的人','25–35 歲的生活難題','空間逐步解鎖','產品與活動'];
+// 貼文頁面可用版型（文字類；照片類版型請用「IG 貼文」產生器）
+const SOCIAL_LAYOUTS = {
+  '03a': { label:'金句 · 留白', fields:[['q_text','主句'],['q_sub','補充'],['q_by','署名／集數']] },
+  '03b': { label:'金句 · 深色', fields:[['q_text','主句'],['q_sub','補充'],['q_by','署名／集數']] },
+  '06b': { label:'品牌標語',    fields:[['manifesto','標語（可換行）','ta'],['en','英文小字']] },
+  '06c': { label:'封面 · 深色', fields:[['comingTitle','超大字'],['comingSub','副題（黃底）']] },
+  '06a': { label:'開幕大日期',  fields:[['openingLine','大字（黃底）'],['openingDate','日期／副題'],['openingDesc','說明']] },
+  '02a': { label:'活動大日期',  fields:[['e_title','標題'],['e_dateBig','大日期'],['e_weekday','星期（黃底）'],['e_when','時間'],['e_place','地點'],['e_desc','說明','ta'],['e_capacity','名額'],['e_signup','報名方式']] },
+};
+const socialLayoutId = pg => (pg.category||'03') + (pg.variant||'a');
+const socialXLen = s => [...String(s||'')].reduce((n,ch)=>n+(ch.codePointAt(0)>0x2E80?2:1),0);
+const socialFmtSched = v => v ? String(v).replace('T',' ') : '—';
+
+function tabSocial(){
+  return `<div class="a-sec"><h2>社群經營</h2>
+    <p class="hint">IG／X 貼文規劃、內容日曆與廣告投放建議。貼文內容與排程在此管理，實際發布仍於平台操作，發布後回填連結與成效。</p>
+    <div id="social-body"><p class="a-sub">載入貼文資料…</p></div></div>`;
+}
+
+async function loadSocialPosts(){
+  try {
+    const { posts } = await api('/admin/social/posts');
+    SOCIAL_POSTS = posts;
+  } catch(e) {
+    SOCIAL_POSTS = [];
+    toast(e.message);
+  }
+  paintSocial();
+}
+
+function socialFiltered(){
+  const f = SOCIAL_FILTER, qv = f.q.trim().toLowerCase();
+  return (SOCIAL_POSTS||[]).filter(p =>
+    (!f.platform || p.platform===f.platform) &&
+    (!f.status || p.status===f.status) &&
+    (!qv || (p.title+' '+p.caption+' '+(p.series||'')).toLowerCase().includes(qv)));
+}
+
+function socialToolbar(){
+  const views = [['list','清單'],['calendar','日曆'],['ads','廣告總覽']];
+  const seg = views.map(([v,l])=>`<button class="btn btn-sm ${SOCIAL_VIEW===v?'btn--solid':'btn--ghost'}" data-social-view="${v}">${l}</button>`).join('');
+  const opt = (v,l,cur)=>`<option value="${v}" ${cur===v?'selected':''}>${l}</option>`;
+  return `<div class="a-toolbar" style="flex-wrap:wrap">
+    <span>${seg}</span>
+    <select id="sp-f-platform">${opt('','全部平台',SOCIAL_FILTER.platform)}${opt('ig','IG',SOCIAL_FILTER.platform)}${opt('x','X (Twitter)',SOCIAL_FILTER.platform)}</select>
+    <select id="sp-f-status">${opt('','全部狀態',SOCIAL_FILTER.status)}${Object.entries(SOCIAL_STATUS_META).map(([k,m])=>opt(k,m.label,SOCIAL_FILTER.status)).join('')}</select>
+    <input type="search" id="sp-f-q" placeholder="搜尋標題／內容…" value="${esc(SOCIAL_FILTER.q)}" style="min-width:160px">
+    <button class="btn btn--solid btn-sm" id="sp-new-ig">＋ IG 貼文</button>
+    <button class="btn btn--ghost btn-sm" id="sp-new-x">＋ X 貼文</button>
+  </div>`;
+}
+
+function socialListHTML(){
+  const Ads = window.SocialAdsLib;
+  const rows = socialFiltered().map(p=>{
+    const st = SOCIAL_STATUS_META[p.status] || SOCIAL_STATUS_META.draft;
+    const rec = Ads ? Ads.recommendAd(p, SOCIAL_POSTS) : null;
+    const reach = p.metrics && p.metrics.reach ? num(p.metrics.reach) : '—';
+    const pagesN = (p.pages||[]).length;
+    return `<tr data-q="${esc(p.title+' '+(p.series||''))}">
+      <td class="a-mono num">${esc(socialFmtSched(p.scheduled_at))}</td>
+      <td>${p.platform==='ig'?'IG':'X'}</td>
+      <td><a href="#" data-sp-edit="${esc(p.id)}"><b>${esc(p.title)}</b></a><br>
+        <span style="color:var(--muted);font-size:.78rem">${esc(p.series||'—')}${p.platform==='ig'?` · ${pagesN} 頁`:''}</span></td>
+      <td><span class="pill ${st.pill}">${st.label}</span></td>
+      <td>${rec && rec.eligible ? esc(rec.suitability)+'（'+esc(rec.layer)+'）' : '—'}</td>
+      <td class="num">${reach}</td>
+      <td>${p.external_url && /^https?:\/\//i.test(p.external_url)?`<a href="${esc(p.external_url)}" target="_blank" rel="noopener">連結</a>`:'—'}</td>
+      <td><button class="btn btn--ghost btn-sm" data-sp-edit="${esc(p.id)}">編輯</button>
+          <button class="btn btn--ghost btn-sm" data-sp-del="${esc(p.id)}">刪除</button></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" class="a-empty">尚無貼文</td></tr>`;
+  return `${socialToolbar()}
+  <div class="a-wrap2"><table class="a-tbl">
+    <thead><tr><th class="num">排程時間</th><th>平台</th><th>貼文</th><th>狀態</th><th>廣告適投</th><th class="num">觸及</th><th>連結</th><th></th></tr></thead>
+    <tbody id="sp-body">${rows}</tbody></table></div>`;
+}
+
+function socialWeekStart(dateStr){
+  const d = new Date(String(dateStr).replace(' ','T'));
+  if (isNaN(d)) return null;
+  const day = (d.getDay()+6)%7;             // 週一為週首
+  const m = new Date(d); m.setDate(d.getDate()-day); m.setHours(0,0,0,0);
+  return m;
+}
+function socialCalendarHTML(){
+  const posts = socialFiltered().filter(p=>p.scheduled_at);
+  const weeks = new Map();
+  for (const p of posts){
+    const ws = socialWeekStart(p.scheduled_at);
+    if (!ws) continue;
+    const key = ws.toISOString().slice(0,10);
+    if (!weeks.has(key)) weeks.set(key, { start: ws, posts: [] });
+    weeks.get(key).posts.push(p);
+  }
+  const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+  const blocks = [...weeks.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([key,w])=>{
+    const end = new Date(w.start); end.setDate(end.getDate()+6);
+    const phase = w.posts.find(p=>p.phase)?.phase || '';
+    const chips = w.posts.sort((a,b)=>String(a.scheduled_at).localeCompare(String(b.scheduled_at))).map(p=>{
+      const st = SOCIAL_STATUS_META[p.status] || SOCIAL_STATUS_META.draft;
+      return `<button class="sp-chip" data-sp-edit="${esc(p.id)}" title="${esc(p.title)}">
+        <span class="sp-chip-p">${p.platform==='ig'?'IG':'X'}</span>
+        <span class="sp-chip-d">${esc(String(p.scheduled_at).slice(5,10))}</span>
+        <span class="sp-chip-t">${esc(p.title.replace(/^[WSX]?\d*\s*[｜|]?\s*/,'').slice(0,18))}</span>
+        <span class="pill ${st.pill}">${st.label}</span></button>`;
+    }).join('');
+    return `<div class="sp-week"><div class="sp-week-h"><b>${fmt(w.start)} – ${fmt(end)}</b>
+      ${phase?`<span class="pill pill-wait">${esc(phase)}</span>`:''}
+      <span style="color:var(--muted);font-size:.78rem">${w.posts.length} 則</span></div>
+      <div class="sp-week-b">${chips}</div></div>`;
+  }).join('') || '<p class="a-empty">尚無排程貼文</p>';
+  return `${socialToolbar()}<div>${blocks}</div>`;
+}
+
+function socialAdsHTML(){
+  const Ads = window.SocialAdsLib;
+  if (!Ads) return `${socialToolbar()}<p class="a-sub">廣告建議引擎載入中…</p>`;
+  const today = new Date(), p2=n=>String(n).padStart(2,'0');
+  const plan = Ads.budgetPlan(`${today.getFullYear()}-${p2(today.getMonth()+1)}-${p2(today.getDate())}`);
+  const layerRows = plan.layers.map(l=>`<tr><td><b>${esc(l.name)}</b></td><td class="num">${NT(l.budget)}</td><td>${esc(l.audience)}</td><td>${esc(l.creatives)}</td><td>${esc(l.goal)}</td></tr>`).join('');
+  const relRows = plan.release.map(r=>`<tr style="${r.current?'background:rgba(255,222,52,.12)':''}">
+    <td class="a-mono">${esc(r.from.slice(5))} – ${esc(r.to.slice(5))}${r.current?' <span class="pill pill-live">目前</span>':''}</td>
+    <td>${esc(r.phase)}</td><td class="num">${NT(r.budget)}</td><td>${esc(r.task)}</td></tr>`).join('');
+  const allocRows = plan.allocation.map(a=>`<tr><td>${esc(a.item)}</td><td class="num">${NT(a.amount)}</td><td class="num">${a.pct}%</td></tr>`).join('');
+
+  const igPosts = (SOCIAL_POSTS||[]).filter(p=>p.platform==='ig');
+  const recRows = igPosts.map(p=>({ p, rec: Ads.recommendAd(p, SOCIAL_POSTS) }))
+    .filter(x=>x.rec.eligible)
+    .sort((a,b)=>b.rec.score-a.rec.score)
+    .map(({p,rec})=>`<tr>
+      <td><a href="#" data-sp-edit="${esc(p.id)}">${esc(p.title)}</a></td>
+      <td class="a-mono num">${esc(socialFmtSched(p.scheduled_at))}</td>
+      <td>${esc(rec.suitability)} <span style="color:var(--muted)">(${rec.score})</span></td>
+      <td>${esc(rec.layer)}</td>
+      <td class="num">${rec.budgetHint!=null?NT(rec.budgetHint):'—'}</td>
+      <td style="font-size:.8rem;color:var(--muted)">${esc(rec.rationale[0]||'')}</td></tr>`).join('')
+    || '<tr><td colspan="6" class="a-empty">尚無 IG 貼文</td></tr>';
+
+  const published = igPosts.filter(p=>p.status==='published');
+  const ampRows = published.map(p=>{
+    const adv = Ads.amplifyAdvice(p, SOCIAL_POSTS);
+    return `<tr><td><a href="#" data-sp-edit="${esc(p.id)}">${esc(p.title)}</a></td>
+      <td>${esc(adv.flag)}</td><td style="font-size:.8rem;color:var(--muted)">${adv.notes.map(esc).join('；')}</td></tr>`;
+  }).join('') || '<tr><td colspan="3" class="a-empty">尚無已發布貼文（發布後回填成效即可判讀）</td></tr>';
+
+  return `${socialToolbar()}
+  <h3 class="sp-h3">預算釋放節奏（廣告 ${NT(plan.adTotal)}／總預算 ${NT(plan.total)}）</h3>
+  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>期間</th><th>階段</th><th class="num">預算</th><th>任務</th></tr></thead><tbody>${relRows}</tbody></table></div>
+  <h3 class="sp-h3">三層廣告結構</h3>
+  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>層級</th><th class="num">預算</th><th>受眾</th><th>素材</th><th>目的</th></tr></thead><tbody>${layerRows}</tbody></table></div>
+  <h3 class="sp-h3">總預算配置</h3>
+  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>項目</th><th class="num">金額</th><th class="num">占比</th></tr></thead><tbody>${allocRows}</tbody></table></div>
+  <h3 class="sp-h3">每貼適投建議（依分數排序）</h3>
+  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>貼文</th><th class="num">排程</th><th>適投</th><th>層級</th><th class="num">建議預算</th><th>理由</th></tr></thead><tbody>${recRows}</tbody></table></div>
+  <h3 class="sp-h3">放大判讀（48–72 小時自然觀察後）</h3>
+  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>貼文</th><th>判讀</th><th>說明</th></tr></thead><tbody>${ampRows}</tbody></table></div>`;
+}
+
+function socialPageCard(pg, i){
+  const lid = socialLayoutId(pg);
+  const def = SOCIAL_LAYOUTS[lid];
+  const opts = Object.entries(SOCIAL_LAYOUTS).map(([k,v])=>`<option value="${k}" ${k===lid?'selected':''}>${k.toUpperCase()} ${v.label}</option>`).join('');
+  const inputs = def ? def.fields.map(([k,label,kind])=> kind==='ta'
+    ? `<label style="grid-column:1/-1">${label}<textarea rows="2" data-sp-pg="${i}" data-sp-k="${k}">${esc(pg[k]||'')}</textarea></label>`
+    : `<label>${label}<input value="${esc(pg[k]||'')}" data-sp-pg="${i}" data-sp-k="${k}"></label>`).join('')
+    : `<p class="a-sub">此版型（${esc(lid)}）請至「IG 貼文」產生器編輯。</p>`;
+  return `<div class="sp-page">
+    <div class="sp-page-side">
+      <div class="sp-page-prev" data-sp-prev="${i}"></div>
+      <div class="sp-page-ops">
+        <span class="a-mono" style="color:var(--muted)">p${i+1}</span>
+        <button class="btn btn--ghost btn-sm" data-sp-pgup="${i}" title="上移">↑</button>
+        <button class="btn btn--ghost btn-sm" data-sp-pgdn="${i}" title="下移">↓</button>
+        <button class="btn btn--ghost btn-sm" data-sp-pgdel="${i}" title="刪除頁">✕</button>
+      </div>
+    </div>
+    <div class="sp-page-form">
+      <label>版型<select data-sp-pglayout="${i}">${opts}</select></label>
+      <div class="a-form" style="margin:0">${inputs}</div>
+    </div>
+  </div>`;
+}
+
+function socialEditHTML(){
+  const p = SOCIAL_EDIT;
+  const isIg = p.platform==='ig';
+  const opt=(v,l,cur)=>`<option value="${esc(v)}" ${cur===v?'selected':''}>${esc(l)}</option>`;
+  const stOpts = Object.entries(SOCIAL_STATUS_META).map(([k,m])=>opt(k,m.label,p.status)).join('');
+  const serOpts = [opt('','（未分類）',p.series||''), ...SOCIAL_SERIES.map(s=>opt(s,s,p.series))].join('');
+  const m = p.metrics||{};
+  const mIn = (k,label)=>`<label>${label}<input type="number" min="0" value="${m[k]!=null?esc(m[k]):''}" data-sp-metric="${k}"></label>`;
+  const imgs = (p.images||[]).map((u,i)=>`<span class="sp-img"><img src="${esc(u)}" alt=""><button data-sp-imgdel="${i}" title="移除">✕</button></span>`).join('');
+
+  // 廣告建議側欄
+  const Ads = window.SocialAdsLib;
+  let adHtml = '';
+  if (Ads){
+    const rec = Ads.recommendAd(p, SOCIAL_POSTS);
+    if (!rec.eligible) adHtml = `<p class="a-sub">${esc(rec.reason)}</p>`;
+    else {
+      const adv = p.status==='published' ? Ads.amplifyAdvice(p, SOCIAL_POSTS) : null;
+      adHtml = `<p><b>適投：${esc(rec.suitability)}</b>（${rec.score} 分）｜層級：${esc(rec.layer)}${rec.budgetHint!=null?`｜建議預算 ${NT(rec.budgetHint)}`:''}</p>
+      <p style="font-size:.85rem"><b>受眾：</b>${esc(rec.audience)}<br><b>目標：</b>${esc(rec.goal)}</p>
+      <ul class="sp-ul">${rec.rationale.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>
+      <p style="font-size:.85rem;color:var(--muted)"><b>投放前檢核：</b></p>
+      <ul class="sp-ul" style="color:var(--muted)">${rec.checklist.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>
+      ${adv?`<p><b>放大判讀：${esc(adv.flag)}</b></p><ul class="sp-ul">${adv.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:''}`;
+    }
+  }
+
+  return `<div class="a-toolbar">
+    <button class="btn btn--ghost btn-sm" id="sp-back">← 返回</button>
+    <b style="font-family:var(--serif)">${p.id?'編輯貼文':'新增貼文'}</b>
+    ${SOCIAL_DIRTY?'<span class="pill pill-wait">未儲存</span>':''}
+    <span style="flex:1"></span>
+    <button class="btn btn--ghost btn-sm" id="sp-copy">複製文案</button>
+    ${isIg&&(p.pages||[]).length?`<button class="btn btn--ghost btn-sm" id="sp-export">匯出全部 PNG</button>`:''}
+    ${p.id?`<button class="btn btn--ghost btn-sm" id="sp-del">刪除</button>`:''}
+    <button class="btn btn--solid btn-sm" id="sp-save">儲存</button>
+  </div>
+  <div class="sp-edit">
+    <div>
+      <div class="a-form">
+        <label>內部標題<input id="sp-e-title" value="${esc(p.title||'')}"></label>
+        <label>平台<select id="sp-e-platform">${opt('ig','Instagram',p.platform)}${opt('x','X (Twitter)',p.platform)}</select></label>
+        <label>類型<select id="sp-e-type">${isIg?opt('carousel','輪播',p.post_type)+opt('image','單圖',p.post_type):opt('text','純文字',p.post_type)+opt('image','附圖',p.post_type)}</select></label>
+        <label>狀態<select id="sp-e-status">${stOpts}</select></label>
+        <label>排程時間<input type="datetime-local" id="sp-e-sched" value="${esc((p.scheduled_at||'').replace(' ','T'))}"></label>
+        <label>內容系列<select id="sp-e-series">${serOpts}</select></label>
+        <label>戰役階段<input id="sp-e-phase" value="${esc(p.phase||'')}" placeholder="品牌重置／共同打造…"></label>
+        <label>主要受眾<input id="sp-e-aud" value="${esc(p.audience||'')}"></label>
+      </div>
+      <div class="a-form"><label style="width:100%">文案（caption）
+        <textarea id="sp-e-caption" rows="10">${esc(p.caption||'')}</textarea></label></div>
+      ${p.platform==='x'?`<p class="a-sub" id="sp-xlen">全形計 2：${socialXLen(p.caption)}／280</p>`:''}
+      <div class="a-form">
+        <label style="width:100%">Hashtags<textarea id="sp-e-tags" rows="2">${esc(p.hashtags||'')}</textarea></label>
+        <label>CTA<input id="sp-e-cta" value="${esc(p.cta||'')}"></label>
+        <label>發布後連結<input id="sp-e-url" value="${esc(p.external_url||'')}" placeholder="https://www.instagram.com/p/…"></label>
+        <label>發布時間<input type="datetime-local" id="sp-e-pub" value="${esc((p.published_at||'').replace(' ','T'))}"></label>
+      </div>
+      <div class="a-form"><label style="width:100%">內部備註<textarea id="sp-e-notes" rows="2">${esc(p.notes||'')}</textarea></label></div>
+
+      <h3 class="sp-h3">成效（發布 48–72 小時後手動回填）</h3>
+      <div class="a-form">
+        ${mIn('reach','觸及')}${mIn('nonFollowerPct','非粉絲觸及 %')}${mIn('likes','讚')}${mIn('comments','留言')}
+        ${mIn('shares','分享')}${mIn('saves','收藏')}${mIn('profileVisits','個人檔案瀏覽')}${mIn('follows','新增追蹤')}${mIn('linkClicks','連結點擊')}
+      </div>
+
+      <h3 class="sp-h3">相片素材（拍攝後上傳，供發布時使用）</h3>
+      <div class="sp-imgs">${imgs}
+        <label class="btn btn--ghost btn-sm" style="cursor:pointer">＋上傳圖片<input type="file" id="sp-e-upload" accept="image/jpeg,image/png,image/webp" style="display:none"></label>
+      </div>
+
+      ${isIg?`<h3 class="sp-h3">頁面（${(p.pages||[]).length}）<button class="btn btn--ghost btn-sm" id="sp-pgadd" style="margin-left:8px">＋加一頁</button></h3>
+      <div id="sp-pages">${(p.pages||[]).map((pg,i)=>socialPageCard(pg,i)).join('')||'<p class="a-empty">尚無頁面</p>'}</div>`:''}
+    </div>
+    <div class="sp-side">
+      <h3 class="sp-h3" style="margin-top:0">廣告建議</h3>
+      ${adHtml}
+    </div>
+  </div>`;
+}
+
+function paintSocial(){
+  const host = document.getElementById('social-body');
+  if (!host) return;
+  if (SOCIAL_POSTS === null){ host.innerHTML = '<p class="a-sub">載入貼文資料…</p>'; return; }
+  host.innerHTML = SOCIAL_VIEW==='edit' && SOCIAL_EDIT ? socialEditHTML()
+    : SOCIAL_VIEW==='calendar' ? socialCalendarHTML()
+    : SOCIAL_VIEW==='ads' ? socialAdsHTML()
+    : socialListHTML();
+  bindSocial();
+  if (SOCIAL_VIEW==='edit' && SOCIAL_EDIT && SOCIAL_EDIT.platform==='ig') renderSocialPreviews();
+}
+
+function renderSocialPreviews(){
+  if (!window.IGStudio || !window.IGStudio.renderSpec) return;
+  document.querySelectorAll('[data-sp-prev]').forEach(box=>{
+    const i = Number(box.dataset.spPrev);
+    const pg = (SOCIAL_EDIT.pages||[])[i];
+    if (!pg) return;
+    try {
+      const node = window.IGStudio.renderSpec(pg);
+      const w = 150, scale = w/1080;
+      box.innerHTML = '';
+      box.style.width = w+'px';
+      box.style.height = Math.round((pg.format==='square'?1080:1350)*scale)+'px';
+      node.style.transformOrigin='top left';
+      node.style.transform=`scale(${scale})`;
+      box.appendChild(node);
+    } catch(e){ box.textContent = '預覽失敗'; }
+  });
+}
+
+function socialCollectEdit(){
+  const p = SOCIAL_EDIT;
+  const val = id => { const el=document.getElementById(id); return el?el.value:''; };
+  p.title = val('sp-e-title').trim();
+  p.platform = val('sp-e-platform');
+  p.post_type = val('sp-e-type');
+  p.status = val('sp-e-status');
+  p.scheduled_at = val('sp-e-sched');
+  p.series = val('sp-e-series');
+  p.phase = val('sp-e-phase').trim();
+  p.audience = val('sp-e-aud').trim();
+  p.caption = val('sp-e-caption');
+  p.hashtags = val('sp-e-tags').trim();
+  p.cta = val('sp-e-cta').trim();
+  p.external_url = val('sp-e-url').trim();
+  p.published_at = val('sp-e-pub');
+  p.notes = val('sp-e-notes');
+  const metrics = {};
+  document.querySelectorAll('[data-sp-metric]').forEach(inp=>{
+    if (inp.value !== '') metrics[inp.dataset.spMetric] = Number(inp.value);
+  });
+  p.metrics = metrics;
+}
+
+async function socialSave(){
+  socialCollectEdit();
+  const p = SOCIAL_EDIT;
+  if (!p.title){ toast('請輸入貼文標題'); return; }
+  // 儲存期間鎖定表單：避免輸入落在送出快照之後又被 dirty=false 掩蓋
+  const locked = [...document.querySelectorAll('#social-body input,#social-body textarea,#social-body select,#social-body button')];
+  locked.forEach(el=>el.disabled=true);
+  try {
+    const body = Object.assign({}, p, { id: p.id || undefined });
+    const r = await api('/admin/social/posts', { method:'POST', body });
+    if (!p.id) p.id = r.id;
+    SOCIAL_DIRTY = false;
+    const { posts } = await api('/admin/social/posts');
+    SOCIAL_POSTS = posts;
+    toast('已儲存貼文');
+    paintSocial();   // 成功路徑重繪即恢復可編輯
+  } catch(e){ toast(e.message); locked.forEach(el=>el.disabled=false); }
+}
+
+async function socialExportPngs(){
+  const p = SOCIAL_EDIT;
+  if (!window.IGStudio || !window.IGStudio.exportSpecPng) { toast('匯出元件未載入'); return; }
+  socialCollectEdit();
+  const safe = p.title.replace(/[\/\\?%*:|"<>]/g,'').slice(0,40) || '貼文';
+  let okN = 0;
+  for (let i=0;i<(p.pages||[]).length;i++){
+    try {
+      await window.IGStudio.exportSpecPng(p.pages[i], `言文字_IG_${safe}_p${String(i+1).padStart(2,'0')}.png`);
+      okN++;
+    } catch(e){ toast(`第 ${i+1} 頁匯出失敗：${e.message}`); return; }
+  }
+  toast(`已匯出 ${okN} 頁 PNG`);
+}
+
+function socialNewPost(platform){
+  SOCIAL_EDIT = {
+    id:'', platform, post_type: platform==='x'?'text':'carousel', status:'draft',
+    title:'', caption:'', hashtags: platform==='ig'?'#言文字 #台灣人才聚落':'',
+    pages: platform==='ig'?[{category:'03',variant:'a',format:'portrait',q_text:'',q_sub:'',q_by:''}]:[],
+    images:[], scheduled_at:'', published_at:'', external_url:'',
+    series:'', phase:'', cta:'', audience:'', metrics:{}, notes:'',
+  };
+  SOCIAL_DIRTY = true; SOCIAL_VIEW = 'edit';
+  paintSocial();
+}
+
+function bindSocial(){
+  const host = document.getElementById('social-body');
+  if (!host) return;
+  const on = (id,ev,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener(ev,fn); };
+
+  host.querySelectorAll('[data-social-view]').forEach(b=>b.onclick=()=>{
+    if (SOCIAL_VIEW==='edit' && SOCIAL_DIRTY && !confirm('有未儲存的編輯，確定離開？')) return;
+    SOCIAL_VIEW=b.dataset.socialView; SOCIAL_EDIT=null; SOCIAL_DIRTY=false; paintSocial();
+  });
+  on('sp-f-platform','change',e=>{ SOCIAL_FILTER.platform=e.target.value; paintSocial(); });
+  on('sp-f-status','change',e=>{ SOCIAL_FILTER.status=e.target.value; paintSocial(); });
+  on('sp-f-q','input',e=>{ SOCIAL_FILTER.q=e.target.value;
+    document.querySelectorAll('#sp-body tr').forEach(tr=>{ const qq=(tr.dataset.q||'').toLowerCase();
+      tr.style.display = !e.target.value.trim() || qq.includes(e.target.value.trim().toLowerCase()) ? '' : 'none'; }); });
+  on('sp-new-ig','click',()=>socialNewPost('ig'));
+  on('sp-new-x','click',()=>socialNewPost('x'));
+
+  host.querySelectorAll('[data-sp-edit]').forEach(b=>b.onclick=(ev)=>{
+    ev.preventDefault();
+    const p = (SOCIAL_POSTS||[]).find(x=>x.id===b.dataset.spEdit); if(!p) return;
+    SOCIAL_EDIT = JSON.parse(JSON.stringify(p));
+    SOCIAL_EDIT.metrics = SOCIAL_EDIT.metrics||{};
+    SOCIAL_EDIT.pages = SOCIAL_EDIT.pages||[];
+    SOCIAL_EDIT.images = SOCIAL_EDIT.images||[];
+    SOCIAL_VIEW='edit'; SOCIAL_DIRTY=false; paintSocial();
+    document.querySelector('[data-panel="social"]')?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  host.querySelectorAll('[data-sp-del]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('確定刪除此貼文？')) return;
+    try { await api('/admin/social/posts/'+b.dataset.spDel,{method:'DELETE'});
+      SOCIAL_POSTS = SOCIAL_POSTS.filter(x=>x.id!==b.dataset.spDel);
+      toast('已刪除貼文'); paintSocial();
+    } catch(e){ toast(e.message); }
+  });
+
+  if (SOCIAL_VIEW!=='edit' || !SOCIAL_EDIT) return;
+
+  /* ---- 編輯器 ---- */
+  // 每次輸入即回寫 SOCIAL_EDIT：任何 refresh() 整頁重繪都從最新狀態重建，不遺失
+  const markDirty = ()=>{ socialCollectEdit(); SOCIAL_DIRTY=true; };
+  host.querySelectorAll('input,textarea,select').forEach(el=>el.addEventListener('input',markDirty));
+  on('sp-back','click',()=>{
+    if (SOCIAL_DIRTY && !confirm('有未儲存的編輯，確定離開？')) return;
+    SOCIAL_VIEW='list'; SOCIAL_EDIT=null; SOCIAL_DIRTY=false; paintSocial();
+  });
+  on('sp-save','click',socialSave);
+  on('sp-del','click',async()=>{
+    if(!confirm('確定刪除此貼文？')) return;
+    try { await api('/admin/social/posts/'+SOCIAL_EDIT.id,{method:'DELETE'});
+      SOCIAL_POSTS = SOCIAL_POSTS.filter(x=>x.id!==SOCIAL_EDIT.id);
+      SOCIAL_VIEW='list'; SOCIAL_EDIT=null; SOCIAL_DIRTY=false;
+      toast('已刪除貼文'); paintSocial();
+    } catch(e){ toast(e.message); }
+  });
+  on('sp-copy','click',async()=>{
+    socialCollectEdit();
+    const text = SOCIAL_EDIT.caption + (SOCIAL_EDIT.hashtags?'\n\n'+SOCIAL_EDIT.hashtags:'');
+    try { await navigator.clipboard.writeText(text); toast('已複製文案＋hashtags'); }
+    catch(e){ toast('複製失敗：'+e.message); }
+  });
+  on('sp-export','click',socialExportPngs);
+  on('sp-e-caption','input',e=>{
+    const el=document.getElementById('sp-xlen');
+    if (el) el.textContent = `全形計 2：${socialXLen(e.target.value)}／280`;
+  });
+  on('sp-e-platform','change',()=>{ socialCollectEdit(); paintSocial(); });
+  on('sp-e-upload','change',async e=>{
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const ed = SOCIAL_EDIT;   // 上傳期間可能切換貼文：完成時比對仍是同一篇才寫入
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const r = await fetch('/api/admin/upload/social',{ method:'POST', headers: token?{Authorization:'Bearer '+token}:{}, body: fd });
+      const data = await r.json().catch(()=>({}));
+      if (!r.ok) throw new Error(data.error || ('上傳失敗（'+r.status+'）'));
+      if (!SOCIAL_EDIT || SOCIAL_EDIT !== ed) { toast('已離開原貼文，圖片未加入（'+data.url+'）'); return; }
+      socialCollectEdit();
+      SOCIAL_EDIT.images.push(data.url);
+      SOCIAL_DIRTY = true;
+      toast('已上傳，記得儲存貼文'); paintSocial();
+    } catch(err){ toast(err.message); } finally { e.target.value=''; }
+  });
+  host.querySelectorAll('[data-sp-imgdel]').forEach(b=>b.onclick=()=>{
+    socialCollectEdit();
+    SOCIAL_EDIT.images.splice(Number(b.dataset.spImgdel),1);
+    SOCIAL_DIRTY=true; paintSocial();
+  });
+
+  /* 頁面編輯 */
+  on('sp-pgadd','click',()=>{
+    socialCollectEdit();
+    SOCIAL_EDIT.pages.push({category:'03',variant:'a',format:'portrait',q_text:'',q_sub:'',q_by:''});
+    SOCIAL_DIRTY=true; paintSocial();
+  });
+  host.querySelectorAll('[data-sp-pglayout]').forEach(sel=>sel.onchange=()=>{
+    socialCollectEdit();
+    const i=Number(sel.dataset.spPglayout), lid=sel.value;
+    const pg=SOCIAL_EDIT.pages[i];
+    SOCIAL_EDIT.pages[i]=Object.assign({},pg,{category:lid.slice(0,2),variant:lid.slice(2)});
+    SOCIAL_DIRTY=true; paintSocial();
+  });
+  host.querySelectorAll('[data-sp-pg]').forEach(inp=>inp.addEventListener('input',()=>{
+    const i=Number(inp.dataset.spPg), k=inp.dataset.spK;
+    if (SOCIAL_EDIT.pages[i]) SOCIAL_EDIT.pages[i][k]=inp.value;
+    SOCIAL_DIRTY=true;
+    // 只重繪這一頁的預覽
+    const box=document.querySelector(`[data-sp-prev="${i}"]`);
+    if (box && window.IGStudio && window.IGStudio.renderSpec){
+      try { const node=window.IGStudio.renderSpec(SOCIAL_EDIT.pages[i]);
+        node.style.transformOrigin='top left'; node.style.transform='scale('+(150/1080)+')';
+        box.innerHTML=''; box.appendChild(node);
+      } catch(e){}
+    }
+  }));
+  const movePage=(i,dir)=>{
+    socialCollectEdit();
+    const pgs=SOCIAL_EDIT.pages, j=i+dir;
+    if (j<0||j>=pgs.length) return;
+    [pgs[i],pgs[j]]=[pgs[j],pgs[i]];
+    SOCIAL_DIRTY=true; paintSocial();
+  };
+  host.querySelectorAll('[data-sp-pgup]').forEach(b=>b.onclick=()=>movePage(Number(b.dataset.spPgup),-1));
+  host.querySelectorAll('[data-sp-pgdn]').forEach(b=>b.onclick=()=>movePage(Number(b.dataset.spPgdn),1));
+  host.querySelectorAll('[data-sp-pgdel]').forEach(b=>b.onclick=()=>{
+    if(!confirm('刪除此頁？')) return;
+    socialCollectEdit();
+    SOCIAL_EDIT.pages.splice(Number(b.dataset.spPgdel),1);
+    SOCIAL_DIRTY=true; paintSocial();
+  });
+}
+
 async function ensureIgScripts() {
   if (window.IGStudio) return;
   const load = src => new Promise((res, rej) => {
@@ -754,6 +1304,7 @@ async function ensureIgScripts() {
   await load('/vendor/html-to-image.js');
   await load('/menu-data.js');
   await load('/ig-studio.js');
+  await load('/social-ads-lib.js');
 }
 
 async function refresh(){ const d=await api('/state'); await ensureIgScripts(); render(d); }

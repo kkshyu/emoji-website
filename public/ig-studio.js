@@ -621,6 +621,74 @@
     return root;
   }
 
+  // ---- 程式化渲染 API（社群經營後台用） ----
+  // 內容性欄位：spec 未提供時一律留白，避免示範內容外漏到正式貼文。
+  const SPEC_TEXT_FIELDS = [
+    'photo', 'p_eyebrow', 'p_zh', 'p_en', 'p_note', 'p_desc', 'p_unit', 'p_price', 'p_emo',
+    'e_title', 'e_dateBig', 'e_weekday', 'e_when', 'e_place', 'e_desc', 'e_capacity', 'e_signup',
+    'q_text', 'q_sub', 'q_by',
+    'hoursRows', 'note', 'dayTitle', 'dayHours', 'dayDesc', 'nightTitle', 'nightHours', 'nightDesc',
+    'menuTitle', 'menuRows', 'coffeeRows', 'alcoholRows',
+    'openingLine', 'openingDate', 'openingDesc', 'manifesto', 'en', 'comingTitle', 'comingSub',
+  ];
+  const STATE_DEFAULTS = Object.assign({}, state);
+
+  // 以 spec（{category,variant,format,dark,hl,…欄位}）渲染單頁節點；渲染後還原編輯器狀態。
+  function renderSpec(spec) {
+    injectCSS();
+    const s = spec || {};
+    const saved = Object.assign({}, state);
+    const category = LAYOUTS[s.category] ? s.category : '03';
+    const variant = LAYOUTS[category][s.variant] ? s.variant : 'a';
+    Object.assign(state, STATE_DEFAULTS);
+    for (const k of SPEC_TEXT_FIELDS) state[k] = '';
+    state.m_menuIds = [];
+    state.p_alcohol = false;
+    Object.assign(state, s, { category, variant });
+    // photo 會內插進單引號 style 屬性（H() 不跳脫單引號）：僅接受 data:image/ 或站內 /uploads/，其餘一律清空
+    if (state.photo && !/^(data:image\/|\/uploads\/)/.test(String(state.photo))) state.photo = '';
+    state.format = DIMS[s.format] ? s.format : 'portrait';
+    state.hl = s.hl !== false;
+    state.dark = LAYOUTS[category][variant].forceDark || !!s.dark;
+    try { return postNode(); }
+    finally { Object.assign(state, saved); }
+  }
+
+  function listLayouts() {
+    const out = [];
+    for (const cat of Object.keys(LAYOUTS)) {
+      for (const v of Object.keys(LAYOUTS[cat])) {
+        out.push({ id: cat + v, category: cat, variant: v, label: LAYOUTS[cat][v].label, dark: LAYOUTS[cat][v].forceDark });
+      }
+    }
+    return out;
+  }
+
+  // 以 spec 匯出 PNG；沿用 download() 的守門（字型就緒、溢出檢查、酒精警語帶高度）。
+  async function exportSpecPng(spec, filename) {
+    if (typeof htmlToImage === 'undefined') throw new Error('匯出元件未載入');
+    const fmt = spec && DIMS[spec.format] ? spec.format : 'portrait';
+    const { w, h } = DIMS[fmt];
+    const node = renderSpec(spec);
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position:fixed;left:-99999px;top:0;';
+    holder.appendChild(node);
+    document.body.appendChild(holder);
+    try {
+      const band = node.querySelector('.igp-alcohol');
+      if (spec && spec.p_alcohol && !band) throw new Error('酒精飲品缺少法定警語，已阻止匯出');
+      if (band && band.getBoundingClientRect().height + 0.5 < h * 0.1) throw new Error('酒精飲品缺少法定警語，已阻止匯出');
+      await document.fonts.ready;
+      const overflow = [node, ...node.querySelectorAll('.igp-body,.igp-quote,.igp-overlay-copy,.igp-layout')]
+        .some(el => Lib.contentOverflows(el.scrollHeight, el.clientHeight, el.scrollWidth, el.clientWidth));
+      if (overflow) throw new Error('內容超出版面，請縮短文字或移除照片');
+      const url = await htmlToImage.toPng(node, { width: w, height: h, pixelRatio: 1, skipFonts: true });
+      const a = document.createElement('a');
+      a.href = url; a.download = filename || Lib.buildDownloadName('貼文', fmt); a.click();
+      return url;
+    } finally { holder.remove(); }
+  }
+
   // ---- 表單 ----
   const F = {
     product: () => `
@@ -932,5 +1000,5 @@
     if (!mount._resize) { mount._resize = true; window.addEventListener('resize', () => stage && sizeStage()); }
   }
 
-  window.IGStudio = { mount, resize: sizeStage };
+  window.IGStudio = { mount, resize: sizeStage, renderSpec, listLayouts, exportSpecPng };
 })();

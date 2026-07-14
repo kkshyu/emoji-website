@@ -23,3 +23,5 @@ npm-debug.log*
 # 空間頁上傳（僅占位進版控）
 uploads/space/*
 !uploads/space/.gitkeep
+uploads/social/*
+!uploads/social/.gitkeep

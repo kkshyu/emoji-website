@@ -24,6 +24,8 @@ const {
 const { sendPage, layoutMiddleware } = require('./lib/layout');
 const { SPACE_SEED, missingSpaceSeedKeys } = require('./lib/space-content');
 const { assertSpaceImageFile, buildSafeSpaceFilename } = require('./lib/space-upload');
+const { assertSocialImageFile, buildSafeSocialFilename, sniffImageType } = require('./lib/social-upload');
+const { loadSocialSeedPosts } = require('./lib/social-seed');
 const {
   MENU_CONTENT_KEY,
   loadMenuSeedRows,
@@ -264,6 +266,29 @@ CREATE TABLE IF NOT EXISTS point_refunds (
   stripe_refund_id TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS social_posts (
+  id TEXT PRIMARY KEY,
+  platform TEXT NOT NULL DEFAULT 'ig',
+  post_type TEXT NOT NULL DEFAULT 'image',
+  status TEXT NOT NULL DEFAULT 'draft',
+  title TEXT NOT NULL DEFAULT '',
+  caption TEXT NOT NULL DEFAULT '',
+  hashtags TEXT NOT NULL DEFAULT '',
+  pages JSONB NOT NULL DEFAULT '[]',
+  images JSONB NOT NULL DEFAULT '[]',
+  scheduled_at TIMESTAMPTZ,
+  published_at TIMESTAMPTZ,
+  external_url TEXT NOT NULL DEFAULT '',
+  series TEXT NOT NULL DEFAULT '',
+  phase TEXT NOT NULL DEFAULT '',
+  cta TEXT NOT NULL DEFAULT '',
+  audience TEXT NOT NULL DEFAULT '',
+  metrics JSONB NOT NULL DEFAULT '{}',
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS social_posts_sched_idx ON social_posts(scheduled_at);
 `;
 
 async function migrate() {
@@ -284,6 +309,7 @@ async function migrate() {
   for (const c of paid) await ensureFoundingEntitlement(c);
   await seedSpaceContent();
   await seedMenuContent();
+  await seedSocialPosts();
 }
 
 async function seedBond() {
@@ -307,6 +333,63 @@ async function seedSpaceContent() {
       [key, value]
     );
   }
+}
+
+// 社群貼文：依固定 id 補缺（不覆蓋後台編輯）；FORCE_SOCIAL_SEED=1 時覆寫內容欄位
+async function seedSocialPosts() {
+  const force = process.env.FORCE_SOCIAL_SEED === '1' || process.env.FORCE_SOCIAL_SEED === 'true';
+  let posts;
+  try {
+    posts = loadSocialSeedPosts();
+  } catch (e) {
+    console.warn('[social-seed] 讀取 seed 失敗，略過：', e && e.message);
+    return;
+  }
+  // 墓碑：後台刪除過的種子 id 不再復活（FORCE_SOCIAL_SEED=1 無視墓碑重灌）
+  let dead = [];
+  if (!force) {
+    const row = (await q(`SELECT value FROM site_content WHERE key='social_seed_deleted'`)).rows[0];
+    try { dead = JSON.parse((row && row.value) || '[]'); } catch (_) { dead = []; }
+    if (!Array.isArray(dead)) dead = [];
+  }
+  for (const p of posts) {
+    if (dead.includes(p.id)) continue;
+    const scheduledAt = parseTaipei(p.scheduled_at);   // seed 排程以台北時間解讀（function 宣告有 hoisting，先用後定義無妨）
+    if (scheduledAt && isNaN(scheduledAt.getTime())) {
+      console.warn('[social-seed] 排程時間格式錯誤，略過：', p.id, p.scheduled_at);
+      continue;
+    }
+    const vals = [
+      p.id, p.platform, p.post_type, p.status, p.title, p.caption, p.hashtags,
+      JSON.stringify(p.pages || []), JSON.stringify(p.images || []),
+      scheduledAt,
+      p.external_url || '', p.series || '', p.phase || '', p.cta || '', p.audience || '', p.notes || '',
+    ];
+    try {
+      if (force) {
+        await q(
+          `INSERT INTO social_posts (id,platform,post_type,status,title,caption,hashtags,pages,images,scheduled_at,external_url,series,phase,cta,audience,notes)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+           ON CONFLICT (id) DO UPDATE SET platform=EXCLUDED.platform, post_type=EXCLUDED.post_type,
+             title=EXCLUDED.title, caption=EXCLUDED.caption, hashtags=EXCLUDED.hashtags, pages=EXCLUDED.pages,
+             scheduled_at=EXCLUDED.scheduled_at, series=EXCLUDED.series, phase=EXCLUDED.phase,
+             cta=EXCLUDED.cta, audience=EXCLUDED.audience, notes=EXCLUDED.notes, updated_at=now()`,
+          vals
+        );
+      } else {
+        await q(
+          `INSERT INTO social_posts (id,platform,post_type,status,title,caption,hashtags,pages,images,scheduled_at,external_url,series,phase,cta,audience,notes)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+           ON CONFLICT (id) DO NOTHING`,
+          vals
+        );
+      }
+    } catch (e) {
+      // 單筆匯入失敗不擋 migrate（否則整站 API 會因 dbReady=false 全回 503）
+      console.warn('[social-seed] 匯入失敗，略過：', p.id, e && e.message);
+    }
+  }
+  if (force) console.warn('[social-seed] FORCE_SOCIAL_SEED=1：已覆寫種子貼文內容。請勿長期開啟此旗標。');
 }
 
 // 菜單：缺鍵時灌入 seed（全部 published:true）；FORCE_MENU_SEED=1 時覆寫
@@ -1321,6 +1404,119 @@ app.post('/api/admin/content', auth, adminOnly, requireDb, wrap(async (req, res)
   res.json({ ok: true });
 }));
 
+/* ---- 前台管理：社群經營（IG/X 貼文規劃；不串接平台 API，僅供內容管理與排程） ---- */
+const SOCIAL_PLATFORMS = ['ig', 'x'];
+const SOCIAL_STATUS = ['draft', 'ready', 'scheduled', 'published', 'archived'];
+// 排程時間一律以台北時間讀寫（與部署環境時區脫鉤）
+const SEL_POST = `id,platform,post_type,status,title,caption,hashtags,pages,images,
+  to_char(scheduled_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD"T"HH24:MI') AS scheduled_at,
+  to_char(published_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD"T"HH24:MI') AS published_at,
+  external_url,series,phase,cta,audience,metrics,notes`;
+// 'YYYY-MM-DDTHH:mm'（datetime-local）→ 以台北時間解讀為絕對時刻；空值回 null、無效回 NaN Date
+function parseTaipei(s) {
+  if (!s) return null;
+  return new Date(String(s).trim().replace(' ', 'T').slice(0, 16) + ':00+08:00');
+}
+
+app.get('/api/admin/social/posts', auth, adminOnly, requireDb, wrap(async (_req, res) => {
+  const rows = (await q(`SELECT ${SEL_POST} FROM social_posts ORDER BY scheduled_at NULLS LAST, id`)).rows;
+  res.json({ posts: rows });
+}));
+
+app.post('/api/admin/social/posts', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const b = req.body || {};
+  const title = (b.title || '').trim();
+  if (!title) return res.status(400).json({ error: '請輸入貼文標題。' });
+  const platform = SOCIAL_PLATFORMS.includes(b.platform) ? b.platform : 'ig';
+  const status = SOCIAL_STATUS.includes(b.status) ? b.status : 'draft';
+  // 類型依平台白名單校驗（IG↔X 切換時避免殘留不合法類型）
+  const TYPE_BY_PLATFORM = { ig: ['carousel', 'image'], x: ['text', 'image'] };
+  const postType = TYPE_BY_PLATFORM[platform].includes(b.post_type) ? b.post_type : TYPE_BY_PLATFORM[platform][0];
+  const scheduledAt = parseTaipei(b.scheduled_at);
+  if (scheduledAt && isNaN(scheduledAt.getTime())) return res.status(400).json({ error: '排程時間格式不正確。' });
+  const publishedAt = parseTaipei(b.published_at);
+  if (publishedAt && isNaN(publishedAt.getTime())) return res.status(400).json({ error: '發布時間格式不正確。' });
+  const externalUrl = (b.external_url || '').trim();
+  if (externalUrl && !/^https?:\/\//i.test(externalUrl)) return res.status(400).json({ error: '連結僅接受 http(s) 網址。' });
+  const pages = platform === 'x' ? [] : (Array.isArray(b.pages) ? b.pages : []);   // X 貼文不留頁面殘骸
+  const images = Array.isArray(b.images) ? b.images : [];
+  const metrics = (b.metrics && typeof b.metrics === 'object' && !Array.isArray(b.metrics)) ? b.metrics : {};
+  const vals = [
+    title, platform, postType, status, String(b.caption ?? ''), (b.hashtags || '').trim(),
+    JSON.stringify(pages), JSON.stringify(images), scheduledAt, publishedAt,
+    externalUrl, (b.series || '').trim(), (b.phase || '').trim(),
+    (b.cta || '').trim(), (b.audience || '').trim(), JSON.stringify(metrics), String(b.notes ?? ''),
+  ];
+  if (b.id) {
+    const r = await q(
+      `UPDATE social_posts SET title=$2,platform=$3,post_type=$4,status=$5,caption=$6,hashtags=$7,pages=$8,images=$9,
+         scheduled_at=$10,published_at=$11,external_url=$12,series=$13,phase=$14,cta=$15,audience=$16,metrics=$17,notes=$18,updated_at=now()
+       WHERE id=$1 RETURNING id`, [b.id, ...vals]);
+    if (!r.rows[0]) return res.status(404).json({ error: '找不到貼文。' });
+    return res.json({ ok: true, id: b.id });
+  }
+  const id = uid('sp_');
+  await q(
+    `INSERT INTO social_posts (id,title,platform,post_type,status,caption,hashtags,pages,images,scheduled_at,published_at,external_url,series,phase,cta,audience,metrics,notes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`, [id, ...vals]);
+  res.json({ ok: true, id });
+}));
+
+app.delete('/api/admin/social/posts/:id', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  await q(`DELETE FROM social_posts WHERE id=$1`, [req.params.id]);
+  // 墓碑：刪除種子貼文要記下來，否則下次部署 seed 會復活
+  if (/^sp_seed_/.test(req.params.id)) {
+    const row = (await q(`SELECT value FROM site_content WHERE key='social_seed_deleted'`)).rows[0];
+    let dead = [];
+    try { dead = JSON.parse((row && row.value) || '[]'); } catch (_) { dead = []; }
+    if (!Array.isArray(dead)) dead = [];
+    if (!dead.includes(req.params.id)) dead.push(req.params.id);
+    await q(`INSERT INTO site_content (key,value,updated_at) VALUES ('social_seed_deleted',$1,now())
+             ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now()`, [JSON.stringify(dead)]);
+  }
+  res.json({ ok: true });
+}));
+
+/* ---- 前台管理：社群貼文圖片上傳 ---- */
+const UPLOAD_SOCIAL_DIR = path.join(__dirname, 'uploads', 'social');
+fs.mkdirSync(UPLOAD_SOCIAL_DIR, { recursive: true });
+const socialUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOAD_SOCIAL_DIR),
+    filename: (req, file, cb) => cb(null, buildSafeSocialFilename(file.originalname, file.mimetype)),
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const err = assertSocialImageFile({ mimetype: file.mimetype, size: 0 });
+    cb(err ? new Error(err) : null, !err);
+  },
+});
+app.post('/api/admin/upload/social', auth, adminOnly, (req, res) => {
+  socialUpload.single('file')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message || 'Upload failed' });
+    if (!req.file) return res.status(400).json({ error: 'file required' });
+    const sizeErr = assertSocialImageFile({ mimetype: req.file.mimetype, size: req.file.size });
+    if (sizeErr) {
+      try { fs.unlinkSync(req.file.path); } catch (_) {}
+      return res.status(400).json({ error: sizeErr });
+    }
+    // 用戶端 MIME 可偽造：讀檔頭驗 magic bytes，內容與宣告不符即拒收
+    let sniffed = null;
+    try {
+      const fd = fs.openSync(req.file.path, 'r');
+      const head = Buffer.alloc(12);
+      fs.readSync(fd, head, 0, 12, 0);
+      fs.closeSync(fd);
+      sniffed = sniffImageType(head);
+    } catch (_) {}
+    if (sniffed !== req.file.mimetype) {
+      try { fs.unlinkSync(req.file.path); } catch (_) {}
+      return res.status(400).json({ error: '檔案內容不是有效的圖片。' });
+    }
+    return res.json({ url: `/uploads/social/${req.file.filename}` });
+  });
+});
+
 /* ---- 會員：活動報名／取消（需登入；免費活動，額滿即擋） ---- */
 app.post('/api/events/:id/register', auth, requireDb, wrap(async (req, res) => {
   if (!req.auth.sub) return res.status(403).json({ error: '請以會員身分登入後報名。' });
@@ -1411,7 +1607,9 @@ app.get(['/menu', '/menu/', '/en/menu', '/en/menu/', '/ja/menu', '/ja/menu/'], m
 app.use(layoutMiddleware(PUB));
 app.use('/fellow', express.static(path.join(PUB, 'fellow'), { extensions: ['html'] }));
 // 空間介紹圖片上傳檔（管理後台上傳，需先於 static 掛載）
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res) => res.set('X-Content-Type-Options', 'nosniff'),   // 上傳目錄防內容嗅探
+}));
 // 靜態官網（無標記 HTML／資產）
 app.use(express.static(PUB, { extensions: ['html'] }));
 
