@@ -47,7 +47,8 @@
   .a-form input,.a-form select,.a-form textarea{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
   .a-form textarea{width:100%;min-height:64px;resize:vertical}
   .a-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-  .a-toolbar input[type=search]{flex:1;min-width:180px;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+  .a-toolbar input,.a-toolbar select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+  .a-toolbar input[type=search]{flex:1;min-width:180px}
   .pill{display:inline-block;font-size:.76rem;padding:.15em .6em;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
   .pill-ok{background:rgba(255,222,52,.2);border-color:transparent}
   .pill-wait{color:var(--muted)}
@@ -65,14 +66,28 @@
   .a-center{text-align:center;padding:60px 0;color:var(--muted)}
   /* 社群經營分頁 */
   .sp-h3{font-family:var(--serif);font-size:1.02rem;margin:22px 0 10px;display:flex;align-items:center}
-  .sp-week{border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;background:var(--card)}
-  .sp-week-h{display:flex;gap:10px;align-items:center;margin-bottom:8px;font-family:var(--serif)}
-  .sp-week-b{display:flex;flex-wrap:wrap;gap:8px}
-  .sp-chip{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;
-    background:var(--paper);padding:6px 10px;font:inherit;font-size:.82rem;cursor:pointer;text-align:left}
-  .sp-chip:hover{border-color:var(--ink)}
-  .sp-chip-p{font-weight:700;font-size:.72rem;border:1px solid var(--line);border-radius:4px;padding:0 .35em}
-  .sp-chip-d{font-family:ui-monospace,Menlo,monospace;color:var(--muted);font-size:.76rem}
+  /* 貼文日曆：月曆格 */
+  .sp-cal-h{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .sp-cal-h b{font-family:var(--serif);font-weight:500;font-size:1.05rem;min-width:6.5em;text-align:center}
+  .sp-cal-wrap{overflow-x:auto}
+  .sp-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;min-width:660px}
+  .sp-cal-wd{background:var(--card);padding:7px 8px;text-align:center;font-size:.74rem;color:var(--muted);letter-spacing:.06em}
+  .sp-cal-d{background:var(--paper);min-height:104px;padding:6px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .sp-cal-d.out{background:var(--card)}
+  .sp-cal-d.out .sp-cal-n{opacity:.45}
+  .sp-cal-n{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.7;padding:0 .2em}
+  .sp-cal-d.today .sp-cal-n{background:var(--ink);color:var(--paper);border-radius:999px;min-width:1.7em;height:1.7em;
+    display:inline-grid;place-items:center;font-weight:600;padding:0}
+  .sp-ev{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;gap:5px;align-items:center;
+    border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:6px;background:var(--card);
+    padding:3px 5px;font-size:.72rem;line-height:1.35}
+  .sp-ev:hover{border-color:var(--ink);border-left-color:var(--ink)}
+  .sp-ev-p{font-weight:700;font-size:.64rem;color:var(--muted);flex:none}
+  .sp-ev-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sp-ev--scheduled{border-left-color:var(--accent,#FFDE34)}
+  .sp-ev--published{border-left-color:var(--ink)}
+  .sp-ev--draft{border-left-color:var(--line)}
   .sp-edit{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
   .sp-side{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;background:var(--card);position:sticky;top:12px}
   .sp-ul{margin:.4em 0 .8em;padding-left:1.2em;font-size:.85rem}
@@ -94,6 +109,9 @@
     .a-shell{grid-template-columns:1fr;gap:14px}
     .a-nav{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
     .a-nav button{white-space:nowrap;border:1px solid var(--line)}
+    /* 窄螢幕：表格改為水平捲動，不再壓縮欄寬把中文擠成直排 */
+    .a-wrap2 table.a-tbl{min-width:640px}
+    .a-wrap2 table.a-tbl td{white-space:nowrap}
   }
 </style>
 </head>
@@ -133,6 +151,7 @@ let SOCIAL_VIEW = 'list';         // list | calendar | ads | edit
 let SOCIAL_EDIT = null;           // 編輯中的貼文（複本）
 let SOCIAL_DIRTY = false;
 let SOCIAL_FILTER = { platform:'', status:'', q:'' };
+let SOCIAL_CAL_MONTH = null;      // 日曆顯示月份 'YYYY-MM'；null=自動
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 
 // datetime-local 值 ↔ ISO
@@ -877,41 +896,66 @@ function socialListHTML(){
     <tbody id="sp-body">${rows}</tbody></table></div>`;
 }
 
-function socialWeekStart(dateStr){
-  const d = new Date(String(dateStr).replace(' ','T'));
-  if (isNaN(d)) return null;
-  const day = (d.getDay()+6)%7;             // 週一為週首
-  const m = new Date(d); m.setDate(d.getDate()-day); m.setHours(0,0,0,0);
-  return m;
+/* 日期工具：本地時區，避免 toISOString 位移一天 */
+const spDate = s => { const d = new Date(String(s).replace(' ','T')); return isNaN(d) ? null : d; };
+const spYM   = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+const spDay  = d => `${spYM(d)}-${String(d.getDate()).padStart(2,'0')}`;
+const spShiftYM = (ym, n) => { const [Y,M] = ym.split('-').map(Number); return spYM(new Date(Y, M-1+n, 1)); };
+
+// 目前顯示月份：未選則取最早一則排程貼文的月份，否則本月
+function socialCalYM(){
+  if (SOCIAL_CAL_MONTH) return SOCIAL_CAL_MONTH;
+  const ds = (SOCIAL_POSTS||[]).map(p=>spDate(p.scheduled_at)).filter(Boolean).sort((a,b)=>a-b);
+  return spYM(ds[0] || new Date());
 }
+
 function socialCalendarHTML(){
-  const posts = socialFiltered().filter(p=>p.scheduled_at);
-  const weeks = new Map();
-  for (const p of posts){
-    const ws = socialWeekStart(p.scheduled_at);
-    if (!ws) continue;
-    const key = ws.toISOString().slice(0,10);
-    if (!weeks.has(key)) weeks.set(key, { start: ws, posts: [] });
-    weeks.get(key).posts.push(p);
+  const ym = socialCalYM();
+  const [Y, M] = ym.split('-').map(Number);
+  const lead = (new Date(Y, M-1, 1).getDay() + 6) % 7;      // 週一為週首
+  const start = new Date(Y, M-1, 1 - lead);
+  const cells = Math.ceil((lead + new Date(Y, M, 0).getDate()) / 7) * 7;
+
+  const byDay = new Map();
+  for (const p of socialFiltered()){
+    const d = spDate(p.scheduled_at);
+    if (!d) continue;
+    const k = spDay(d);
+    if (!byDay.has(k)) byDay.set(k, []);
+    byDay.get(k).push({ p, d });
   }
-  const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
-  const blocks = [...weeks.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([key,w])=>{
-    const end = new Date(w.start); end.setDate(end.getDate()+6);
-    const phase = w.posts.find(p=>p.phase)?.phase || '';
-    const chips = w.posts.sort((a,b)=>String(a.scheduled_at).localeCompare(String(b.scheduled_at))).map(p=>{
+  const todayK = spDay(new Date());
+
+  let grid = '';
+  let monthCount = 0;
+  for (let i = 0; i < cells; i++){
+    const d = new Date(Y, M-1, 1 - lead + i);
+    const k = spDay(d);
+    const out = d.getMonth() !== M-1;
+    const items = (byDay.get(k) || []).sort((a,b)=>a.d-b.d);
+    if (!out) monthCount += items.length;
+    const evs = items.map(({p, d:dd})=>{
       const st = SOCIAL_STATUS_META[p.status] || SOCIAL_STATUS_META.draft;
-      return `<button class="sp-chip" data-sp-edit="${esc(p.id)}" title="${esc(p.title)}">
-        <span class="sp-chip-p">${p.platform==='ig'?'IG':'X'}</span>
-        <span class="sp-chip-d">${esc(String(p.scheduled_at).slice(5,10))}</span>
-        <span class="sp-chip-t">${esc(p.title.replace(/^[WSX]?\d*\s*[｜|]?\s*/,'').slice(0,18))}</span>
-        <span class="pill ${st.pill}">${st.label}</span></button>`;
+      const hh = `${String(dd.getHours()).padStart(2,'0')}:${String(dd.getMinutes()).padStart(2,'0')}`;
+      const t = p.title.replace(/^[WSX]?\d*\s*[｜|]?\s*/, '');
+      const tip = hh + ' ' + p.title + '（' + st.label + '）' + (p.phase ? ' · ' + p.phase : '');
+      return `<button class="sp-ev sp-ev--${esc(p.status)}" data-sp-edit="${esc(p.id)}" title="${esc(tip)}">
+        <span class="sp-ev-p">${p.platform==='ig'?'IG':'X'}</span>
+        <span class="sp-ev-t">${esc(t)}</span></button>`;
     }).join('');
-    return `<div class="sp-week"><div class="sp-week-h"><b>${fmt(w.start)} – ${fmt(end)}</b>
-      ${phase?`<span class="pill pill-wait">${esc(phase)}</span>`:''}
-      <span style="color:var(--muted);font-size:.78rem">${w.posts.length} 則</span></div>
-      <div class="sp-week-b">${chips}</div></div>`;
-  }).join('') || '<p class="a-empty">尚無排程貼文</p>';
-  return `${socialToolbar()}<div>${blocks}</div>`;
+    grid += `<div class="sp-cal-d${out?' out':''}${k===todayK?' today':''}">
+      <span class="sp-cal-n">${d.getDate()}</span>${evs}</div>`;
+  }
+  const head = ['一','二','三','四','五','六','日'].map(w=>`<div class="sp-cal-wd">${w}</div>`).join('');
+  return `${socialToolbar()}
+  <div class="sp-cal-h">
+    <button class="btn btn--ghost btn-sm" id="sp-cal-prev" aria-label="上個月">‹</button>
+    <b>${Y} 年 ${M} 月</b>
+    <button class="btn btn--ghost btn-sm" id="sp-cal-next" aria-label="下個月">›</button>
+    <button class="btn btn--ghost btn-sm" id="sp-cal-today">本月</button>
+    <span style="color:var(--muted);font-size:.8rem">本月 ${monthCount} 則</span>
+  </div>
+  <div class="sp-cal-wrap"><div class="sp-cal">${head}${grid}</div></div>`;
 }
 
 function socialAdsHTML(){
@@ -1191,6 +1235,9 @@ function bindSocial(){
       tr.style.display = !e.target.value.trim() || qq.includes(e.target.value.trim().toLowerCase()) ? '' : 'none'; }); });
   on('sp-new-ig','click',()=>socialNewPost('ig'));
   on('sp-new-x','click',()=>socialNewPost('x'));
+  on('sp-cal-prev','click',()=>{ SOCIAL_CAL_MONTH = spShiftYM(socialCalYM(), -1); paintSocial(); });
+  on('sp-cal-next','click',()=>{ SOCIAL_CAL_MONTH = spShiftYM(socialCalYM(),  1); paintSocial(); });
+  on('sp-cal-today','click',()=>{ SOCIAL_CAL_MONTH = spYM(new Date()); paintSocial(); });
 
   host.querySelectorAll('[data-sp-edit]').forEach(b=>b.onclick=(ev)=>{
     ev.preventDefault();
