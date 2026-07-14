@@ -37,11 +37,17 @@ DB 未設定時伺服器優雅降級：靜態頁照常，`/api/*` 回 503。
 |------|------|
 | `DATABASE_URL`（或 `POSTGRES_*`） | Postgres 連線 |
 | `APP_SECRET` | token 簽章金鑰（務必設定） |
-| `ADMIN_CODE` | 後台登入代碼（務必改掉預設 `KK-ADMIN`） |
+| `SUPER_ADMIN_EMAIL` | 超級管理員 Google 帳號（預設 `us@twouring.com`），可於後台指派其他管理員 |
+| `ADMIN_API_KEY` | AI agent 管理 API 金鑰（`openssl rand -hex 32`）；等同超管權限，未設＝停用，詳見 [docs/API.md](docs/API.md) |
 | `STRIPE_SECRET_KEY` | Stripe 結帳；未設時 `/api/checkout` 回 503 |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | 會員專區 Google 登入 |
 | `PUBLIC_ORIGIN` | 站台對外網址（正式：`https://www.emoji.tw`），供 Stripe 導回與 Google callback |
 | `WEB_ORIGINS` | 允許的 CORS／導回白名單（逗號分隔） |
+
+## API
+
+全部端點清單與 AI agent 認證方式見 **[docs/API.md](docs/API.md)**。
+該檔由 `scripts/test-api-docs.mjs` 強制與 `server.js` 同步——新增 `/api/*` 端點沒寫文件，`npm test` 會失敗。
 
 ## 部署提醒
 
