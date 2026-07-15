@@ -20,7 +20,7 @@
     category: '01', variant: 'a', format: 'portrait',
     dark: false, showEn: true, showMember: true, hl: true,
     photo: '',                 // dataURL
-    handle: '@yanwenzi.tw', place: '重慶南路',
+    handle: '@emoji0701', place: '重慶南路',
     // product
     p_eyebrow: '本週精選',
     p_zh: '美式咖啡', p_en: 'AMERICANO', p_note: '', p_desc: '深烘豆現萃，醇厚回甘。',
@@ -38,7 +38,7 @@
     note: '17:00 後轉為酒吧，日咖啡、夜微醺。',
     dayTitle: '日 · 咖啡', dayHours: '12:00 – 17:00', dayDesc: '手沖、甜點與一張安靜的桌。',
     nightTitle: '夜 · 酒', nightHours: '17:00 – 23:00', nightDesc: '調酒、微醺與慢下來的對話。',
-    address: '中正區重慶南路一段 11 號', mrt: '台北車站 · Z10 出口', booking: '私訊 @yanwenzi.tw',
+    address: '中正區重慶南路一段 11 號', mrt: '台北車站 · Z10 出口', booking: '私訊 @emoji0701',
     // menu (05)
     menuTitle: '菜單',
     menuRows: '冷萃 佛手柑｜180\n焙茶 拿鐵｜160\n手沖 單品｜200\n今日甜點｜140',

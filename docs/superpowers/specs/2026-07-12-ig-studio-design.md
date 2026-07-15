@@ -57,7 +57,7 @@ state = {
   showMember: boolean,    // 僅單品／價目相關版型
   hl: boolean,
   photo: dataURL|'',
-  handle: string,         // 預設 '@yanwenzi.tw'
+  handle: string,         // 預設 '@emoji0701'
   place: string,          // 預設 '重慶南路'
   // 01 product fields, 02 event, 03 quote,
   // 04 hours/location rows, 05 menu rows, 06 brand/opening fields
@@ -99,7 +99,7 @@ state = {
 |---|---|
 | 負縮放 | `bindNav` 切到 `ig` 時呼叫 `IGStudio.resize()`；`sizeStage` 若 `clientWidth < 80` 則跳過；可選 `ResizeObserver` |
 | 示範日期 | 清空或正確 weekday；placeholder 不含錯誤「(六)」 |
-| 預設帳號／地點 | `@yanwenzi.tw`、`重慶南路`（可編輯） |
+| 預設帳號／地點 | `@emoji0701`、`重慶南路`（可編輯） |
 | 上傳 | 僅 `image/jpeg`、`image/png`、`image/webp`；≤ 5MB；失敗 toast |
 | 檔名 | sanitize：去掉路徑字元與控制字元，截斷長度 |
 | 匯出 busy | 下載中 disabled＋文案「匯出中…」；防連點 |
