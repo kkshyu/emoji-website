@@ -34,10 +34,10 @@
     // quote
     q_text: '把日常，留一點空。', q_sub: '來坐坐。', q_by: '言文字',
     // hours (04)
-    hoursRows: '週二–五｜12:00–23:00\n週六日｜11:00–23:00\n週一｜公休',
-    note: '17:00 後轉為酒吧，日咖啡、夜微醺。',
-    dayTitle: '日 · 咖啡', dayHours: '12:00 – 17:00', dayDesc: '手沖、甜點與一張安靜的桌。',
-    nightTitle: '夜 · 酒', nightHours: '17:00 – 23:00', nightDesc: '調酒、微醺與慢下來的對話。',
+    hoursRows: '每日｜11:00–翌日凌晨 03:00',
+    note: '日咖啡、夜酒吧，深夜食堂到凌晨三點。',
+    dayTitle: '日 · 咖啡', dayHours: '11:00 – 17:00', dayDesc: '手沖、甜點與一張安靜的桌。',
+    nightTitle: '夜 · 酒', nightHours: '17:00 – 翌日 03:00', nightDesc: '調酒、微醺與慢下來的對話。',
     address: '中正區重慶南路一段 11 號', mrt: '台北車站 · Z10 出口', booking: '私訊 @emoji0701',
     // menu (05)
     menuTitle: '菜單',
@@ -47,8 +47,8 @@
     m_menuIds: [],
     // brand (06)
     openingLine: '言文字，開門了。', openingDate: '2026 · 11',
-    openingDesc: '日咖啡、夜酒吧，把日常留一點空。',
-    manifesto: '為想被理解的人，\n留一張桌、\n一盞燈、\n一杯剛好的溫度。',
+    openingDesc: '不只是咖啡廳——台灣人才聚落。日咖啡、夜酒吧，把日常留一點空。',
+    manifesto: '不只是咖啡廳——\n台灣人才聚落。\n讓你平常不會遇到的人，\n在台北車站旁相遇。',
     en: 'words, left for people.',
     comingTitle: 'Coming\nsoon.', comingSub: '2026 年 11 月　台北車站見。',
   };

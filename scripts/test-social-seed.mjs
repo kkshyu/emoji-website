@@ -79,7 +79,7 @@ test('禁空泛詞與推銷腔', () => {
 test('品牌資料統一：不寫舊帳號、不寫總樓層數、日期一致', () => {
   for (const p of seed) {
     const t = textOf(p);
-    assert.ok(!t.includes('@emoji0701'), `${p.id} 用到舊帳號`);
+    assert.ok(!t.includes('@yanwenzi.tw'), `${p.id} 用到舊帳號`);
     assert.ok(!/[三四4３]層樓/.test(t), `${p.id} 寫了總樓層數`);
     assert.ok(!t.includes('10/14 試營運') && !t.includes('11/2 正式開幕'), `${p.id} 日期錯誤`);
     // 殘留 HTML 實體（workflow 傳輸污染）不可進 DB
