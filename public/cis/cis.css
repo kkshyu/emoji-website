@@ -241,7 +241,7 @@
 
 .cis-donts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px}
 .cis-dont{
-  border:1px solid var(--line);background:var(--card);padding:18px 14px 16px;text-align:center;
+  border:1px solid var(--line);background:var(--card);padding:18px 14px 16px;text-align:center;overflow:hidden;
 }
 .cis-dont__viz{
   height:88px;display:grid;place-items:center;margin-bottom:12px;

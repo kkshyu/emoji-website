@@ -65,6 +65,7 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
   cursor:pointer;font-size:1.5rem;color:#1B1A17;line-height:1}
 
 @media(max-width:900px){
+  .site-nav .brand{flex:1 1 auto;min-width:0}
   .site-nav__links{position:fixed;inset:70px 0 auto 0;flex-direction:column;gap:0;align-items:stretch;
     background:#FBFAF6;border-bottom:1px solid rgba(27,26,23,.14);max-height:0;overflow:hidden auto;
     transition:max-height .35s ease;padding:0 24px}
