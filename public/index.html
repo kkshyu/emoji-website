@@ -217,7 +217,7 @@
 <main id="content">
 
 <!-- ===== 公告橫幅（後台「網站內容」可編輯；無內容則隱藏） ===== -->
-<div id="site-notice" hidden style="background:var(--ink,#1B1A17);color:var(--paper,#EDE9E0);text-align:center;padding:11px 20px;font-size:.92rem;line-height:1.5"></div>
+<div id="site-notice" hidden style="background:var(--ink,#1B1A17);color:var(--paper,#EDE9E0);text-align:center;padding:11px 20px;font-size:1rem;line-height:1.5"></div>
 
 <!-- ===== HERO ===== -->
 <section class="hero" id="top">
@@ -460,7 +460,7 @@
       <div id="news-events" hidden>
         <h3 style="font-family:var(--serif);font-size:1.15rem;margin-bottom:14px">近期活動</h3>
         <div id="news-events-list"></div>
-        <p style="color:var(--muted);font-size:.85rem;margin-top:14px">報名需登入會員專區。<a href="/member" style="text-decoration:underline;text-underline-offset:3px">前往登入報名 →</a></p>
+        <p style="color:var(--muted);font-size:1rem;margin-top:14px">報名需登入會員專區。<a href="/member" style="text-decoration:underline;text-underline-offset:3px">前往登入報名 →</a></p>
       </div>
       <div id="news-updates" hidden>
         <h3 style="font-family:var(--serif);font-size:1.15rem;margin-bottom:14px">最新消息</h3>
@@ -510,8 +510,8 @@
         var meta = esc(e.starts_at||'時間待定') + (e.location?'｜'+esc(e.location):'');
         return '<div style="padding:12px 0;border-top:1px solid var(--line)">'
           + '<b style="font-weight:500">'+esc(e.title)+'</b>'
-          + '<div style="color:var(--muted);font-size:.84rem;margin-top:.2em">'+meta+'</div>'
-          + (e.description?'<p style="color:var(--ink-soft);font-size:.9rem;margin-top:.35em">'+esc(e.description)+'</p>':'')
+          + '<div style="color:var(--muted);font-size:1rem;margin-top:.2em">'+meta+'</div>'
+          + (e.description?'<p style="color:var(--ink-soft);font-size:1rem;margin-top:.35em">'+esc(e.description)+'</p>':'')
           + '</div>';
       }).join('');
       document.getElementById('news-events').hidden=false;
@@ -520,8 +520,8 @@
       document.getElementById('news-updates-list').innerHTML = updates.map(function(u){
         return '<div style="padding:12px 0;border-top:1px solid var(--line)">'
           + '<b style="font-weight:500">'+esc(u.title)+'</b>'
-          + '<div style="color:var(--muted);font-size:.84rem;margin-top:.2em">'+esc(u.published_at)+'｜'+esc(u.type)+'</div>'
-          + (u.content?'<p style="color:var(--ink-soft);font-size:.9rem;margin-top:.35em;white-space:pre-wrap">'+esc(u.content)+'</p>':'')
+          + '<div style="color:var(--muted);font-size:1rem;margin-top:.2em">'+esc(u.published_at)+'｜'+esc(u.type)+'</div>'
+          + (u.content?'<p style="color:var(--ink-soft);font-size:1rem;margin-top:.35em;white-space:pre-wrap">'+esc(u.content)+'</p>':'')
           + '</div>';
       }).join('');
       document.getElementById('news-updates').hidden=false;

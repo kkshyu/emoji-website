@@ -508,7 +508,7 @@ function showPurchaseResult() {
   history.replaceState(null, '', location.pathname); // 清掉 query，避免重整重複顯示
   const bar = document.createElement('div');
   bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:300;padding:14px 52px 14px 20px;'
-    + 'font-size:.95rem;line-height:1.6;text-align:center;box-shadow:0 6px 20px -10px rgba(0,0,0,.5);'
+    + 'font-size:1rem;line-height:1.6;text-align:center;box-shadow:0 6px 20px -10px rgba(0,0,0,.5);'
     + (paid ? 'background:#FFDE34;color:#1B1A17;' : 'background:#1B1A17;color:#EDE9E0;');
   bar.innerHTML = (paid ? T.paid : T.canceled)
     + '<button aria-label="關閉" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);'

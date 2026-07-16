@@ -15,9 +15,9 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
 /* align-items 明設 flex-start：計畫頁的 fellow/styles.css 有 .brand{align-items:center} 會污染共用 nav，此處鎖定左對齊，兩套 stylesheet 下一致 */
 .site-nav .brand{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1;gap:3px;text-decoration:none;color:#1B1A17;flex:0 0 auto}
 .site-nav .brand b{font-family:"Noto Serif TC",serif;font-weight:700;font-size:1.16rem;letter-spacing:.16em}
-.site-nav .brand span{font-size:.6rem;letter-spacing:.13em;color:#6B6558;font-weight:400}
+.site-nav .brand span{font-size:1rem;letter-spacing:.13em;color:#6B6558;font-weight:400}
 .site-nav__links{display:flex;gap:24px;align-items:center}
-.site-nav__links a:not(.btn),.site-nav__dd-top{font-size:.9rem;color:#3A362E;font-weight:500;
+.site-nav__links a:not(.btn),.site-nav__dd-top{font-size:1rem;color:#3A362E;font-weight:500;
   text-decoration:none;background:none;border:0;cursor:pointer;font-family:inherit;line-height:1}
 .site-nav__links>a:not(.btn){position:relative}
 .site-nav__links>a:not(.btn)::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:1.5px;
@@ -34,9 +34,9 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
   transition:opacity .18s ease,transform .18s ease,visibility 0s linear .15s;z-index:81}
 /* 橋接 trigger 與選單間的 10px 空隙，滑鼠穿越時 hover 不中斷 */
 .site-nav__menu::before{content:"";position:absolute;left:-8px;right:-8px;top:-12px;height:12px}
-.site-nav__menu a{font-size:.86rem;color:#3A362E;padding:9px 13px;border-radius:7px;white-space:nowrap;text-decoration:none}
+.site-nav__menu a{font-size:1rem;color:#3A362E;padding:9px 13px;border-radius:7px;white-space:nowrap;text-decoration:none}
 .site-nav__menu a[aria-current=page]{background:rgba(255,222,52,.22);color:#1B1A17}
-.site-nav__lang .site-nav__dd-top{font-size:.85rem;color:#6B6558}
+.site-nav__lang .site-nav__dd-top{font-size:1rem;color:#6B6558}
 .site-nav__globe{width:19px;height:19px;display:block;flex:0 0 auto}
 .site-nav__lang-label{display:none}          /* 桌機：只留地球 icon */
 .site-nav__lang .site-nav__menu{left:auto;right:0;transform:translateY(4px);min-width:132px}
@@ -57,7 +57,7 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
 
 /* ── CTA 按鈕（墨底：黃色留給每頁唯一 highlight／主 CTA，避免同屏兩擊）── */
 .site-nav .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
-  font-size:.86rem;font-weight:600;letter-spacing:.02em;padding:9px 18px;border-radius:999px;text-decoration:none;
+  font-size:1rem;font-weight:600;letter-spacing:.02em;padding:9px 18px;border-radius:999px;text-decoration:none;
   background:#1B1A17;color:#FBFAF6;border:1px solid #1B1A17;transition:transform .15s ease,box-shadow .15s ease}
 .site-nav .btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px -8px rgba(27,26,23,.45)}
 /* ── 漢堡（手機）── */
@@ -92,12 +92,12 @@ footer.site-foot{background:#16150F;color:#B7B0A2;padding:72px 0 40px;
 footer.site-foot .wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
 footer.site-foot .foot__top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:44px;padding-bottom:44px;border-bottom:1px solid rgba(237,233,224,.12)}
 footer.site-foot .foot__brand b{display:block;font-family:"Noto Serif TC",serif;color:#EDE9E0;font-size:1.28rem;font-weight:700;letter-spacing:.1em}
-footer.site-foot .foot__brand span{font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:#B7B0A2}
-footer.site-foot .foot__brand p{margin-top:16px;font-size:.9rem;font-weight:300;max-width:34ch;line-height:1.8}
-footer.site-foot .foot__col h3{color:#EDE9E0;font-size:.76rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px;font-weight:500}
-footer.site-foot .foot__col a,footer.site-foot .foot__col p{display:block;font-size:.9rem;color:#B7B0A2;margin-bottom:10px;font-weight:300;text-decoration:none;transition:color .2s}
+footer.site-foot .foot__brand span{font-size:1rem;letter-spacing:.26em;text-transform:uppercase;color:#B7B0A2}
+footer.site-foot .foot__brand p{margin-top:16px;font-size:1rem;font-weight:300;max-width:34ch;line-height:1.8}
+footer.site-foot .foot__col h3{color:#EDE9E0;font-size:1rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px;font-weight:500}
+footer.site-foot .foot__col a,footer.site-foot .foot__col p{display:block;font-size:1rem;color:#B7B0A2;margin-bottom:10px;font-weight:300;text-decoration:none;transition:color .2s}
 footer.site-foot .foot__col a:hover{color:#EDE9E0}
-footer.site-foot .foot__bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:28px;font-size:.8rem;color:#B7B0A2}
+footer.site-foot .foot__bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:28px;font-size:1rem;color:#B7B0A2}
 @media(max-width:760px){
   footer.site-foot .foot__top{grid-template-columns:1fr;gap:32px}
   footer.site-foot .foot__col a{padding:6px 0;margin-bottom:4px}

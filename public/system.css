@@ -49,14 +49,14 @@
 .system-mode p {
   margin: 0;
   color: var(--muted);
-  font-size: .92rem;
+  font-size: 1rem;
   line-height: 1.6;
 }
 
 .system-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: .95rem;
+  font-size: 1rem;
 }
 
 .system-table th,
@@ -69,7 +69,7 @@
 
 .system-table th {
   color: var(--muted);
-  font-size: .78rem;
+  font-size: 1rem;
   font-weight: 500;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -84,7 +84,7 @@
 .system-note {
   margin-top: 16px;
   color: var(--muted);
-  font-size: .9rem;
+  font-size: 1rem;
   line-height: 1.65;
 }
 

@@ -54,9 +54,9 @@
   color:var(--brass);line-height:1;margin-bottom:6px;
 }
 .ptn-way h3{font-family:var(--serif);font-size:1.16rem;margin-bottom:.6rem;color:var(--ink-2);line-height:1.4}
-.ptn-way p{color:var(--muted);font-size:.95rem;margin:0}
+.ptn-way p{color:var(--muted);font-size:1rem;margin:0}
 .ptn-ways-note{margin:clamp(28px,4vw,40px) auto 0;text-align:center;max-width:60ch}
-.ptn-ways-note p{color:var(--muted);font-size:.98rem}
+.ptn-ways-note p{color:var(--muted);font-size:1rem}
 
 /* -------------------------------------------------------------------------
    六種合作情境 — 不規則磚牆（CSS columns，非 3×2 均一格）
@@ -67,9 +67,9 @@
   margin:0 0 22px;background:var(--paper-card);border:1px solid var(--line);
   border-radius:var(--r-lg);box-shadow:var(--shadow);padding:24px 22px;
 }
-.ptn-brick .idx{font-family:var(--mono);font-size:.76rem;letter-spacing:.08em;color:var(--brass)}
+.ptn-brick .idx{font-family:var(--mono);font-size:1rem;letter-spacing:.08em;color:var(--brass)}
 .ptn-brick h3{font-family:var(--serif);font-size:1.1rem;margin:.5rem 0 .5rem;color:var(--ink-2)}
-.ptn-brick p{color:var(--muted);font-size:.93rem;margin:0}
+.ptn-brick p{color:var(--muted);font-size:1rem;margin:0}
 /* 刻意錯落：部分磚較高、部分換底色，形成不規則牆面 */
 .ptn-brick:nth-child(2),.ptn-brick:nth-child(5){padding-top:40px;padding-bottom:40px}
 .ptn-brick:nth-child(3){background:var(--paper-sunk)}
@@ -95,8 +95,8 @@
 }
 .ptn-why-icon svg{width:22px;height:22px}
 .ptn-why-node h3{font-family:var(--serif);font-size:1.02rem;color:var(--ink-2)}
-.ptn-why-node p{font-size:.88rem;color:var(--muted);margin:0;max-width:28ch}
-.ptn-why-tag{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+.ptn-why-node p{font-size:1rem;color:var(--muted);margin:0;max-width:28ch}
+.ptn-why-tag{font-family:var(--mono);font-size:1rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
 
 /* -------------------------------------------------------------------------
    聯絡 CTA — 全頁唯一黃擊

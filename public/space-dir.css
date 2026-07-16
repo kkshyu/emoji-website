@@ -111,7 +111,7 @@
 
 .menu-group__en {
   font-family: var(--latin);
-  font-size: .86rem;
+  font-size: 1rem;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--muted);
@@ -149,14 +149,14 @@
 .menu-item__en {
   margin-left: .7em;
   font-family: var(--latin);
-  font-size: .86rem;
+  font-size: 1rem;
   letter-spacing: .03em;
   color: var(--muted);
 }
 
 .menu-item__note {
   margin-top: 5px;
-  font-size: .84rem;
+  font-size: 1rem;
   color: var(--muted);
   font-weight: 300;
 }
@@ -178,7 +178,7 @@
 .menu-item__price .orig {
   display: block;
   margin-top: 2px;
-  font-size: .78rem;
+  font-size: 1rem;
   color: var(--muted);
 }
 
@@ -188,7 +188,7 @@
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  font-size: .84rem;
+  font-size: 1rem;
   color: var(--ink-soft);
 }
 
@@ -214,7 +214,7 @@
 .space-dir__cue {
   margin: 0 0 20px;
   padding: 0;
-  font-size: .78rem;
+  font-size: 1rem;
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--muted);
@@ -403,7 +403,7 @@
 
 .space-dir__kicker {
   display: block;
-  font-size: .7rem;
+  font-size: 1rem;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--muted);
@@ -423,7 +423,7 @@
 .space-dir__hint {
   display: block;
   margin-top: .4em;
-  font-size: .86rem;
+  font-size: 1rem;
   color: var(--ink-soft);
   font-weight: 300;
   line-height: 1.55;
@@ -507,7 +507,7 @@
   all: unset;
   box-sizing: border-box;
   cursor: pointer;
-  font-size: .8rem;
+  font-size: 1rem;
   letter-spacing: .06em;
   color: var(--muted);
   padding: 4px 0;

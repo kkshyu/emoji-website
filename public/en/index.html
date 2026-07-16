@@ -452,13 +452,13 @@
     <div class="sec-head reveal">
       <span class="eyebrow">News &amp; Events</span>
       <h2>What's <span class="swash">happening</span></h2>
-      <p style="color:var(--muted);font-size:.9rem;margin-top:.6rem">Event titles may appear in Chinese until translations are published.</p>
+      <p style="color:var(--muted);font-size:1rem;margin-top:.6rem">Event titles may appear in Chinese until translations are published.</p>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px;margin-top:28px">
       <div id="news-events" hidden>
         <h3 style="font-family:var(--serif);font-size:1.15rem;margin-bottom:14px">Upcoming events</h3>
         <div id="news-events-list"></div>
-        <p style="color:var(--muted);font-size:.85rem;margin-top:14px">Registration requires member login. <a href="/en/member" style="text-decoration:underline;text-underline-offset:3px">Sign in to register →</a></p>
+        <p style="color:var(--muted);font-size:1rem;margin-top:14px">Registration requires member login. <a href="/en/member" style="text-decoration:underline;text-underline-offset:3px">Sign in to register →</a></p>
       </div>
       <div id="news-updates" hidden>
         <h3 style="font-family:var(--serif);font-size:1.15rem;margin-bottom:14px">Latest updates</h3>
@@ -507,8 +507,8 @@
         var meta = esc(e.starts_at||'Time TBD') + (e.location?' · '+esc(e.location):'');
         return '<div style="padding:12px 0;border-top:1px solid var(--line)">'
           + '<b style="font-weight:500">'+esc(e.title)+'</b>'
-          + '<div style="color:var(--muted);font-size:.84rem;margin-top:.2em">'+meta+'</div>'
-          + (e.description?'<p style="color:var(--ink-soft);font-size:.9rem;margin-top:.35em">'+esc(e.description)+'</p>':'')
+          + '<div style="color:var(--muted);font-size:1rem;margin-top:.2em">'+meta+'</div>'
+          + (e.description?'<p style="color:var(--ink-soft);font-size:1rem;margin-top:.35em">'+esc(e.description)+'</p>':'')
           + '</div>';
       }).join('');
       document.getElementById('news-events').hidden=false;
@@ -517,8 +517,8 @@
       document.getElementById('news-updates-list').innerHTML = updates.map(function(u){
         return '<div style="padding:12px 0;border-top:1px solid var(--line)">'
           + '<b style="font-weight:500">'+esc(u.title)+'</b>'
-          + '<div style="color:var(--muted);font-size:.84rem;margin-top:.2em">'+esc(u.published_at)+' · '+esc(u.type)+'</div>'
-          + (u.content?'<p style="color:var(--ink-soft);font-size:.9rem;margin-top:.35em;white-space:pre-wrap">'+esc(u.content)+'</p>':'')
+          + '<div style="color:var(--muted);font-size:1rem;margin-top:.2em">'+esc(u.published_at)+' · '+esc(u.type)+'</div>'
+          + (u.content?'<p style="color:var(--ink-soft);font-size:1rem;margin-top:.35em;white-space:pre-wrap">'+esc(u.content)+'</p>':'')
           + '</div>';
       }).join('');
       document.getElementById('news-updates').hidden=false;

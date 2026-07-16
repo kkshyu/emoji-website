@@ -38,7 +38,7 @@
   text-wrap:balance;
 }
 .fnd-invite__title .latin-sub{
-  display:block;font-family:var(--display);font-weight:500;font-size:.3em;
+  display:block;font-family:var(--display);font-weight:500;font-size:max(1rem,.3em);
   letter-spacing:.2em;text-transform:uppercase;margin-top:1rem;color:var(--muted);
 }
 .fnd-invite__lead{
@@ -83,7 +83,7 @@
   display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;
 }
 .fnd-scarcity .fund-top span{
-  font-family:var(--mono);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  font-family:var(--mono);font-size:1rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
 }
 /* 計數徽章：墨底亮字（唯一黃擊已移至永遠可見的主 CTA，避免進度隱藏時 home 無焦點） */
 .fnd-scarcity .fund-top b{
@@ -93,7 +93,7 @@
 }
 .fnd-scarcity .bar{height:14px;border-radius:20px;background:var(--paper-sunk);border:1px solid var(--line-strong)}
 .fnd-scarcity .bar > i{background:var(--ink);border-radius:20px}
-.fnd-scarcity .fund-note{margin-top:10px;font-size:.86rem;color:var(--muted);line-height:1.7}
+.fnd-scarcity .fund-note{margin-top:10px;font-size:1rem;color:var(--muted);line-height:1.7}
 .fnd-scarcity .fund-note span{color:var(--muted)}
 
 /* 創始牆 — 座號 001–100 長條 motif（純裝飾） */
@@ -102,7 +102,7 @@
   padding:18px 20px 20px;box-shadow:var(--shadow);
 }
 .fnd-roster-label{
-  font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  font-family:var(--mono);font-size:1rem;letter-spacing:.2em;text-transform:uppercase;
   color:var(--brass);margin-bottom:12px;
 }
 .fnd-roster{
@@ -139,7 +139,7 @@
   font-family:var(--serif);font-size:clamp(1.12rem,2vw,1.4rem);color:var(--ink-2);
   margin-bottom:.4rem;
 }
-.fnd-index__text p{color:var(--muted);font-size:.95rem;margin:0;max-width:56ch;line-height:1.7}
+.fnd-index__text p{color:var(--muted);font-size:1rem;margin:0;max-width:56ch;line-height:1.7}
 .fnd-index__arrow{width:1.3em;height:1.3em;color:var(--brass);flex:0 0 auto;transition:transform .22s ease}
 .fnd-index__row:hover .fnd-index__arrow{transform:translateX(4px)}
 

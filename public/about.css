@@ -33,7 +33,7 @@
 }
 .about-block__label {
   font-family: var(--sans);
-  font-size: 0.75rem;
+  font-size: 1rem;
   letter-spacing: 0.14em;
   text-transform: none;
   color: var(--muted);
@@ -76,7 +76,7 @@
 }
 .about-kk__role {
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: 1rem;
   line-height: 1.6;
   margin-top: 4px;
 }
@@ -92,14 +92,14 @@
   gap: 12px;
   padding: 12px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 .about-roles li span:first-child {
   color: var(--muted);
 }
 .about-more {
   margin-top: 20px;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 .about-more a {
   color: var(--ink);
