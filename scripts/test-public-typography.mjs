@@ -14,7 +14,7 @@ const RELATIVE_FLOORS = { rem: 1, em: 1, '%': 100 };
 const GLOBAL_KEYWORDS = new Set(['inherit', 'initial', 'unset', 'revert', 'revert-layer']);
 const SAFE_SIZE_KEYWORDS = new Set([
   ...GLOBAL_KEYWORDS,
-  'medium', 'large', 'x-large', 'xx-large', 'xxx-large', 'larger',
+  'medium', 'large', 'x-large', 'xx-large', 'xxx-large',
 ]);
 const EXCLUDED = new Set([
   'public/access-mock.html',
@@ -126,7 +126,7 @@ function sourceViolations(relative, rawSource) {
     const value = literalValue(match[1]);
     if (value === null || belowFloor(value)) add(match, 'fontSize', match[1].trim());
   }
-  for (const match of source.matchAll(/\.style\.setProperty\s*\(\s*(['"`])font-size\1\s*,\s*([^)\n]+)\)/gi)) {
+  for (const match of source.matchAll(/\.style\.setProperty\s*\(\s*(['"`])font-size\1\s*,\s*([\s\S]*?)\)/gi)) {
     const value = literalValue(match[2]);
     if (value === null || belowFloor(value)) add(match, 'font-size', match[2].trim());
   }
@@ -186,12 +186,13 @@ test('未知與無固定下限的相對值一律 fail closed', () => {
     '1ex', '1ch', '1cap', '1ic', '1lh', '1rlh',
     '1cqw', '1cqh', '1cqi', '1cqb', '1cqmin', '1cqmax',
     'var(--tiny)', 'mystery(1rem)', 'banana',
+    'larger',
     'clamp(var(--caption,.5rem),2vw,2rem)',
     'max(.5rem,var(--caption))',
   ];
   const safe = [
     'inherit', 'initial', 'unset', 'revert', 'revert-layer',
-    'medium', 'large', 'x-large', 'xx-large', 'xxx-large', 'larger',
+    'medium', 'large', 'x-large', 'xx-large', 'xxx-large',
     'max(1rem,var(--caption))', 'max(1pc,var(--caption))',
   ];
 
@@ -206,6 +207,10 @@ test('scanner 攔截 font shorthand 與動態 fontSize 寫入', () => {
     ['bare fontSize literal', 'el.fontSize="12px";'],
     ['fontSize dynamic', 'el.style.fontSize=size;'],
     ['setProperty literal', "el.style.setProperty('font-size','12px');"],
+    ['multiline setProperty', `el.style.setProperty(
+      'font-size',
+      '12px'
+    );`],
     ['setProperty dynamic', "el.style.setProperty('font-size',size);"],
     ['custom property', '.x{font-size:var(--tiny)}'],
   ];
@@ -214,6 +219,10 @@ test('scanner 攔截 font shorthand 與動態 fontSize 寫入', () => {
     ['font global', '.x{font:revert-layer}'],
     ['fontSize literal', "el.style.fontSize='1rem';"],
     ['setProperty literal', "el.style.setProperty('font-size','1rem');"],
+    ['multiline setProperty', `el.style.setProperty(
+      'font-size',
+      '1rem'
+    );`],
   ];
 
   assert.deepEqual(
@@ -243,9 +252,13 @@ test('三語 member profile inputs 明確宣告 1rem', () => {
 
 test('三語 founding roster 必須維持 aria-hidden', () => {
   const assertHiddenRoster = (source) => {
-    const roster = [...source.matchAll(/<[^>]+\bclass=(['"])([^'"]*)\1[^>]*>/gi)]
-      .find((match) => match[2].split(/\s+/).includes('fnd-roster'))?.[0] ?? '';
-    assert.match(roster, /\baria-hidden\s*=\s*(['"])true\1/i);
+    const rosters = [...source.matchAll(/<[^>]+\bclass=(['"])([^'"]*)\1[^>]*>/gi)]
+      .filter((match) => match[2].split(/\s+/).includes('fnd-roster'))
+      .map((match) => match[0]);
+    assert.ok(rosters.length > 0);
+    for (const roster of rosters) {
+      assert.match(roster, /\baria-hidden\s*=\s*(['"])true\1/i);
+    }
   };
 
   for (const relative of ['public/fellow/index.html', 'public/en/fellow/index.html', 'public/ja/fellow/index.html']) {
@@ -254,6 +267,12 @@ test('三語 founding roster 必須維持 aria-hidden', () => {
     const mutated = source.replace(/(<div class="fnd-roster")\s+aria-hidden="true"/, '$1');
     assert.notEqual(mutated, source, relative);
     assert.throws(() => assertHiddenRoster(mutated), undefined, relative);
+    const duplicated = source.replace(
+      /(<div class="fnd-roster" aria-hidden="true">)/,
+      '$1<div class="fnd-roster"></div>',
+    );
+    assert.notEqual(duplicated, source, relative);
+    assert.throws(() => assertHiddenRoster(duplicated), undefined, relative);
   }
 });
 
