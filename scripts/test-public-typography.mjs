@@ -8,10 +8,14 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC = path.join(ROOT, 'public');
 const EXTENSIONS = new Set(['.css', '.html', '.js']);
 const NUMBER = String.raw`[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?`;
-const FIXED_SIZE = new RegExp(`^(${NUMBER})\\s*(rem|em|px|pt|%)$`, 'i');
-const ZERO = new RegExp(`^${NUMBER}$`, 'i');
-const VIEWPORT_SIZE = new RegExp(`^${NUMBER}(?:[dsl]?v(?:w|h|min|max|i|b))$`, 'i');
-const FLOORS = { rem: 1, em: 1, px: 16, pt: 12, '%': 100 };
+const FIXED_SIZE = new RegExp(`^(${NUMBER})\\s*(rem|em|px|pt|pc|in|cm|mm|q|%)$`, 'i');
+const PX_PER_UNIT = { px: 1, pt: 96 / 72, pc: 16, in: 96, cm: 96 / 2.54, mm: 96 / 25.4, q: 96 / (2.54 * 40) };
+const RELATIVE_FLOORS = { rem: 1, em: 1, '%': 100 };
+const GLOBAL_KEYWORDS = new Set(['inherit', 'initial', 'unset', 'revert', 'revert-layer']);
+const SAFE_SIZE_KEYWORDS = new Set([
+  ...GLOBAL_KEYWORDS,
+  'medium', 'large', 'x-large', 'xx-large', 'xxx-large', 'larger',
+]);
 const EXCLUDED = new Set([
   'public/access-mock.html',
   'public/admin.html',
@@ -73,31 +77,60 @@ function topLevelArgs(value, name) {
   return args.every(Boolean) ? args : null;
 }
 
+function fixedAtOrAboveFloor(value, allowEm = true) {
+  const fixed = value.match(FIXED_SIZE);
+  if (!fixed) return null;
+  const amount = Number(fixed[1]);
+  const unit = fixed[2].toLowerCase();
+  if (!allowEm && unit === 'em') return false;
+  return PX_PER_UNIT[unit] ? amount * PX_PER_UNIT[unit] >= 16 : amount >= RELATIVE_FLOORS[unit];
+}
+
 function belowFloor(rawValue) {
-  const value = rawValue.replace(/\s*!important\s*$/i, '').trim();
+  const value = rawValue.replace(/\s*!\s*important\s*$/i, '').trim();
   const max = topLevelArgs(value, 'max');
-  if (max) {
-    return !max.some((argument) => {
-      const fixed = argument.match(FIXED_SIZE);
-      if (!fixed || fixed[2].toLowerCase() === 'em') return false;
-      return Number(fixed[1]) >= FLOORS[fixed[2].toLowerCase()];
-    });
-  }
+  if (max) return !max.some((argument) => fixedAtOrAboveFloor(argument, false) === true);
 
   const clamp = topLevelArgs(value, 'clamp');
   if (clamp) return belowFloor(clamp[0]);
 
-  const fixed = value.match(FIXED_SIZE);
-  if (fixed) {
-    const amount = Number(fixed[1]);
-    return amount < FLOORS[fixed[2].toLowerCase()];
-  }
+  const fixed = fixedAtOrAboveFloor(value);
+  if (fixed !== null) return !fixed;
+  if (SAFE_SIZE_KEYWORDS.has(value.toLowerCase())) return false;
+  return true;
+}
 
-  if (ZERO.test(value) && Number(value) === 0) return true;
-  if (/^(?:xx-small|x-small|small|smaller)$/i.test(value)) return true;
-  if (/^(?:calc|min|max|clamp)\(/i.test(value)) return true;
-  if (VIEWPORT_SIZE.test(value)) return true;
-  return false;
+function literalValue(rawValue) {
+  const value = rawValue.trim();
+  const quote = value[0];
+  if (!['"', "'", '`'].includes(quote) || value.at(-1) !== quote) return null;
+  const literal = value.slice(1, -1);
+  return literal.includes('\\') || (quote === '`' && literal.includes('${')) ? null : literal;
+}
+
+function sourceViolations(relative, rawSource) {
+  const source = withoutAllowedDecoration(relative, withoutBlockComments(rawSource));
+  const violations = [];
+  const add = (match, property, value) => {
+    const line = source.slice(0, match.index).split('\n').length;
+    violations.push(`${relative}:${line} ${property}:${value}`);
+  };
+  for (const match of source.matchAll(/font-size\s*:\s*([^;}"']+)/gi)) {
+    if (belowFloor(match[1])) add(match, 'font-size', match[1].trim());
+  }
+  for (const match of source.matchAll(/\bfont\s*:\s*([^;}"']+)/gi)) {
+    const value = match[1].replace(/\s*!\s*important\s*$/i, '').trim().toLowerCase();
+    if (!GLOBAL_KEYWORDS.has(value)) add(match, 'font', match[1].trim());
+  }
+  for (const match of source.matchAll(/\.fontSize\s*=\s*([^;\n]+)/g)) {
+    const value = literalValue(match[1]);
+    if (value === null || belowFloor(value)) add(match, 'fontSize', match[1].trim());
+  }
+  for (const match of source.matchAll(/\.style\.setProperty\s*\(\s*(['"`])font-size\1\s*,\s*([^)\n]+)\)/gi)) {
+    const value = literalValue(match[2]);
+    if (value === null || belowFloor(value)) add(match, 'font-size', match[2].trim());
+  }
+  return violations;
 }
 
 test('max 與 clamp 只接受頂層明確固定下限', () => {
@@ -140,6 +173,90 @@ test('viewport-only 字級涵蓋傳統、dynamic、small、large 與 logical 單
   assert.deepEqual(units.map((unit) => [unit, belowFloor(`1${unit}`)]), units.map((unit) => [unit, true]));
 });
 
+test('絕對單位以 96 CSS px/in 換算並接受空白 important', () => {
+  const unsafe = ['.5rem ! important', '0.1in', '0.9pc', '0.4cm', '4mm', '15Q', '10Q'];
+  const safe = ['16px', '12pt', '1pc', '1in', '2.54cm', '25.4mm', '40Q'];
+
+  assert.deepEqual(unsafe.map((value) => [value, belowFloor(value)]), unsafe.map((value) => [value, true]));
+  assert.deepEqual(safe.map((value) => [value, belowFloor(value)]), safe.map((value) => [value, false]));
+});
+
+test('未知與無固定下限的相對值一律 fail closed', () => {
+  const unsafe = [
+    '1ex', '1ch', '1cap', '1ic', '1lh', '1rlh',
+    '1cqw', '1cqh', '1cqi', '1cqb', '1cqmin', '1cqmax',
+    'var(--tiny)', 'mystery(1rem)', 'banana',
+    'clamp(var(--caption,.5rem),2vw,2rem)',
+    'max(.5rem,var(--caption))',
+  ];
+  const safe = [
+    'inherit', 'initial', 'unset', 'revert', 'revert-layer',
+    'medium', 'large', 'x-large', 'xx-large', 'xxx-large', 'larger',
+    'max(1rem,var(--caption))', 'max(1pc,var(--caption))',
+  ];
+
+  assert.deepEqual(unsafe.map((value) => [value, belowFloor(value)]), unsafe.map((value) => [value, true]));
+  assert.deepEqual(safe.map((value) => [value, belowFloor(value)]), safe.map((value) => [value, false]));
+});
+
+test('scanner 攔截 font shorthand 與動態 fontSize 寫入', () => {
+  const unsafe = [
+    ['font shorthand', '.x{font:12px sans-serif}'],
+    ['fontSize literal', "el.style.fontSize='12px';"],
+    ['bare fontSize literal', 'el.fontSize="12px";'],
+    ['fontSize dynamic', 'el.style.fontSize=size;'],
+    ['setProperty literal', "el.style.setProperty('font-size','12px');"],
+    ['setProperty dynamic', "el.style.setProperty('font-size',size);"],
+    ['custom property', '.x{font-size:var(--tiny)}'],
+  ];
+  const safe = [
+    ['font inherit', '.x{font:inherit}'],
+    ['font global', '.x{font:revert-layer}'],
+    ['fontSize literal', "el.style.fontSize='1rem';"],
+    ['setProperty literal', "el.style.setProperty('font-size','1rem');"],
+  ];
+
+  assert.deepEqual(
+    unsafe.map(([name, source]) => [name, sourceViolations('public/example.js', source).length > 0]),
+    unsafe.map(([name]) => [name, true]),
+  );
+  assert.deepEqual(
+    safe.map(([name, source]) => [name, sourceViolations('public/example.js', source).length > 0]),
+    safe.map(([name]) => [name, false]),
+  );
+});
+
+test('三語 member profile inputs 明確宣告 1rem', () => {
+  const results = ['public/member.html', 'public/en/member.html', 'public/ja/member.html'].map((relative) => {
+    const source = readFileSync(path.join(ROOT, relative), 'utf8');
+    const drawer = source.match(/<div class="m-drawer" id="m-profile-drawer"[\s\S]*?<\/div>/)?.[0] ?? '';
+    const inputs = [...drawer.matchAll(/<input\b[^>]*>/gi)].map((match) => match[0]);
+    return [relative, inputs.length, inputs.every((input) => /style="[^"]*font-size\s*:\s*1rem/i.test(input))];
+  });
+
+  assert.deepEqual(results, [
+    ['public/member.html', 2, true],
+    ['public/en/member.html', 2, true],
+    ['public/ja/member.html', 2, true],
+  ]);
+});
+
+test('三語 founding roster 必須維持 aria-hidden', () => {
+  const assertHiddenRoster = (source) => {
+    const roster = [...source.matchAll(/<[^>]+\bclass=(['"])([^'"]*)\1[^>]*>/gi)]
+      .find((match) => match[2].split(/\s+/).includes('fnd-roster'))?.[0] ?? '';
+    assert.match(roster, /\baria-hidden\s*=\s*(['"])true\1/i);
+  };
+
+  for (const relative of ['public/fellow/index.html', 'public/en/fellow/index.html', 'public/ja/fellow/index.html']) {
+    const source = readFileSync(path.join(ROOT, relative), 'utf8');
+    assert.doesNotThrow(() => assertHiddenRoster(source), relative);
+    const mutated = source.replace(/(<div class="fnd-roster")\s+aria-hidden="true"/, '$1');
+    assert.notEqual(mutated, source, relative);
+    assert.throws(() => assertHiddenRoster(mutated), undefined, relative);
+  }
+});
+
 test('roster 例外只遮罩第一個合法 .52rem 與 .42rem 宣告', () => {
   const source = withoutAllowedDecoration(
     'public/fellow/founding.css',
@@ -165,12 +282,7 @@ test('正式官網不得宣告低於 16px 的有意義文字', () => {
     const relative = path.relative(ROOT, file).split(path.sep).join('/');
     if (EXCLUDED.has(relative)) continue;
 
-    const source = withoutAllowedDecoration(relative, withoutBlockComments(readFileSync(file, 'utf8')));
-    for (const match of source.matchAll(/font-size\s*:\s*([^;}"']+)/gi)) {
-      if (!belowFloor(match[1])) continue;
-      const line = source.slice(0, match.index).split('\n').length;
-      violations.push(`${relative}:${line} font-size:${match[1].trim()}`);
-    }
+    violations.push(...sourceViolations(relative, readFileSync(file, 'utf8')));
   }
 
   assert.deepEqual(violations, [], `低於 16px 的字級：\n${violations.join('\n')}`);
