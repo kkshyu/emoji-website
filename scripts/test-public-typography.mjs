@@ -126,9 +126,11 @@ function sourceViolations(relative, rawSource) {
     const value = literalValue(match[1]);
     if (value === null || belowFloor(value)) add(match, 'fontSize', match[1].trim());
   }
-  for (const match of source.matchAll(/\.style\.setProperty\s*\(\s*(['"`])font-size\1\s*,\s*([\s\S]*?)\)/gi)) {
-    const value = literalValue(match[2]);
-    if (value === null || belowFloor(value)) add(match, 'font-size', match[2].trim());
+  for (const match of source.matchAll(/\.style\.setProperty\s*\(\s*(['"`])font-size\1\s*,/gi)) {
+    const tail = source.slice(match.index + match[0].length);
+    const call = tail.match(/^\s*('[^'\\]*'|"[^"\\]*"|`[^`\\]*`)\s*(?:,\s*(['"`])important\2\s*)?\)/i);
+    const value = call ? literalValue(call[1]) : null;
+    if (value === null || belowFloor(value)) add(match, 'font-size', call?.[1] ?? '<dynamic>');
   }
   return violations;
 }
@@ -219,9 +221,15 @@ test('scanner 攔截 font shorthand 與動態 fontSize 寫入', () => {
     ['font global', '.x{font:revert-layer}'],
     ['fontSize literal', "el.style.fontSize='1rem';"],
     ['setProperty literal', "el.style.setProperty('font-size','1rem');"],
+    ['setProperty max literal', "el.style.setProperty('font-size','max(1rem,.5em)');"],
     ['multiline setProperty', `el.style.setProperty(
       'font-size',
       '1rem'
+    );`],
+    ['multiline setProperty important', `el.style.setProperty(
+      'font-size',
+      '1rem',
+      'important'
     );`],
   ];
 
