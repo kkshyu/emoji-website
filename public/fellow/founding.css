@@ -126,7 +126,7 @@
 .fnd-index__row{
   display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:clamp(16px,3vw,32px);
   width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);
-  padding:clamp(22px,3.2vw,34px) 0;cursor:pointer;color:inherit;font-family:inherit;
+  padding:clamp(22px,3.2vw,34px) 0;cursor:pointer;color:inherit;font-family:inherit;font-size:inherit;
   transition:padding-left .22s ease,background .22s ease;
 }
 .fnd-index__row:last-child{border-bottom:1px solid var(--line)}

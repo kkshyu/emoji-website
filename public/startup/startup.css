@@ -141,6 +141,7 @@
    RESPONSIVE — 手機轉直式（含 375px）
    ------------------------------------------------------------------------- */
 @media(max-width:760px){
+  .hero h1 .nb{white-space:normal}
   .stp-hero-bridge{flex-direction:column;align-items:stretch;gap:16px}
   .stp-hero-side.is-end{text-align:left;align-items:flex-start}
   .stp-hero-arrow{flex:0 0 auto;width:64px;height:1px;min-width:0;margin:18px auto;transform:rotate(90deg)}
