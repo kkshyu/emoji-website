@@ -53,8 +53,10 @@ function withoutAllowedDecoration(relative, source) {
 
 function withoutComments(relative, source) {
   const extension = path.extname(relative);
-  const masksLineComments = extension === '.js' || extension === '.html';
-  const masksHtmlComments = extension === '.html';
+  const blank = (comment) => comment.replace(/[^\n]/g, ' ');
+  if (extension === '.html') return source.replace(/<!--[\s\S]*?(?:-->|$)/g, blank);
+
+  const masksLineComments = extension === '.js';
   const masked = source.split('');
   let quote = '';
 
@@ -71,10 +73,7 @@ function withoutComments(relative, source) {
       else if (source[index] === quote) quote = '';
       continue;
     }
-    if (masksHtmlComments && source.startsWith('<!--', index)) {
-      const end = source.indexOf('-->', index + 4);
-      index = mask(index, end === -1 ? source.length : end + 3);
-    } else if (source.startsWith('/*', index)) {
+    if (source.startsWith('/*', index)) {
       const end = source.indexOf('*/', index + 2);
       index = mask(index, end === -1 ? source.length : end + 2);
     } else if (masksLineComments && source.startsWith('//', index)) {
@@ -360,6 +359,25 @@ test('scanner 忽略 HTML 與 JS comments，但保留字串內斜線及真實 st
     live.map((source) => sourceViolations('public/example.js', source).length),
     [1, 1, 1],
   );
+});
+
+test('HTML DATA 中的 URL 不得吞掉同行後續 style', () => {
+  const source = '<p>https://example.test <span style="font-size:12px">tiny</span></p>';
+
+  assert.equal(sourceViolations('public/example.html', source).length, 1);
+});
+
+test('HTML DATA apostrophe 不得妨礙後續 comment 遮罩', () => {
+  const source = `<p>Don't</p>
+<!-- <span style="font-size:12px">tiny</span> -->`;
+
+  assert.equal(sourceViolations('public/example.html', source).length, 0);
+});
+
+test('CSS protocol-relative URL 不得被當成 line comment', () => {
+  const source = '.hero{background:url(//cdn.example.test/hero.webp)} .tiny{font-size:12px}';
+
+  assert.equal(sourceViolations('public/example.css', source).length, 1);
 });
 
 test('新增 DOM style 路徑仍接受 inherit、initial 與 unset', () => {
