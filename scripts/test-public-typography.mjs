@@ -51,8 +51,41 @@ function withoutAllowedDecoration(relative, source) {
   });
 }
 
-function withoutBlockComments(source) {
-  return source.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '));
+function withoutComments(relative, source) {
+  const extension = path.extname(relative);
+  const masksLineComments = extension === '.js' || extension === '.html';
+  const masksHtmlComments = extension === '.html';
+  const masked = source.split('');
+  let quote = '';
+
+  const mask = (start, end) => {
+    for (let index = start; index < end; index += 1) {
+      if (source[index] !== '\n') masked[index] = ' ';
+    }
+    return end - 1;
+  };
+
+  for (let index = 0; index < source.length; index += 1) {
+    if (quote) {
+      if (source[index] === '\\') index += 1;
+      else if (source[index] === quote) quote = '';
+      continue;
+    }
+    if (masksHtmlComments && source.startsWith('<!--', index)) {
+      const end = source.indexOf('-->', index + 4);
+      index = mask(index, end === -1 ? source.length : end + 3);
+    } else if (source.startsWith('/*', index)) {
+      const end = source.indexOf('*/', index + 2);
+      index = mask(index, end === -1 ? source.length : end + 2);
+    } else if (masksLineComments && source.startsWith('//', index)) {
+      const end = source.indexOf('\n', index + 2);
+      index = mask(index, end === -1 ? source.length : end);
+    } else if (["'", '"', '`'].includes(source[index])) {
+      quote = source[index];
+    }
+  }
+
+  return masked.join('');
 }
 
 function topLevelArgs(value, name) {
@@ -100,6 +133,17 @@ function belowFloor(rawValue) {
   return true;
 }
 
+function fontShorthandBelowFloor(rawValue) {
+  const value = rawValue.trim();
+  if (GLOBAL_KEYWORDS.has(value.toLowerCase())) return false;
+  const size = value.match(new RegExp(
+    `^(${NUMBER}\\s*(?:rem|em|px|pt|pc|in|cm|mm|q|%)|medium|large|x-large|xx-large|xxx-large)`
+      + String.raw`(?=\s*(?:\/\s*\S+)?\s+\S)`,
+    'i',
+  ));
+  return !size || belowFloor(size[1]);
+}
+
 function literalValue(rawValue) {
   const value = rawValue.trim();
   const quote = value[0];
@@ -109,7 +153,7 @@ function literalValue(rawValue) {
 }
 
 function sourceViolations(relative, rawSource) {
-  const source = withoutAllowedDecoration(relative, withoutBlockComments(rawSource));
+  const source = withoutAllowedDecoration(relative, withoutComments(relative, rawSource));
   const violations = [];
   const add = (match, property, value) => {
     const line = source.slice(0, match.index).split('\n').length;
@@ -122,11 +166,19 @@ function sourceViolations(relative, rawSource) {
     const value = match[1].replace(/\s*!\s*important\s*$/i, '').trim().toLowerCase();
     if (!GLOBAL_KEYWORDS.has(value)) add(match, 'font', match[1].trim());
   }
-  for (const match of source.matchAll(/\.fontSize\s*=\s*([^;\n]+)/g)) {
-    const value = literalValue(match[1]);
-    if (value === null || belowFloor(value)) add(match, 'fontSize', match[1].trim());
+  for (const match of source.matchAll(/(?:\.fontSize|\[\s*(['"`])fontSize\1\s*\])\s*=\s*([^;\n]+)/g)) {
+    const value = literalValue(match[2]);
+    if (value === null || belowFloor(value)) add(match, 'fontSize', match[2].trim());
   }
-  for (const match of source.matchAll(/\.style\.setProperty\s*\(\s*(['"`])font-size\1\s*,/gi)) {
+  for (const match of source.matchAll(/(?:\bfontSize|(['"`])fontSize\1)\s*:\s*([^,}\n]+)/g)) {
+    const value = literalValue(match[2]);
+    if (value === null || belowFloor(value)) add(match, 'fontSize', match[2].trim());
+  }
+  for (const match of source.matchAll(/\.style\s*(?:\.\s*font|\[\s*(['"`])font\1\s*\])\s*=\s*([^;\n]+)/g)) {
+    const value = literalValue(match[2]);
+    if (value === null || fontShorthandBelowFloor(value)) add(match, 'font', match[2].trim());
+  }
+  for (const match of source.matchAll(/\.setProperty\s*\(\s*(['"`])font-size\1\s*,/gi)) {
     const tail = source.slice(match.index + match[0].length);
     const call = tail.match(/^\s*('[^'\\]*'|"[^"\\]*"|`[^`\\]*`)\s*(?:,\s*(['"`])important\2\s*)?\)/i);
     const value = call ? literalValue(call[1]) : null;
@@ -244,6 +296,86 @@ test('scanner 攔截 font shorthand 與動態 fontSize 寫入', () => {
   );
 });
 
+test('scanner 攔截四種常見 DOM style 寫法並接受各自的 16px 對照', () => {
+  const unsafe = [
+    "el.style.font='12px sans-serif';",
+    "el.style['fontSize']='12px';",
+    "Object.assign(el.style,{fontSize:'12px'});",
+    "const style=el.style; style.setProperty('font-size','12px');",
+  ];
+  const safe = [
+    "el.style.font='16px sans-serif';",
+    "el.style['fontSize']='16px';",
+    "Object.assign(el.style,{fontSize:'16px'});",
+    "const style=el.style; style.setProperty('font-size','16px');",
+  ];
+
+  assert.deepEqual(
+    unsafe.map((source) => sourceViolations('public/example.js', source).length),
+    [1, 1, 1, 1],
+  );
+  assert.deepEqual(
+    safe.map((source) => sourceViolations('public/example.js', source).length),
+    [0, 0, 0, 0],
+  );
+});
+
+test('scanner 同樣涵蓋 cssText 與 style attribute 字串', () => {
+  const unsafe = [
+    "el.style.cssText='font-size:12px';",
+    "el.setAttribute('style','font-size:12px');",
+  ];
+  const safe = [
+    "el.style.cssText='font-size:16px';",
+    "el.setAttribute('style','font-size:16px');",
+  ];
+
+  assert.deepEqual(
+    unsafe.map((source) => sourceViolations('public/example.js', source).length),
+    [1, 1],
+  );
+  assert.deepEqual(
+    safe.map((source) => sourceViolations('public/example.js', source).length),
+    [0, 0],
+  );
+});
+
+test('scanner 忽略 HTML 與 JS comments，但保留字串內斜線及真實 style 字串', () => {
+  const comments = [
+    ['public/example.js', "// el.style.fontSize='12px';"],
+    ['public/example.js', "/* el.style.fontSize='12px'; */"],
+    ['public/example.html', '<!-- <span style="font-size:12px">tiny</span> -->'],
+  ];
+  const live = [
+    "const url='https://example.test/path'; el.style.fontSize='12px';",
+    "const marker='//'; el.style.fontSize='12px';",
+    "const css='font-size:12px';",
+  ];
+
+  assert.deepEqual(
+    comments.map(([relative, source]) => sourceViolations(relative, source).length),
+    [0, 0, 0],
+  );
+  assert.deepEqual(
+    live.map((source) => sourceViolations('public/example.js', source).length),
+    [1, 1, 1],
+  );
+});
+
+test('新增 DOM style 路徑仍接受 inherit、initial 與 unset', () => {
+  const safe = [
+    "el.style.font='inherit';",
+    "el.style['fontSize']='initial';",
+    "Object.assign(el.style,{fontSize:'unset'});",
+    "const style=el.style; style.setProperty('font-size','inherit');",
+  ];
+
+  assert.deepEqual(
+    safe.map((source) => sourceViolations('public/example.js', source).length),
+    [0, 0, 0, 0],
+  );
+});
+
 test('三語 member profile inputs 明確宣告 1rem', () => {
   const results = ['public/member.html', 'public/en/member.html', 'public/ja/member.html'].map((relative) => {
     const source = readFileSync(path.join(ROOT, relative), 'utf8');
@@ -288,7 +420,7 @@ test('三語 founding roster 必須維持 aria-hidden', () => {
 test('roster 例外只遮罩第一個合法 .52rem 與 .42rem 宣告', () => {
   const source = withoutAllowedDecoration(
     'public/fellow/founding.css',
-    withoutBlockComments(`
+    withoutComments('public/fellow/founding.css', `
       .fnd-roster i{font-size:.52rem;color:red}
       @media(max-width:640px){.fnd-roster i{font-size:.42rem}}
       .fnd-roster i{font-size:.1rem}
