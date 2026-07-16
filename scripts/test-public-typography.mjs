@@ -11,7 +11,7 @@ const NUMBER = String.raw`[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?`;
 const FIXED_SIZE = new RegExp(`^(${NUMBER})\\s*(rem|em|px|pt|pc|in|cm|mm|q|%)$`, 'i');
 const PX_PER_UNIT = { px: 1, pt: 96 / 72, pc: 16, in: 96, cm: 96 / 2.54, mm: 96 / 25.4, q: 96 / (2.54 * 40) };
 const RELATIVE_FLOORS = { rem: 1, em: 1, '%': 100 };
-const GLOBAL_KEYWORDS = new Set(['inherit', 'initial', 'unset', 'revert', 'revert-layer']);
+const GLOBAL_KEYWORDS = new Set(['inherit', 'initial', 'unset']);
 const SAFE_SIZE_KEYWORDS = new Set([
   ...GLOBAL_KEYWORDS,
   'medium', 'large', 'x-large', 'xx-large', 'xxx-large',
@@ -188,12 +188,12 @@ test('未知與無固定下限的相對值一律 fail closed', () => {
     '1ex', '1ch', '1cap', '1ic', '1lh', '1rlh',
     '1cqw', '1cqh', '1cqi', '1cqb', '1cqmin', '1cqmax',
     'var(--tiny)', 'mystery(1rem)', 'banana',
-    'larger',
+    'larger', 'revert', 'revert-layer',
     'clamp(var(--caption,.5rem),2vw,2rem)',
     'max(.5rem,var(--caption))',
   ];
   const safe = [
-    'inherit', 'initial', 'unset', 'revert', 'revert-layer',
+    'inherit', 'initial', 'unset',
     'medium', 'large', 'x-large', 'xx-large', 'xxx-large',
     'max(1rem,var(--caption))', 'max(1pc,var(--caption))',
   ];
@@ -205,6 +205,8 @@ test('未知與無固定下限的相對值一律 fail closed', () => {
 test('scanner 攔截 font shorthand 與動態 fontSize 寫入', () => {
   const unsafe = [
     ['font shorthand', '.x{font:12px sans-serif}'],
+    ['font-size revert', '.x{font-size:revert}'],
+    ['font revert-layer', '.x{font:revert-layer}'],
     ['fontSize literal', "el.style.fontSize='12px';"],
     ['bare fontSize literal', 'el.fontSize="12px";'],
     ['fontSize dynamic', 'el.style.fontSize=size;'],
@@ -218,7 +220,6 @@ test('scanner 攔截 font shorthand 與動態 fontSize 寫入', () => {
   ];
   const safe = [
     ['font inherit', '.x{font:inherit}'],
-    ['font global', '.x{font:revert-layer}'],
     ['fontSize literal', "el.style.fontSize='1rem';"],
     ['setProperty literal', "el.style.setProperty('font-size','1rem');"],
     ['setProperty max literal', "el.style.setProperty('font-size','max(1rem,.5em)');"],
