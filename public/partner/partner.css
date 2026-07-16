@@ -26,6 +26,7 @@
   max-width:360px;
 }
 .ptn-hero-aside .terms-row .k,.floor .lv span{overflow-wrap:normal}
+.floors .floor{grid-template-columns:110px 1fr}
 
 /* -------------------------------------------------------------------------
    三種合作方式 — 三大不等寬主脊面板（非小卡）
