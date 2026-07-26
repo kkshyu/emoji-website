@@ -5,15 +5,15 @@
 'use strict';
 window.__MENU_SEED = [
   // ── COFFEE ──
-  { cat:'COFFEE',   zh:'美式咖啡',       en:'AMERICANO',            price:170, emo:150, alcohol:false },
-  { cat:'COFFEE',   zh:'拿鐵咖啡',       en:'LATTE',                price:200, emo:180, alcohol:false },
-  { cat:'COFFEE',   zh:'卡布奇諾',       en:'CAPPUCCINO',           price:200, emo:180, alcohol:false },
-  { cat:'COFFEE',   zh:'西西里咖啡',     en:'ESPRESSO ROMANO',      price:200, emo:180, alcohol:false },
-  { cat:'COFFEE',   zh:'手沖咖啡',       en:'POUR OVER COFFEE',     price:220, emo:200, alcohol:false },
-  { cat:'COFFEE',   zh:'維也納咖啡',     en:'VIENNESE COFFEE',      price:220, emo:200, alcohol:false },
-  { cat:'COFFEE',   zh:'貝里斯拿鐵',     en:'BELIZE LATTE',         price:220, emo:200, note:'含酒精', alcohol:true },
-  { cat:'COFFEE',   zh:'愛爾蘭咖啡',     en:'IRISH COFFEE',         price:220, emo:200, note:'含酒精', alcohol:true },
-  { cat:'COFFEE',   zh:'風味拿鐵',       en:'FLAVORED LATTE',       price:210, emo:190, note:'黑糖 / 焦糖', alcohol:false },
+  { cat:'COFFEE',   zh:'美式咖啡',       en:'AMERICANO',            price:150, emo:120, alcohol:false },
+  { cat:'COFFEE',   zh:'拿鐵咖啡',       en:'LATTE',                price:180, emo:145, alcohol:false },
+  { cat:'COFFEE',   zh:'卡布奇諾',       en:'CAPPUCCINO',           price:180, emo:145, alcohol:false },
+  { cat:'COFFEE',   zh:'西西里咖啡',     en:'ESPRESSO ROMANO',      price:180, emo:145, alcohol:false },
+  { cat:'COFFEE',   zh:'手沖咖啡',       en:'POUR OVER COFFEE',     price:200, emo:160, alcohol:false },
+  { cat:'COFFEE',   zh:'維也納咖啡',     en:'VIENNESE COFFEE',      price:200, emo:160, alcohol:false },
+  { cat:'COFFEE',   zh:'貝里斯拿鐵',     en:'BELIZE LATTE',         price:200, emo:160, note:'含酒精', alcohol:true },
+  { cat:'COFFEE',   zh:'愛爾蘭咖啡',     en:'IRISH COFFEE',         price:200, emo:160, note:'含酒精', alcohol:true },
+  { cat:'COFFEE',   zh:'風味拿鐵',       en:'FLAVORED LATTE',       price:190, emo:150, note:'黑糖 / 焦糖', alcohol:false },
   // ── BEVERAGE ──
   { cat:'BEVERAGE', zh:'牛奶',           en:'MILK',                 price:170, emo:150, note:'黑糖 / 焦糖 / 芒果 / 荔枝', alcohol:false },
   { cat:'BEVERAGE', zh:'氣泡飲',         en:'SPARKLING',            price:200, emo:180, note:'芒果 / 荔枝 / 莓果 / 蜜桃 / 紅柚 / 鳳梨', alcohol:false },

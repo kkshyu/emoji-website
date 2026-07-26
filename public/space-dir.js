@@ -11,10 +11,10 @@
       close: '收合',
       menuTitle: '餐飲菜單 Menu',
       areas: {
-        1: 'Cafe & Bar · 約 25 坪',
-        2: 'Member Plaza · 約 29 坪',
-        3: 'Talent Lounge · 約 30 坪',
-        4: '支援樓層 · 約 5 坪＋陽台',
+        1: 'Cafe & Bar · 約 25.2 坪',
+        2: 'Member Plaza · 約 29.5 坪',
+        3: 'Talent Lounge · 約 29.9 坪',
+        4: '支援樓層 · 約 7.5 坪（含陽台）',
       },
       names: {
         1: 'Emoji · Café & Bar',
@@ -40,10 +40,10 @@
       close: 'Close',
       menuTitle: 'Menu',
       areas: {
-        1: 'Cafe & Bar · ~25 ping',
-        2: 'Member Plaza · ~29 ping',
-        3: 'Talent Lounge · ~30 ping',
-        4: 'Support · ~5 ping + terrace',
+        1: 'Cafe & Bar · ~25.2 ping',
+        2: 'Member Plaza · ~29.5 ping',
+        3: 'Talent Lounge · ~29.9 ping',
+        4: 'Support · ~7.5 ping incl. terrace',
       },
       names: {
         1: 'Emoji · Café & Bar',
@@ -69,10 +69,10 @@
       close: '閉じる',
       menuTitle: 'メニュー Menu',
       areas: {
-        1: 'Cafe & Bar · 約25坪',
-        2: 'Member Plaza · 約29坪',
-        3: 'Talent Lounge · 約30坪',
-        4: 'サポート · 約5坪＋バルコニー',
+        1: 'Cafe & Bar · 約25.2坪',
+        2: 'Member Plaza · 約29.5坪',
+        3: 'Talent Lounge · 約29.9坪',
+        4: 'サポート · 約7.5坪（バルコニー含む）',
       },
       names: {
         1: 'Emoji · Café & Bar',

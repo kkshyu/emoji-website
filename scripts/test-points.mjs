@@ -11,16 +11,16 @@ const {
 const t0 = new Date('2026-07-12T00:00:00.000Z');
 
 test('packs and gifts match spec', () => {
-  assert.equal(POINT_PRICE_TWD, 10);
-  assert.equal(PACKS.mid.principal, 100);
-  assert.equal(PACKS.mid.bonus, 10);
+  assert.equal(POINT_PRICE_TWD, 1);
+  assert.equal(PACKS.mid.principal, 1000);
+  assert.equal(PACKS.mid.bonus, 100);
   assert.equal(PACKS.mid.pay_twd, 1000);
-  assert.equal(MEMBERSHIP_GIFT_POINTS.month, 100);
-  assert.equal(MEMBERSHIP_GIFT_POINTS.founding, 2000);
+  assert.equal(MEMBERSHIP_GIFT_POINTS.month, 1000);
+  assert.equal(MEMBERSHIP_GIFT_POINTS.founding, 20000);
   assert.equal(MEMBERSHIP_GIFT_POINTS.day_4h, 0);
-  assert.equal(REDEEM_PRICES.shower, 7);
-  assert.equal(REDEEM_PRICES.capsule_per_hour, 10);
-  assert.equal(REDEEM_PRICES.entertainment_per_hour, 10);
+  assert.equal(REDEEM_PRICES.shower, 70);
+  assert.equal(REDEEM_PRICES.capsule_per_hour, 100);
+  assert.equal(REDEEM_PRICES.entertainment_per_hour, 100);
 });
 
 test('addYears is +1 calendar year UTC', () => {
@@ -47,9 +47,9 @@ test('sortLotsForDebit nearest expiry first, null last', () => {
 });
 
 test('redeemPointsFor maps services', () => {
-  assert.equal(redeemPointsFor('shower', 1), 7);
-  assert.equal(redeemPointsFor('capsule', 2), 20);
-  assert.equal(redeemPointsFor('entertainment', 1), 10);
+  assert.equal(redeemPointsFor('shower', 1), 70);
+  assert.equal(redeemPointsFor('capsule', 2), 200);
+  assert.equal(redeemPointsFor('entertainment', 1), 100);
   assert.throws(() => redeemPointsFor('venue', 1));
 });
 
@@ -81,7 +81,7 @@ test('planRefund voids all remaining bonus on that order', () => {
   assert.equal(r.ok, true);
   assert.deepEqual(r.debit_principal, [{ lot_id: 'p1', amount: 30 }]);
   assert.deepEqual(r.void_bonus, [{ lot_id: 'b1', amount: 8 }]);
-  assert.equal(r.refund_twd, 300);
+  assert.equal(r.refund_twd, 30);
   assert.ok(!r.void_bonus.find(x => x.lot_id === 'g'));
 });
 

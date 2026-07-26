@@ -8,7 +8,7 @@
 /* ---------- 常數 ---------- */
 const PRICE = 35000;          // 創始會費（固定）
 const TERM_MONTHS = 18;       // 會籍期間（月）
-const GIFT_POINTS = 2000;     // 會籍贈點（一年效期）
+const GIFT_POINTS = 20000;    // 會籍贈點（一年效期）
 const SLOTS = 100;            // 創始名額
 const TARGET = PRICE * SLOTS; // 預收會費總額 NT$3,500,000
 
@@ -184,7 +184,7 @@ const CONTRACT_HTML = `
 <h4>第一條　會籍內容與期間</h4>
 <p>乙方取得創始會員會籍，期間 18 個月，內容包含：二、三樓會員限定空間進出（人臉辨識門禁）、三樓共享辦公與活動空間自由使用、社群活動與互助網絡資格，以及創始專屬權益（三樓創始牆名錄、創始晚餐邀請、續約鎖價保障）。</p>
 <h4>第二條　贈點與兌換規則</h4>
-<p>乙方於付款成功時獲贈點數 2,000 點（預設一年效期），得兌換二樓淋浴、膠囊休憩席與娛樂室等指定服務（淋浴 7 點／次；膠囊休憩席與娛樂室各 10 點／小時，須為 Active 會員）。贈點不得轉讓、不得折換現金；購買點另依點數規則辦理。</p>
+<p>乙方於付款成功時獲贈點數 20,000 點（每點 1 元，預設一年效期），得兌換二樓淋浴、膠囊休憩席與娛樂室等指定服務（淋浴 70 點／次；膠囊休憩席與娛樂室各 100 點／小時，須為 Active 會員）。贈點不得轉讓、不得折換現金；購買點另依點數規則辦理。</p>
 <h4>第三條　會費與付款</h4>
 <p>創始會費為新台幣 35,000 元整（固定，與一般年費同牌價），以匯款方式一次付清；甲方對帳確認入帳後，核發創始會員證並保留創始編號（001–100）。</p>
 <h4>第四條　會籍起算日</h4>
@@ -308,7 +308,7 @@ function renderDashboard() {
       <div>
         <div class="member-card">
           <div class="mc-k">Founding Member</div>
-          <div class="mc-t">創始會員・18 個月會籍＋贈點 2,000</div>
+          <div class="mc-t">創始會員・18 個月會籍＋贈點 20,000</div>
           <div class="mc-st"><span class="status-pill ${memActive ? 'pill-ok' : 'pill-wait'}">${memActive ? '已啟用' : '待啟用'}</span></div>
           <ul>
             <li>二、三樓會員限定空間進出（人臉辨識門禁）</li>
@@ -359,7 +359,7 @@ function renderCertificate(certId) {
       <div class="cert-rows">
         <div class="cr wide"><div class="crl">持有人　Holder</div><div class="crv">${esc(u.name)}</div></div>
         <div class="cr"><div class="crl">會費　Fee</div><div class="crv">${NT(c.amount)}</div></div>
-        <div class="cr"><div class="crl">贈點　Points</div><div class="crv">2,000 點</div></div>
+        <div class="cr"><div class="crl">贈點　Points</div><div class="crv">20,000 點</div></div>
         <div class="cr"><div class="crl">會籍起日　From</div><div class="crv">${fmtDate(c.start_date)}</div></div>
         <div class="cr"><div class="crl">會籍迄日　To</div><div class="crv">${fmtDate(c.maturity_date)}</div></div>
         <div class="cr"><div class="crl">期間　Term</div><div class="crv">${c.term_years || TERM_MONTHS} 個月</div></div>
@@ -400,7 +400,7 @@ function renderAgreement(certId) {
     <h4>第一條（會籍內容與期間）</h4>
     <p>乙方取得創始會員會籍，期間 18 個月。會籍權益包含：二、三樓會員限定空間進出（人臉辨識門禁）、三樓共享辦公與活動空間自由使用、社群活動與互助網絡資格，以及創始專屬權益：三樓創始牆名錄、創始晚餐邀請、續約鎖價保障（未來牌價調漲不影響乙方首次續約價格）。</p>
     <h4>第二條（贈點與兌換規則）</h4>
-    <p>乙方於付款成功時獲贈點數 2,000 點（預設一年效期），得兌換二樓指定服務；贈點不得轉讓、不得折換現金。</p>
+    <p>乙方於付款成功時獲贈點數 20,000 點（每點 1 元，預設一年效期），得兌換二樓指定服務；贈點不得轉讓、不得折換現金。</p>
     <h4>第三條（會費與付款）</h4>
     <p>創始會費為新台幣 ${num(c.amount)} 元整（固定，與一般年費同牌價），乙方以匯款方式一次付清。甲方對帳確認入帳後，核發創始會員證並保留乙方之創始編號（001–100）。</p>
     <h4>第四條（會籍起算日）</h4>

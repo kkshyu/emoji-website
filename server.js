@@ -1190,7 +1190,7 @@ app.post('/api/me/points/orders', auth, requireDb, wrap(async (req, res) => {
         currency: 'twd',
         product_data: {
           name: `言文字點數方案 ${pack.id}`,
-          description: `本金 ${pack.principal} 點` + (pack.bonus ? `＋加贈 ${pack.bonus} 點（一年效期）` : '') + '・每點 NT$10',
+          description: `本金 ${pack.principal} 點` + (pack.bonus ? `＋加贈 ${pack.bonus} 點（一年效期）` : '') + '・每點 NT$1',
         },
         unit_amount: pack.pay_twd * 100,
       },
@@ -1584,7 +1584,7 @@ app.post('/api/checkout', wrap(async (req, res) => {
         currency: 'twd',
         product_data: {
           name: '言文字創始會員',
-          description: `18 個月會籍（${MEMBERSHIP_START} 起算至 ${endMinus1}）＋贈點 2,000（一年效期）・限量 100 名`,
+          description: `18 個月會籍（${MEMBERSHIP_START} 起算至 ${endMinus1}）＋贈點 20,000（一年效期）・限量 100 名`,
         },
         unit_amount: PRICE * 100, // TWD 為 2 位小數幣別：NT$35,000 → 3,500,000
       },
