@@ -1585,7 +1585,8 @@ app.post('/api/admin/ig/compose', auth, adminOnly, requireDb, wrap(async (_req, 
 app.post('/api/admin/ig/assets', auth, adminOnly, requireDb, wrap(async (req, res) => {
   const url = String((req.body || {}).url || '').trim();
   const note = String((req.body || {}).note || '').trim();
-  if (!/^\/uploads\/social\//.test(url)) return res.status(400).json({ error: '素材 url 須為 /uploads/social/ 路徑。' });
+  // MinIO 物件儲存 URL 或站內上傳路徑皆可；https 禁引號空白（photo 會內插 style 屬性）
+  if (!/^(\/uploads\/social\/|https:\/\/[^'"\s]+$)/.test(url)) return res.status(400).json({ error: '素材 url 須為 /uploads/social/ 路徑或 https URL。' });
   if (!note) return res.status(400).json({ error: '請附素材說明（AI 產文要呼應照片內容）。' });
   const id = uid('iga_');
   await q(`INSERT INTO ig_assets (id,url,note) VALUES ($1,$2,$3)`, [id, url, note]);

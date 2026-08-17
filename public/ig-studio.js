@@ -812,8 +812,9 @@
     state.m_menuIds = [];
     state.p_alcohol = false;
     Object.assign(state, s, { category, variant });
-    // photo 會內插進單引號 style 屬性（H() 不跳脫單引號）：僅接受 data:image/ 或站內 /uploads/，其餘一律清空
-    if (state.photo && !/^(data:image\/|\/uploads\/)/.test(String(state.photo))) state.photo = '';
+    // photo 會內插進單引號 style 屬性（H() 不跳脫單引號）：僅接受 data:image/、站內 /uploads/
+    // 或 https URL（MinIO 物件儲存；禁止引號與空白防注入），其餘一律清空
+    if (state.photo && !/^(data:image\/|\/uploads\/|https:\/\/[^'"\s]+$)/.test(String(state.photo))) state.photo = '';
     state.format = DIMS[s.format] ? s.format : 'portrait';
     state.hl = s.hl !== false;
     state.dark = LAYOUTS[category][variant].forceDark || !!s.dark;
