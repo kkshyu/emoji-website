@@ -825,6 +825,13 @@ const SOCIAL_LAYOUTS = {
   '06c': { label:'封面 · 深色', fields:[['comingTitle','超大字'],['comingSub','副題（黃底）'],['en','英文行']] },
   '06a': { label:'開幕大日期',  fields:[['openingLine','大字（黃底）'],['openingDate','日期／副題'],['openingDesc','說明'],['en','英文行']] },
   '02a': { label:'活動大日期',  fields:[['e_title','標題'],['e_dateBig','大日期'],['e_weekday','星期（黃底）'],['e_when','時間'],['e_place','地點'],['e_desc','說明','ta'],['en','英文行'],['e_capacity','名額'],['e_signup','報名方式']] },
+  // 07/08 系列（2026-08 行銷版型；AI 補產器主用）
+  '07a': { label:'Hook 大字報', fields:[['hook','Hook 主句'],['sub','支撐句']] },
+  '07b': { label:'編輯部條列',  fields:[['heading','大標'],['item1','條列 1（黃底）'],['item2','條列 2'],['item3','條列 3']] },
+  '07c': { label:'對話卡 · 深色', fields:[['question','問句'],['answer','答句']] },
+  '08a': { label:'雜誌封面（需照片）', fields:[['cover_eyebrow','眉標'],['cover_title','封面大標'],['photo','照片 URL（/uploads/…）']] },
+  '08b': { label:'數字看板',    fields:[['big_number','大數字'],['number_label','數字標題'],['number_desc','說明']] },
+  '08c': { label:'檔期卡 · 深色', fields:[['event_date','大日期（如 11.01）'],['event_name','事件名'],['event_meta','時間地點（可換行）','ta']] },
 };
 const socialLayoutId = pg => (pg.category||'03') + (pg.variant||'a');
 const socialXLen = s => [...String(s||'')].reduce((n,ch)=>n+(ch.codePointAt(0)>0x2E80?2:1),0);

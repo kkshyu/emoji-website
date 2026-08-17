@@ -210,6 +210,53 @@
     .igp-manifesto{font-family:var(--serif);font-weight:500;line-height:1.32;letter-spacing:.03em;margin-top:48px;white-space:pre-line;}
     .igp-coming-title{font-family:"Cormorant Garamond",var(--serif);font-size:132px;line-height:1.02;letter-spacing:.01em;}
     .igp-coming-sub{font-family:var(--serif);font-size:42px;line-height:1.5;color:#B7B0A2;margin-top:40px;}
+
+    /* ===== 07/08 系列（2026-08 新版型：行銷結構化，CIS 新構圖） ===== */
+    .igp7-pad{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:88px 92px 76px;}
+    .igp7-tag{font-size:21px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:14px;}
+    .igp7-tag::before{content:"";width:26px;height:8px;background:var(--ig-yellow);flex:none;}
+    .igp.dark .igp7-tag{color:#B7B0A2;}
+    /* 07a Hook 大字報：一句話撐全場，黃色筆刷條收底 */
+    .igp7a-hook{font-family:var(--serif);font-weight:700;line-height:1.22;letter-spacing:.02em;margin:auto 0 0;}
+    .igp7a-bar{width:148px;height:22px;background:var(--ig-yellow);margin-top:46px;}
+    .igp7a-sub{font-size:30px;line-height:1.7;color:var(--ink-soft);margin-top:42px;margin-bottom:auto;}
+    /* 07b 編輯部條列：大序號 + 細線分隔 */
+    .igp7b-head{font-family:var(--serif);font-weight:700;line-height:1.14;margin-top:40px;}
+    .igp7b-list{margin-top:auto;display:flex;flex-direction:column;}
+    .igp7b-item{display:flex;align-items:baseline;gap:34px;padding:52px 0;border-top:1px solid rgba(27,26,23,.16);}
+    .igp7b-item:first-child{border-top:2px solid var(--ink);}
+    .igp7b-num{font-family:"Cormorant Garamond",var(--serif);font-size:64px;line-height:1;color:var(--muted);font-variant-numeric:tabular-nums;flex:none;}
+    .igp7b-txt{font-family:var(--serif);font-size:40px;line-height:1.42;font-weight:500;}
+    .igp7b-item:nth-child(1) .igp7b-num{color:var(--ink);}
+    .igp7b-item:nth-child(1) .igp7b-txt .k{background:var(--ig-yellow);padding:.03em .1em;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+    /* 07c 對話卡：墨底問答，黃色引導線 */
+    .igp7c-q{font-family:var(--serif);font-weight:700;line-height:1.3;letter-spacing:.02em;color:#F4F1EA;margin-top:auto;}
+    .igp7c-lead{display:flex;align-items:center;gap:22px;margin:52px 0;}
+    .igp7c-lead .ln{flex:none;width:96px;height:2px;background:var(--ig-yellow);}
+    .igp7c-lead .lb{font-size:20px;letter-spacing:.3em;text-transform:uppercase;color:var(--ig-yellow);}
+    .igp7c-a{font-family:var(--serif);font-size:46px;line-height:1.6;font-weight:500;color:#D6D0C4;margin-bottom:auto;}
+    /* 08a 雜誌封面：全幅照 + 底部漸層 + 疊字 */
+    .igp8a{position:relative;flex:1;min-height:0;background-size:cover;background-position:center;background-color:#26231D;}
+    .igp8a-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,10,.18) 34%,rgba(14,13,10,.82) 100%);}
+    .igp8a-copy{position:absolute;inset:0;display:flex;flex-direction:column;padding:84px 92px 72px;color:#F4F1EA;}
+    .igp8a-eyebrow{font-size:21px;letter-spacing:.3em;text-transform:uppercase;color:var(--ig-yellow);display:flex;align-items:center;gap:14px;}
+    .igp8a-eyebrow::before{content:"";width:26px;height:8px;background:var(--ig-yellow);flex:none;}
+    .igp8a-title{font-family:var(--serif);font-weight:700;line-height:1.24;letter-spacing:.02em;margin-top:auto;text-shadow:0 2px 22px rgba(14,13,10,.4);}
+    .igp8a-copy .igp-foot{border-top-color:rgba(244,241,234,.32);}
+    .igp8a-copy .igp-handle{color:#D6D0C4;}
+    /* 08b 數字看板：巨大數字 + 黃色方塊裁切 */
+    .igp8b-stage{margin:auto 0;}
+    .igp8b-numwrap{position:relative;display:inline-block;}
+    .igp8b-block{position:absolute;left:-28px;bottom:-2px;width:210px;height:140px;background:var(--ig-yellow);}
+    .igp8b-num{position:relative;font-family:"Cormorant Garamond",var(--serif);font-size:288px;line-height:.92;letter-spacing:-.01em;font-variant-numeric:lining-nums tabular-nums;}
+    .igp8b-label{font-family:var(--serif);font-size:46px;font-weight:700;letter-spacing:.06em;margin-top:34px;position:relative;}
+    .igp8b-desc{font-size:29px;line-height:1.7;color:var(--ink-soft);margin-top:26px;max-width:760px;}
+    /* 08c 檔期卡：墨底 save-the-date */
+    .igp8c-top{font-size:21px;letter-spacing:.42em;text-transform:uppercase;color:#B7B0A2;text-align:center;margin-top:26px;}
+    .igp8c-date{font-family:"Cormorant Garamond",var(--serif);font-size:238px;line-height:1;color:#F4F1EA;text-align:center;margin-top:auto;font-variant-numeric:lining-nums tabular-nums;}
+    .igp8c-rule{width:120px;height:3px;background:var(--ig-yellow);margin:52px auto;}
+    .igp8c-name{font-family:var(--serif);font-size:66px;font-weight:700;letter-spacing:.08em;color:#F4F1EA;text-align:center;}
+    .igp8c-meta{font-size:27px;letter-spacing:.08em;color:#B7B0A2;text-align:center;margin:34px 0 auto;line-height:1.8;}
     `;
     const s = document.createElement('style'); s.id = 'ig-studio-css'; s.textContent = css;
     document.head.appendChild(s);
@@ -580,6 +627,106 @@
     </div>`;
   }
 
+  /* ===== 07/08 系列（2026-08 行銷版型：Hook／條列／問答／封面／數字／檔期） ===== */
+  // 字級隨字數自適應：明體大字在 12 字內單行～雙行皆穩
+  const fitSize = (text, base, sq) => {
+    const n = String(text || '').replace(/\n/g, '').length;
+    const size = n > 10 ? base * 0.78 : n > 7 ? base * 0.88 : base;
+    return Math.round(sq ? size * 0.86 : size);
+  };
+  const br = t => H(t).replace(/\n/g, '<br>');   // 大字欄位支援 \n 手動斷行
+
+  function render07a() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="07a">
+      <div class="igp7-pad">
+        <div class="igp7-tag">WORDS · 一句</div>
+        <h2 class="igp7a-hook" style="font-size:${fitSize(state.hook, 116, sq)}px">${br(state.hook)}</h2>
+        <div class="igp7a-bar"></div>
+        ${state.sub ? `<p class="igp7a-sub" style="font-size:${sq ? 27 : 30}px">${H(state.sub)}</p>` : '<div style="margin-bottom:auto"></div>'}
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render07b() {
+    const sq = state.format === 'square';
+    const items = [state.item1, state.item2, state.item3].filter(Boolean);
+    return `<div class="igp-layout" data-layout="07b">
+      <div class="igp7-pad">
+        <div class="igp7-tag">GUIDE · 怎麼用</div>
+        <h2 class="igp7b-head" style="font-size:${fitSize(state.heading, 92, sq)}px">${H(state.heading)}</h2>
+        <div class="igp7b-list">
+          ${items.map((t, idx) => `<div class="igp7b-item">
+            <span class="igp7b-num">0${idx + 1}</span>
+            <span class="igp7b-txt" style="font-size:${sq ? 34 : 40}px">${idx === 0 ? `<span class="k">${H(t)}</span>` : H(t)}</span>
+          </div>`).join('')}
+        </div>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render07c() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="07c">
+      <div class="igp7-pad">
+        <div class="igp7-tag" style="color:#B7B0A2">TALK · 問與答</div>
+        <h2 class="igp7c-q" style="font-size:${fitSize(state.question, 96, sq)}px">${br(state.question)}</h2>
+        <div class="igp7c-lead"><span class="ln"></span><span class="lb">言文字的答案</span></div>
+        <p class="igp7c-a" style="font-size:${sq ? 40 : 46}px">${H(state.answer)}</p>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render08a() {
+    const sq = state.format === 'square';
+    const bg = state.photo ? `background-image:url("${state.photo}")` : '';
+    return `<div class="igp-layout" data-layout="08a">
+      <div class="igp8a" style='${bg}'>
+        <div class="igp8a-scrim"></div>
+        <div class="igp8a-copy">
+          <div class="igp8a-eyebrow">${H(state.cover_eyebrow || 'ON SITE · 現場')}</div>
+          <h2 class="igp8a-title" style="font-size:${fitSize(state.cover_title, 104, sq)}px">${br(state.cover_title)}</h2>
+          ${foot()}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function render08b() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="08b">
+      <div class="igp7-pad">
+        <div class="igp7-tag">NUMBER · 數字</div>
+        <div class="igp8b-stage">
+          <div class="igp8b-numwrap">
+            <div class="igp8b-block"></div>
+            <div class="igp8b-num" style="font-size:${sq ? 232 : 288}px">${H(state.big_number)}</div>
+          </div>
+          <div class="igp8b-label" style="font-size:${sq ? 40 : 46}px">${H(state.number_label)}</div>
+          ${state.number_desc ? `<p class="igp8b-desc" style="font-size:${sq ? 26 : 29}px">${H(state.number_desc)}</p>` : ''}
+        </div>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render08c() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="08c">
+      <div class="igp7-pad">
+        <div class="igp8c-top">Save the date</div>
+        <div class="igp8c-date" style="font-size:${sq ? 192 : 238}px">${H(state.event_date)}</div>
+        <div class="igp8c-rule"></div>
+        <div class="igp8c-name" style="font-size:${fitSize(state.event_name, 66, sq)}px">${H(state.event_name)}</div>
+        ${state.event_meta ? `<div class="igp8c-meta" style="font-size:${sq ? 24 : 27}px">${H(state.event_meta).replace(/\n/g, '<br>')}</div>` : '<div style="margin-bottom:auto"></div>'}
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
   const LAYOUTS = {
     '01': {
       a: { label: '全幅照片 · 底部資訊', forceDark: false, render: render01a },
@@ -611,6 +758,16 @@
       b: { label: '品牌理念 · 標語', forceDark: false, render: render06b },
       c: { label: '深色 · Coming soon', forceDark: true, render: render06c },
     },
+    '07': {
+      a: { label: 'Hook 大字報', forceDark: false, render: render07a },
+      b: { label: '編輯部條列', forceDark: false, render: render07b },
+      c: { label: '深色 · 對話卡', forceDark: true, render: render07c },
+    },
+    '08': {
+      a: { label: '雜誌封面 · 照片疊字', forceDark: false, render: render08a },
+      b: { label: '數字看板', forceDark: false, render: render08b },
+      c: { label: '深色 · 檔期卡', forceDark: true, render: render08c },
+    },
   };
   const currentLayout = () => LAYOUTS[state.category][state.variant];
 
@@ -636,6 +793,10 @@
     'hoursRows', 'note', 'dayTitle', 'dayHours', 'dayDesc', 'nightTitle', 'nightHours', 'nightDesc',
     'menuTitle', 'menuRows', 'coffeeRows', 'alcoholRows',
     'openingLine', 'openingDate', 'openingDesc', 'manifesto', 'en', 'comingTitle', 'comingSub',
+    // 07/08 系列
+    'hook', 'sub', 'heading', 'item1', 'item2', 'item3', 'question', 'answer',
+    'cover_title', 'cover_eyebrow', 'big_number', 'number_label', 'number_desc',
+    'event_date', 'event_name', 'event_meta',
   ];
   const STATE_DEFAULTS = Object.assign({}, state);
 

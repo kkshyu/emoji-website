@@ -298,6 +298,13 @@ CREATE TABLE IF NOT EXISTS social_posts (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS social_posts_sched_idx ON social_posts(scheduled_at);
+CREATE TABLE IF NOT EXISTS ig_assets (
+  id TEXT PRIMARY KEY,
+  url TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  used_by TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 `;
 
 async function migrate() {
@@ -1567,6 +1574,28 @@ app.post('/api/admin/social/:id/publish-ig', auth, adminOnly, requireDb, wrap(as
   }
 }));
 
+// AI 補產：手動觸發（測試／立即補檔）；正常由每週日 cron 執行
+const igComposer = require('./lib/ig-composer');
+app.post('/api/admin/ig/compose', auth, adminOnly, requireDb, wrap(async (_req, res) => {
+  try { res.json({ ok: true, made: await igComposer.composeWeek(igDeps()) }); }
+  catch (e) { res.status(502).json({ error: e.message }); }
+}));
+
+// 素材庫：KK 丟素材到專案資料夾 → 上傳（既有 /api/admin/upload/social）→ 在此登記；補產器優先取用
+app.post('/api/admin/ig/assets', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const url = String((req.body || {}).url || '').trim();
+  const note = String((req.body || {}).note || '').trim();
+  if (!/^\/uploads\/social\//.test(url)) return res.status(400).json({ error: '素材 url 須為 /uploads/social/ 路徑。' });
+  if (!note) return res.status(400).json({ error: '請附素材說明（AI 產文要呼應照片內容）。' });
+  const id = uid('iga_');
+  await q(`INSERT INTO ig_assets (id,url,note) VALUES ($1,$2,$3)`, [id, url, note]);
+  res.json({ ok: true, id });
+}));
+
+app.get('/api/admin/ig/assets', auth, adminOnly, requireDb, wrap(async (_req, res) => {
+  res.json({ assets: (await q(`SELECT * FROM ig_assets ORDER BY created_at DESC LIMIT 100`)).rows });
+}));
+
 app.get('/api/admin/ig/status', auth, adminOnly, requireDb, wrap(async (_req, res) => {
   const token = await igPublisher.getToken(igDeps());
   const nextUp = (await q(`SELECT id,title,to_char(scheduled_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD HH24:MI') AS at
@@ -1699,7 +1728,10 @@ async function boot() {
     cron.schedule('10 4 * * *', () => igPublisher.refreshToken(igDeps())
       .then(sec => sec && console.log(`[ig-publish] token 已續期，效期 ${Math.round(sec / 86400)} 天`))
       .catch(e => console.error('[ig-publish] token 續期失敗：', e.message)), { timezone: 'Asia/Taipei' });
-    console.log('[ig-publish] 自動發佈已啟用（每 5 分掃描）');
+    // AI 補產：每週日 20:00 檢查未來 7 天排程，不足補滿（需 ANTHROPIC_API_KEY）
+    cron.schedule('0 20 * * 0', () => igComposer.composeWeek(igDeps())
+      .catch(e => console.error('[ig-compose] cron 失敗：', e.message)), { timezone: 'Asia/Taipei' });
+    console.log('[ig-publish] 自動發佈已啟用（每 5 分掃描；週日 20:00 AI 補產）');
   } else {
     console.log('[ig-publish] 自動發佈未啟用（IG_AUTOPUBLISH!=1 或無資料庫）');
   }
