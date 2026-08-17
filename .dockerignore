@@ -1,0 +1,12 @@
+# 機敏與非執行檔不入 image（防 CLI 直傳把本機 .env 打包進去）
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+node_modules
+uploads
+docs
+*.md
+.dockerignore
+Dockerfile
