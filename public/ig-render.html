@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>IG render（內部）</title>
+<!-- IG 自動發佈的 headless render 頁：puppeteer 以 window.renderPage(spec) 注入版型後 screenshot。
+     字型與 CSS 與 admin.html 對齊，確保產圖與後台預覽一致。 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<style>html,body{margin:0;padding:0;background:#fff}</style>
+</head>
+<body>
+<script src="/ig-studio-lib.js"></script>
+<script src="/menu-data.js"></script>
+<script src="/ig-studio.js"></script>
+<script>
+'use strict';
+// 回傳 {ok,w,h} 或 {ok:false,error}；node 置於 (0,0) 供 clip screenshot
+window.renderPage = async function (spec) {
+  try {
+    const dims = spec && spec.format === 'square' ? { w: 1080, h: 1080 } : { w: 1080, h: 1350 };
+    document.body.innerHTML = '';
+    const node = window.IGStudio.renderSpec(spec);
+    node.style.cssText += ';position:absolute;left:0;top:0;width:' + dims.w + 'px;height:' + dims.h + 'px;';
+    document.body.appendChild(node);
+    await document.fonts.ready;
+    // 沿用 exportSpecPng 守門：酒類警語帶、內容溢版
+    const band = node.querySelector('.igp-alcohol');
+    if (spec && spec.p_alcohol && !band) return { ok: false, error: '酒精飲品缺少法定警語' };
+    if (band && band.getBoundingClientRect().height + 0.5 < dims.h * 0.1) return { ok: false, error: '酒精警語帶高度不足' };
+    const Lib = window.IGStudioLib;
+    const overflow = [node, ...node.querySelectorAll('.igp-body,.igp-quote,.igp-overlay-copy,.igp-layout')]
+      .some(el => Lib.contentOverflows(el.scrollHeight, el.clientHeight, el.scrollWidth, el.clientWidth));
+    if (overflow) return { ok: false, error: '內容超出版面' };
+    return { ok: true, w: dims.w, h: dims.h };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+};
+</script>
+</body>
+</html>

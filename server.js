@@ -1434,7 +1434,7 @@ app.post('/api/admin/content', auth, adminOnly, requireDb, wrap(async (req, res)
 
 /* ---- 前台管理：社群經營（IG/X 貼文規劃；不串接平台 API，僅供內容管理與排程） ---- */
 const SOCIAL_PLATFORMS = ['ig', 'x'];
-const SOCIAL_STATUS = ['draft', 'ready', 'scheduled', 'published', 'archived'];
+const SOCIAL_STATUS = ['draft', 'ready', 'scheduled', 'publishing', 'published', 'error', 'archived'];
 // 排程時間一律以台北時間讀寫（與部署環境時區脫鉤）
 const SEL_POST = `id,platform,post_type,status,title,caption,caption_en,caption_ja,hashtags,pages,images,
   to_char(scheduled_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD"T"HH24:MI') AS scheduled_at,
@@ -1545,6 +1545,45 @@ app.post('/api/admin/upload/social', auth, adminOnly, (req, res) => {
   });
 });
 
+/* ---- IG 自動發佈（spec：docs/superpowers/specs/2026-08-17-ig-autopublish-design.md） ---- */
+const igPublisher = require('./lib/ig-publisher');
+const igDeps = () => ({ q, port: PORT, siteBase: SITE_BASE, uploadDir: UPLOAD_SOCIAL_DIR });
+
+// 手動即發單篇（測試／補發用）；不看 scheduled_at，但仍走禁用字＋render 守門
+app.post('/api/admin/social/:id/publish-ig', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const post = (await q(`SELECT * FROM social_posts WHERE id=$1`, [req.params.id])).rows[0];
+  if (!post) return res.status(404).json({ error: '找不到貼文。' });
+  if (post.platform !== 'ig') return res.status(400).json({ error: '僅 IG 貼文可發佈。' });
+  if (post.status === 'published') return res.status(400).json({ error: '此貼文已發佈過。' });
+  try {
+    const r = await igPublisher.publishPost(post, igDeps());
+    await q(`UPDATE social_posts SET status='published', published_at=now(), external_url=$2, images=$3, updated_at=now() WHERE id=$1`,
+      [post.id, r.externalUrl, JSON.stringify(r.images)]);
+    res.json({ ok: true, url: r.externalUrl, images: r.images });
+  } catch (e) {
+    await q(`UPDATE social_posts SET status='error', notes=left(concat('[ig-publish] ', $2::text, E'\n', notes), 2000), updated_at=now() WHERE id=$1`,
+      [post.id, e.message]);
+    res.status(502).json({ error: e.message });
+  }
+}));
+
+app.get('/api/admin/ig/status', auth, adminOnly, requireDb, wrap(async (_req, res) => {
+  const token = await igPublisher.getToken(igDeps());
+  const nextUp = (await q(`SELECT id,title,to_char(scheduled_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD HH24:MI') AS at
+    FROM social_posts WHERE platform='ig' AND status='scheduled' AND scheduled_at IS NOT NULL ORDER BY scheduled_at LIMIT 5`)).rows;
+  const errors = (await q(`SELECT id,title FROM social_posts WHERE platform='ig' AND status='error' ORDER BY updated_at DESC LIMIT 5`)).rows;
+  // 過期逾 24h 的排程不會自動補發（見 ig-publisher.publishDue），列出供後台改期
+  const stale = (await q(`SELECT id,title,to_char(scheduled_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD HH24:MI') AS at
+    FROM social_posts WHERE platform='ig' AND status='scheduled' AND scheduled_at <= now() - interval '24 hours' ORDER BY scheduled_at`)).rows;
+  res.json({
+    autopublish: process.env.IG_AUTOPUBLISH === '1',
+    igUserId: process.env.IG_USER_ID || 'me',
+    hasToken: !!token,
+    banned: igPublisher.bannedList(),
+    next: nextUp, errors, stale,
+  });
+}));
+
 /* ---- 會員：活動報名／取消（需登入；免費活動，額滿即擋） ---- */
 app.post('/api/events/:id/register', auth, requireDb, wrap(async (req, res) => {
   if (!req.auth.sub) return res.status(403).json({ error: '請以會員身分登入後報名。' });
@@ -1650,5 +1689,19 @@ async function boot() {
     console.warn('[db] 未設定 DATABASE_URL / POSTGRES_*，API 將回 503；請於 Zeabur 設定資料庫連線。');
   }
   app.listen(PORT, () => console.log(`[server] listening on ${PORT}`));
+
+  // IG 自動發佈 cron：env IG_AUTOPUBLISH=1 才啟用（本機開發預設不跑，避免誤發）
+  if (process.env.IG_AUTOPUBLISH === '1' && dbReady) {
+    const cron = require('node-cron');
+    cron.schedule('*/5 * * * *', () => igPublisher.publishDue(igDeps())
+      .catch(e => console.error('[ig-publish] cron 失敗：', e.message)));
+    // 長期 token 60 天效期，每日續期一次（台北 04:10 離峰）
+    cron.schedule('10 4 * * *', () => igPublisher.refreshToken(igDeps())
+      .then(sec => sec && console.log(`[ig-publish] token 已續期，效期 ${Math.round(sec / 86400)} 天`))
+      .catch(e => console.error('[ig-publish] token 續期失敗：', e.message)), { timezone: 'Asia/Taipei' });
+    console.log('[ig-publish] 自動發佈已啟用（每 5 分掃描）');
+  } else {
+    console.log('[ig-publish] 自動發佈未啟用（IG_AUTOPUBLISH!=1 或無資料庫）');
+  }
 }
 boot();

@@ -808,11 +808,13 @@ async function showRegs(eventId, d){
 
 /* ---------- 社群經營：IG/X 貼文規劃、內容日曆、廣告建議（不串接平台 API） ---------- */
 const SOCIAL_STATUS_META = {
-  draft:     { label:'草稿',   pill:'pill-draft' },
-  ready:     { label:'已定稿', pill:'pill-wait' },
-  scheduled: { label:'已排程', pill:'pill-live' },
-  published: { label:'已發布', pill:'pill-ok' },
-  archived:  { label:'封存',   pill:'pill-done' },
+  draft:      { label:'草稿',   pill:'pill-draft' },
+  ready:      { label:'已定稿', pill:'pill-wait' },
+  scheduled:  { label:'已排程', pill:'pill-live' },
+  publishing: { label:'發佈中', pill:'pill-wait' },
+  published:  { label:'已發布', pill:'pill-ok' },
+  error:      { label:'發佈失敗', pill:'pill-draft' },
+  archived:   { label:'封存',   pill:'pill-done' },
 };
 const SOCIAL_SERIES = ['KK 的建造日記','平常不會遇到的人','25–35 歲的生活難題','空間逐步解鎖','產品與活動'];
 // 貼文頁面可用版型（文字類；照片類版型請用「IG 貼文」產生器）
