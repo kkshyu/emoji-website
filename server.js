@@ -311,6 +311,11 @@ async function migrate() {
   await q(SCHEMA_SQL);
   // 既有 DB 補欄位：管理員旗標（超管以 Google email 認定，其餘管理員存此旗標）
   await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false`);
+  // 一次性：ig_assets 首批 4 筆由容器 uploads（rebuild 即蒸發）遷至 MinIO（冪等，可於 2026-09 後清除）
+  await q(`UPDATE ig_assets SET url='https://emoji-minio.zeabur.app/ig-media/assets/260708_survey_009.jpg' WHERE url='/uploads/social/social-msx84m3a-3056807d.jpg'`);
+  await q(`UPDATE ig_assets SET url='https://emoji-minio.zeabur.app/ig-media/assets/260720_demolition_009.jpg' WHERE url='/uploads/social/social-msx84no8-ae03ef4a.jpg'`);
+  await q(`UPDATE ig_assets SET url='https://emoji-minio.zeabur.app/ig-media/assets/260815_plumbing_012.jpg' WHERE url='/uploads/social/social-msx84p7h-1f493f24.jpg'`);
+  await q(`UPDATE ig_assets SET url='https://emoji-minio.zeabur.app/ig-media/assets/260806_render_1f_bar_night.png' WHERE url='/uploads/social/social-msx84qrt-b5a05a4e.png'`);
   // 社群貼文雙語欄位（IG 中英、X 中日）
   await q(`ALTER TABLE social_posts ADD COLUMN IF NOT EXISTS caption_en TEXT NOT NULL DEFAULT ''`);
   await q(`ALTER TABLE social_posts ADD COLUMN IF NOT EXISTS caption_ja TEXT NOT NULL DEFAULT ''`);
