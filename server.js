@@ -1610,12 +1610,18 @@ app.get('/api/admin/ig/status', auth, adminOnly, requireDb, wrap(async (_req, re
   // 過期逾 24h 的排程不會自動補發（見 ig-publisher.publishDue），列出供後台改期
   const stale = (await q(`SELECT id,title,to_char(scheduled_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD HH24:MI') AS at
     FROM social_posts WHERE platform='ig' AND status='scheduled' AND scheduled_at <= now() - interval '24 hours' ORDER BY scheduled_at`)).rows;
+  const assetStats = (await q(`SELECT count(*)::int AS total, count(*) FILTER (WHERE used_by='')::int AS unused FROM ig_assets`)).rows[0];
+  const recentPublished = (await q(`SELECT id,title,external_url,to_char(published_at AT TIME ZONE 'Asia/Taipei','MM-DD HH24:MI') AS at
+    FROM social_posts WHERE platform='ig' AND status='published' ORDER BY published_at DESC NULLS LAST LIMIT 5`)).rows;
   res.json({
     autopublish: process.env.IG_AUTOPUBLISH === '1',
     igUserId: process.env.IG_USER_ID || 'me',
     hasToken: !!token,
+    hasAiKey: !!process.env.ANTHROPIC_API_KEY,
+    s3: !!(process.env.S3_ENDPOINT && process.env.S3_ACCESS_KEY && process.env.S3_SECRET_KEY),
+    assets: assetStats,
     banned: igPublisher.bannedList(),
-    next: nextUp, errors, stale,
+    next: nextUp, errors, stale, recentPublished,
   });
 }));
 
