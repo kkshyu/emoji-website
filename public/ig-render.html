@@ -27,6 +27,16 @@ window.renderPage = async function (spec) {
     node.style.cssText += ';position:absolute;left:0;top:0;width:' + dims.w + 'px;height:' + dims.h + 'px;';
     document.body.appendChild(node);
     await document.fonts.ready;
+    // 照片是 CSS background-image：截圖前必須等圖下載＋繪製完成，否則出黑底
+    if (spec && spec.photo) {
+      await new Promise(res => {
+        const im = new Image();
+        im.onload = im.onerror = res;
+        im.src = spec.photo;
+        setTimeout(res, 15000);   // 圖片異常時最多等 15s，不無限卡住
+      });
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    }
     // 沿用 exportSpecPng 守門：酒類警語帶、內容溢版
     const band = node.querySelector('.igp-alcohol');
     if (spec && spec.p_alcohol && !band) return { ok: false, error: '酒精飲品缺少法定警語' };
