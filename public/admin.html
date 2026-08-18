@@ -79,7 +79,12 @@
   .sp-cal-n{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.7;padding:0 .2em}
   .sp-cal-d.today .sp-cal-n{background:var(--ink);color:var(--paper);border-radius:999px;min-width:1.7em;height:1.7em;
     display:inline-grid;place-items:center;font-weight:600;padding:0}
-  .sp-ev{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;gap:5px;align-items:center;
+  .sp-ev-head{display:flex;gap:5px;align-items:center;min-width:0}
+  .sp-ev-thumb{display:block;width:100%;aspect-ratio:4/5;background:var(--line);overflow:hidden;position:relative;border-radius:3px}
+  .sp-ev-thumb>.igp{position:absolute;top:0;left:0;transform-origin:top left}
+  .sp-ev-sum{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;
+    font-size:.66rem;color:var(--muted);line-height:1.35}
+  .sp-ev{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;flex-direction:column;gap:4px;
     border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:6px;background:var(--card);
     padding:3px 5px;font-size:.72rem;line-height:1.35}
   .sp-ev:hover{border-color:var(--ink);border-left-color:var(--ink)}
@@ -975,9 +980,13 @@ function socialCalendarHTML(){
       const hh = `${String(dd.getHours()).padStart(2,'0')}:${String(dd.getMinutes()).padStart(2,'0')}`;
       const t = p.title.replace(/^[WSX]?\d*\s*[｜|]?\s*/, '');
       const tip = hh + ' ' + p.title + '（' + st.label + '）' + (p.phase ? ' · ' + p.phase : '');
+      const sum = String(p.caption||'').split('\n').find(l=>l.trim()) || '';
+      const hasThumb = p.platform==='ig' && (p.pages||[]).length;
       return `<button class="sp-ev sp-ev--${esc(p.status)}" data-sp-edit="${esc(p.id)}" title="${esc(tip)}">
-        <span class="sp-ev-p">${p.platform==='ig'?'IG':'X'}</span>
-        <span class="sp-ev-t">${esc(t)}</span></button>`;
+        <span class="sp-ev-head"><span class="sp-ev-p">${p.platform==='ig'?'IG':'X'} ${esc(hh)}</span>
+          <span class="sp-ev-t">${esc(t)}</span></span>
+        ${hasThumb?`<span class="sp-ev-thumb" data-cal-prev="${esc(p.id)}"></span>`:''}
+        ${sum?`<span class="sp-ev-sum">${esc(sum.slice(0,42))}</span>`:''}</button>`;
     }).join('');
     grid += `<div class="sp-cal-d${out?' out':''}${k===todayK?' today':''}">
       <span class="sp-cal-n">${d.getDate()}</span>${evs}</div>`;
@@ -1160,6 +1169,32 @@ function paintSocial(){
     : socialListHTML();
   bindSocial();
   if (SOCIAL_VIEW==='edit' && SOCIAL_EDIT && SOCIAL_EDIT.platform==='ig') renderSocialPreviews();
+  if (SOCIAL_VIEW==='calendar') renderCalendarPreviews();
+}
+
+// page 兼容：seed 巢狀 {layout,fields} → renderSpec 攤平格式
+function spNormPage(pg){
+  if (!pg || pg.category) return pg;
+  const lid = String(pg.layout||'03a');
+  return Object.assign({category:lid.slice(0,2), variant:lid.slice(2)||'a', format:pg.format||'portrait'}, pg.fields||{});
+}
+
+/* 行事曆縮圖：每格 IG 貼文以首頁版型即時渲染（縮放後約 100px 寬） */
+function renderCalendarPreviews(){
+  if (!window.IGStudio || !window.IGStudio.renderSpec) return;
+  document.querySelectorAll('[data-cal-prev]').forEach(box=>{
+    const p = (SOCIAL_POSTS||[]).find(x=>x.id===box.dataset.calPrev);
+    const pg = p && (p.pages||[])[0];
+    if (!pg) return;
+    try {
+      const node = window.IGStudio.renderSpec(spNormPage(pg));
+      const w = box.clientWidth || 110;
+      node.style.transformOrigin = 'top left';
+      node.style.transform = `scale(${w/1080})`;
+      box.innerHTML = '';
+      box.appendChild(node);
+    } catch(_) { box.textContent = ''; }
+  });
 }
 
 function renderSocialPreviews(){
@@ -1169,7 +1204,7 @@ function renderSocialPreviews(){
     const pg = (SOCIAL_EDIT.pages||[])[i];
     if (!pg) return;
     try {
-      const node = window.IGStudio.renderSpec(pg);
+      const node = window.IGStudio.renderSpec(spNormPage(pg));
       const w = 150, scale = w/1080;
       box.innerHTML = '';
       box.style.width = w+'px';
@@ -1379,7 +1414,7 @@ function bindSocial(){
     // 只重繪這一頁的預覽
     const box=document.querySelector(`[data-sp-prev="${i}"]`);
     if (box && window.IGStudio && window.IGStudio.renderSpec){
-      try { const node=window.IGStudio.renderSpec(SOCIAL_EDIT.pages[i]);
+      try { const node=window.IGStudio.renderSpec(spNormPage(SOCIAL_EDIT.pages[i]));
         node.style.transformOrigin='top left'; node.style.transform='scale('+(150/1080)+')';
         box.innerHTML=''; box.appendChild(node);
       } catch(e){}
