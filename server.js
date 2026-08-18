@@ -316,6 +316,13 @@ async function migrate() {
   await q(`UPDATE ig_assets SET url='https://emoji-minio.zeabur.app/ig-media/assets/260720_demolition_009.jpg' WHERE url='/uploads/social/social-msx84no8-ae03ef4a.jpg'`);
   await q(`UPDATE ig_assets SET url='https://emoji-minio.zeabur.app/ig-media/assets/260815_plumbing_012.jpg' WHERE url='/uploads/social/social-msx84p7h-1f493f24.jpg'`);
   await q(`UPDATE ig_assets SET url='https://emoji-minio.zeabur.app/ig-media/assets/260806_render_1f_bar_night.png' WHERE url='/uploads/social/social-msx84qrt-b5a05a4e.png'`);
+  // 一次性：首批素材已人工織入排程（2026-08-18），標記 used_by 防補產器重複選用（冪等）
+  await q(`UPDATE ig_assets SET used_by = CASE
+    WHEN url LIKE '%demolition%' THEN 'sp_seed_ig_s01'
+    WHEN url LIKE '%survey%' THEN 'sp_seed_ig_w02'
+    WHEN url LIKE '%plumbing%' THEN 'sp_seed_ig_w06'
+    WHEN url LIKE '%render_1f%' THEN 'sp_seed_ig_w05'
+    ELSE used_by END WHERE used_by=''`);
   // 社群貼文雙語欄位（IG 中英、X 中日）
   await q(`ALTER TABLE social_posts ADD COLUMN IF NOT EXISTS caption_en TEXT NOT NULL DEFAULT ''`);
   await q(`ALTER TABLE social_posts ADD COLUMN IF NOT EXISTS caption_ja TEXT NOT NULL DEFAULT ''`);
