@@ -79,6 +79,7 @@
   .sp-cal-n{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.7;padding:0 .2em}
   .sp-cal-d.today .sp-cal-n{background:var(--ink);color:var(--paper);border-radius:999px;min-width:1.7em;height:1.7em;
     display:inline-grid;place-items:center;font-weight:600;padding:0}
+  .sp-cal--week .sp-cal-d{min-height:300px}
   .sp-ev-head{display:flex;gap:5px;align-items:center;min-width:0}
   .sp-ev-thumb{display:block;width:100%;aspect-ratio:4/5;background:var(--line);overflow:hidden;position:relative;border-radius:3px}
   .sp-ev-thumb>.igp{position:absolute;top:0;left:0;transform-origin:top left}
@@ -152,7 +153,9 @@ let MENU_DIRTY_TOASTED = false;
 let MENU_SEEDED = false;
 /* 社群經營分頁狀態（資料按需載入；編輯狀態存全域，refresh 重繪不遺失） */
 let SOCIAL_POSTS = null;          // null=未載入
-let SOCIAL_VIEW = 'list';         // list | calendar | ads | edit
+let SOCIAL_VIEW = 'calendar';     // list | calendar | ads | edit（預設月曆）
+let SOCIAL_CAL_MODE = 'week';     // week | month（預設週檢視）
+let SOCIAL_CAL_WEEK = null;       // 週檢視起始日（週一）；null=本週
 let SOCIAL_EDIT = null;           // 編輯中的貼文（複本）
 let SOCIAL_DIRTY = false;
 let SOCIAL_FILTER = { platform:'', status:'', q:'' };
@@ -540,18 +543,46 @@ function render(d){
 }
 
 function bindNav(){
+  // 每個分頁有獨立網址（#hash），瀏覽器上一頁可回前一個分頁／檢視
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
-    TAB=b.dataset.tab;
-    document.querySelectorAll('[data-tab]').forEach(n=>n.classList.toggle('on',n.dataset.tab===TAB));
-    document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('on',p.dataset.panel===TAB));
-    // IG 分頁原先在 display:none 時掛載會得到負／零縮放；切入後重算預覽尺寸
-    if (TAB === 'ig' && window.IGStudio && typeof window.IGStudio.resize === 'function') {
-      requestAnimationFrame(() => window.IGStudio.resize());
-    }
-    // 社群經營：首次切入才載入貼文資料
-    if (TAB === 'social' && SOCIAL_POSTS === null) loadSocialPosts();
+    const t = b.dataset.tab;
+    location.hash = t === 'social' ? 'social/' + (SOCIAL_VIEW==='edit'?'calendar':SOCIAL_VIEW) : t;
   });
 }
+
+function activateTab(t){
+  TAB = t;
+  document.querySelectorAll('[data-tab]').forEach(n=>n.classList.toggle('on',n.dataset.tab===TAB));
+  document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('on',p.dataset.panel===TAB));
+  // IG 分頁在 display:none 時掛載會得到負／零縮放；切入後重算預覽尺寸
+  if (TAB === 'ig' && window.IGStudio && typeof window.IGStudio.resize === 'function') {
+    requestAnimationFrame(() => window.IGStudio.resize());
+  }
+}
+
+function applyRoute(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h || !document.querySelector('[data-panel]')) return;
+  const parts = h.split('/');
+  const tab = parts[0];
+  if (!document.querySelector(`[data-panel="${CSS.escape(tab)}"]`)) return;
+  activateTab(tab);
+  if (tab !== 'social') return;
+  if (SOCIAL_POSTS === null) { loadSocialPosts().then(()=>applyRoute()); return; }
+  const v = parts[1] || SOCIAL_VIEW;
+  if (v === 'edit' && parts[2]) {
+    const p = (SOCIAL_POSTS||[]).find(x=>x.id===parts[2]);
+    if (p) {
+      SOCIAL_EDIT = JSON.parse(JSON.stringify(p));
+      SOCIAL_EDIT.metrics = SOCIAL_EDIT.metrics||{}; SOCIAL_EDIT.pages = SOCIAL_EDIT.pages||[]; SOCIAL_EDIT.images = SOCIAL_EDIT.images||[];
+      SOCIAL_DIRTY = false; SOCIAL_VIEW = 'edit';
+    }
+  } else if (['list','calendar','ads'].includes(v)) {
+    SOCIAL_VIEW = v; SOCIAL_EDIT = null; SOCIAL_DIRTY = false;
+  }
+  paintSocial();
+}
+window.addEventListener('hashchange', applyRoute);
 
 function bind(d, x){
   const on = (sel,ev,fn)=>{ const el=document.getElementById(sel); if(el) el.addEventListener(ev,fn); };
@@ -950,7 +981,58 @@ function socialCalYM(){
   return spYM(ds[0] || new Date());
 }
 
+function socialWeekHTML(){
+  // 週檢視：週一為首，預設本週
+  const base = SOCIAL_CAL_WEEK ? spDate(SOCIAL_CAL_WEEK) : new Date();
+  const mon = new Date(base); mon.setDate(mon.getDate() - ((mon.getDay()+6)%7)); mon.setHours(0,0,0,0);
+  const days = Array.from({length:7}, (_,i)=>{ const d=new Date(mon); d.setDate(mon.getDate()+i); return d; });
+  const byDay = new Map();
+  for (const p of socialFiltered()){
+    const d = spDate(p.scheduled_at); if (!d) continue;
+    const k = spDay(d); if (!byDay.has(k)) byDay.set(k, []);
+    byDay.get(k).push({ p, d });
+  }
+  const todayK = spDay(new Date());
+  let weekCount = 0;
+  const WD = ['一','二','三','四','五','六','日'];
+  const head = days.map((d,i)=>`<div class="sp-cal-wd">${WD[i]} ${d.getMonth()+1}/${d.getDate()}</div>`).join('');
+  const grid = days.map(d=>{
+    const k = spDay(d);
+    const items = (byDay.get(k)||[]).sort((a,b)=>a.d-b.d);
+    weekCount += items.length;
+    const evs = items.map(({p, d:dd})=>{
+      const st = SOCIAL_STATUS_META[p.status] || SOCIAL_STATUS_META.draft;
+      const hh = `${String(dd.getHours()).padStart(2,'0')}:${String(dd.getMinutes()).padStart(2,'0')}`;
+      const t = p.title.replace(/^[WSX]?\d*\s*[｜|]?\s*/, '');
+      const tip = hh + ' ' + p.title + '（' + st.label + '）' + (p.phase ? ' · ' + p.phase : '');
+      const sum = String(p.caption||'').split('\n').find(l=>l.trim()) || '';
+      const hasThumb = p.platform==='ig' && (p.pages||[]).length;
+      return `<button class="sp-ev sp-ev--${esc(p.status)}" data-sp-edit="${esc(p.id)}" title="${esc(tip)}">
+        <span class="sp-ev-head"><span class="sp-ev-p">${p.platform==='ig'?'IG':'X'} ${esc(hh)}</span>
+          <span class="sp-ev-t">${esc(t)}</span></span>
+        ${hasThumb?`<span class="sp-ev-thumb" data-cal-prev="${esc(p.id)}"></span>`:''}
+        ${sum?`<span class="sp-ev-sum">${esc(sum.slice(0,42))}</span>`:''}</button>`;
+    }).join('');
+    return `<div class="sp-cal-d${k===todayK?' today':''}"><span class="sp-cal-n">${d.getDate()}</span>${evs}</div>`;
+  }).join('');
+  const sun = days[6];
+  const label = `${mon.getFullYear()}/${mon.getMonth()+1}/${mon.getDate()} – ${sun.getMonth()+1}/${sun.getDate()}`;
+  return `${socialToolbar()}
+  <div class="sp-cal-h">
+    <button class="btn btn--ghost btn-sm" id="sp-cal-prev" aria-label="上一週">‹</button>
+    <b>${label}</b>
+    <button class="btn btn--ghost btn-sm" id="sp-cal-next" aria-label="下一週">›</button>
+    <button class="btn btn--ghost btn-sm" id="sp-cal-today">本週</button>
+    <span style="flex:1"></span>
+    <button class="btn btn-sm btn--solid" id="sp-cal-mode-week">週</button>
+    <button class="btn btn-sm btn--ghost" id="sp-cal-mode-month">月</button>
+    <span style="color:var(--muted);font-size:.8rem">本週 ${weekCount} 則</span>
+  </div>
+  <div class="sp-cal-wrap"><div class="sp-cal sp-cal--week">${head}${grid}</div></div>`;
+}
+
 function socialCalendarHTML(){
+  if (SOCIAL_CAL_MODE === 'week') return socialWeekHTML();
   const ym = socialCalYM();
   const [Y, M] = ym.split('-').map(Number);
   const lead = (new Date(Y, M-1, 1).getDay() + 6) % 7;      // 週一為週首
@@ -998,6 +1080,9 @@ function socialCalendarHTML(){
     <b>${Y} 年 ${M} 月</b>
     <button class="btn btn--ghost btn-sm" id="sp-cal-next" aria-label="下個月">›</button>
     <button class="btn btn--ghost btn-sm" id="sp-cal-today">本月</button>
+    <span style="flex:1"></span>
+    <button class="btn btn-sm btn--ghost" id="sp-cal-mode-week">週</button>
+    <button class="btn btn-sm btn--solid" id="sp-cal-mode-month">月</button>
     <span style="color:var(--muted);font-size:.8rem">本月 ${monthCount} 則</span>
   </div>
   <div class="sp-cal-wrap"><div class="sp-cal">${head}${grid}</div></div>`;
@@ -1170,6 +1255,10 @@ function paintSocial(){
   bindSocial();
   if (SOCIAL_VIEW==='edit' && SOCIAL_EDIT && SOCIAL_EDIT.platform==='ig') renderSocialPreviews();
   if (SOCIAL_VIEW==='calendar') renderCalendarPreviews();
+  if (TAB === 'social') {
+    const want = 'social/' + (SOCIAL_VIEW==='edit' && SOCIAL_EDIT ? 'edit/'+SOCIAL_EDIT.id : SOCIAL_VIEW);
+    if (location.hash.slice(1) !== want) history.pushState(null, '', '#'+want);
+  }
 }
 
 // page 兼容：seed 巢狀 {layout,fields} → renderSpec 攤平格式
@@ -1306,9 +1395,12 @@ function bindSocial(){
       tr.style.display = !e.target.value.trim() || qq.includes(e.target.value.trim().toLowerCase()) ? '' : 'none'; }); });
   on('sp-new-ig','click',()=>socialNewPost('ig'));
   on('sp-new-x','click',()=>socialNewPost('x'));
-  on('sp-cal-prev','click',()=>{ SOCIAL_CAL_MONTH = spShiftYM(socialCalYM(), -1); paintSocial(); });
-  on('sp-cal-next','click',()=>{ SOCIAL_CAL_MONTH = spShiftYM(socialCalYM(),  1); paintSocial(); });
-  on('sp-cal-today','click',()=>{ SOCIAL_CAL_MONTH = spYM(new Date()); paintSocial(); });
+  const spShiftWeek = n => { const b = SOCIAL_CAL_WEEK ? spDate(SOCIAL_CAL_WEEK) : new Date(); b.setDate(b.getDate()+n*7); return spDay(b); };
+  on('sp-cal-prev','click',()=>{ if (SOCIAL_CAL_MODE==='week') SOCIAL_CAL_WEEK = spShiftWeek(-1); else SOCIAL_CAL_MONTH = spShiftYM(socialCalYM(), -1); paintSocial(); });
+  on('sp-cal-next','click',()=>{ if (SOCIAL_CAL_MODE==='week') SOCIAL_CAL_WEEK = spShiftWeek(1); else SOCIAL_CAL_MONTH = spShiftYM(socialCalYM(), 1); paintSocial(); });
+  on('sp-cal-today','click',()=>{ if (SOCIAL_CAL_MODE==='week') SOCIAL_CAL_WEEK = null; else SOCIAL_CAL_MONTH = spYM(new Date()); paintSocial(); });
+  on('sp-cal-mode-week','click',()=>{ SOCIAL_CAL_MODE='week'; SOCIAL_CAL_WEEK=null; paintSocial(); });
+  on('sp-cal-mode-month','click',()=>{ SOCIAL_CAL_MODE='month'; paintSocial(); });
 
   host.querySelectorAll('[data-sp-edit]').forEach(b=>b.onclick=(ev)=>{
     ev.preventDefault();
@@ -1451,7 +1543,7 @@ async function ensureIgScripts() {
   await load('/social-ads-lib.js');
 }
 
-async function refresh(){ const d=await api('/state'); await ensureIgScripts(); render(d); }
+async function refresh(){ const d=await api('/state'); await ensureIgScripts(); render(d); applyRoute(); }
 
 async function main(){
   if (!token) return renderLogin();
@@ -1460,6 +1552,7 @@ async function main(){
     if (d.role !== 'admin') return renderLogin('此 Google 帳號沒有管理員權限。請以超管或已授權的管理員帳號登入。');
     await ensureIgScripts();
     render(d);
+    applyRoute();
   } catch(e){
     if (String(e.message).includes('登入') || String(e.message).includes('401')) { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); return renderLogin(); }
     app.innerHTML = `<p class="a-center">暫時無法連線：${esc(e.message)}<br><button class="btn btn--ghost btn-sm" style="margin-top:1rem" onclick="location.reload()">重新整理</button></p>`;
