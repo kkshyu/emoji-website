@@ -212,6 +212,9 @@
     .igp-coming-sub{font-family:var(--serif);font-size:42px;line-height:1.5;color:#B7B0A2;margin-top:40px;}
 
     /* ===== 09 系列：線條 icon ===== */
+    .igp-pageno{position:absolute;top:82px;right:92px;z-index:2;font-size:20px;letter-spacing:.26em;
+      color:var(--muted);font-variant-numeric:lining-nums tabular-nums;}
+    .igp.dark .igp-pageno{color:#B7B0A2;}
     .igp9-wrap{position:relative;}
     .igp9-wrap>.igp7-pad{position:relative;z-index:1;}
     .igp9-clip{position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none;}
@@ -226,7 +229,7 @@
     .igp9-title{font-family:var(--serif);font-weight:700;line-height:1.22;letter-spacing:.02em;}
     .igp9-sub{font-size:30px;line-height:1.7;color:var(--ink-soft);margin-top:36px;margin-bottom:auto;}
     .igp.dark .igp9-sub{color:#D6D0C4;}
-    .igp9b-list{margin-top:auto;display:flex;flex-direction:column;}
+    .igp9b-list{display:flex;flex-direction:column;}
     .igp9b-item{display:flex;align-items:center;gap:32px;padding:42px 0;border-top:1px solid rgba(27,26,23,.16);}
     .igp9b-item:first-child{border-top:2px solid var(--ink);}
     .igp.dark .igp9b-item{border-top-color:rgba(244,241,234,.2);}
@@ -245,7 +248,7 @@
     .igp7a-sub{font-size:30px;line-height:1.7;color:var(--ink-soft);margin-top:42px;margin-bottom:auto;}
     /* 07b 編輯部條列：大序號 + 細線分隔 */
     .igp7b-head{font-family:var(--serif);font-weight:700;line-height:1.14;margin-top:40px;}
-    .igp7b-list{margin-top:auto;display:flex;flex-direction:column;}
+    .igp7b-list{display:flex;flex-direction:column;}
     .igp7b-item{display:flex;align-items:baseline;gap:34px;padding:52px 0;border-top:1px solid rgba(27,26,23,.16);}
     .igp7b-item:first-child{border-top:2px solid var(--ink);}
     .igp7b-num{font-family:"Cormorant Garamond",var(--serif);font-size:64px;line-height:1;color:var(--muted);font-variant-numeric:tabular-nums;flex:none;}
@@ -422,14 +425,14 @@
 
   function render03a() {
     const sq = state.format === 'square';
+    const eyebrow = state.q_by && state.q_by !== '言文字' ? state.q_by : 'Words · 一句';
     return `<div class="igp-layout" data-layout="03a">
       <div class="igp-quote">
-        <div class="igp-eyebrow">Words · 今日一句</div>
+        <div class="igp-eyebrow">${H(eyebrow)}</div>
         <div style="margin:auto 0"><div class="mk">“</div>
-          <div class="tx" style="font-size:${sq ? 72 : 84}px">${H(state.q_text)}</div>
-          ${state.q_sub ? `<div class="sb">${H(state.q_sub)}</div>` : ''}
+          <div class="tx" style="font-size:${fitSize(state.q_text, 88, sq)}px">${H(state.q_text)}</div>
+          ${state.q_sub ? `<div class="sb" style="font-size:${fitSize(state.q_sub, 46, sq)}px">${H(state.q_sub)}</div>` : ''}
           ${state.en ? `<div class="igp-en" style="font-size:${sq ? 26 : 30}px;margin-top:22px">${H(state.en)}</div>` : ''}
-          ${state.q_by ? `<div class="by">${H(state.q_by)}</div>` : ''}
         </div>
         ${foot()}
       </div>
@@ -440,13 +443,12 @@
     const sq = state.format === 'square';
     return `<div class="igp-layout" data-layout="03b">
       <div class="igp-quote">
-        <div class="igp-eyebrow igp-eyebrow--plain">A Note · 夜的字</div>
+        <div class="igp-eyebrow igp-eyebrow--plain">${H(state.q_by && state.q_by !== '言文字' ? state.q_by : 'A Note · 夜的字')}</div>
         <div style="margin:auto 0">
           <div class="mk">「</div>
-          <div class="tx" style="font-size:${sq ? 62 : 74}px">${H(state.q_text)}</div>
-          ${state.q_sub ? `<div class="sb">— ${H(state.q_sub)} —</div>` : ''}
+          <div class="tx" style="font-size:${fitSize(state.q_text, 78, sq)}px">${H(state.q_text)}</div>
+          ${state.q_sub ? `<div class="sb" style="font-size:${fitSize(state.q_sub, 44, sq)}px">— ${H(state.q_sub)} —</div>` : ''}
           ${state.en ? `<div class="igp-en" style="font-size:${sq ? 26 : 30}px;margin-top:22px">${H(state.en)}</div>` : ''}
-          ${state.q_by ? `<div class="by">${H(state.q_by)}</div>` : ''}
         </div>
         ${foot()}
       </div>
@@ -627,7 +629,7 @@
     return `<div class="igp-layout" data-layout="06b">
       <div class="igp-body">
         <div class="igp-eyebrow">Brand · 品牌理念</div>
-        <div class="igp-manifesto" style="font-size:${sq ? 62 : 76}px">${H(state.manifesto)}</div>
+        <div class="igp-manifesto" style="font-size:${fitSize(state.manifesto, 76, sq)}px">${H(state.manifesto)}</div>
         ${state.en ? `<p class="igp-en" style="font-size:${sq ? 28 : 32}px;margin-top:36px">${H(state.en)}</p>` : ''}
         <div class="igp-spacer"></div>
         ${foot()}
@@ -641,7 +643,7 @@
       <div class="igp-body">
         <div class="igp-eyebrow igp-eyebrow--plain">Coming Soon · 即將</div>
         <div style="margin:auto 0">
-          <h2 class="igp-coming-title" style="font-size:${sq ? 104 : 132}px">${H(state.comingTitle)}</h2>
+          <h2 class="igp-coming-title" style="font-size:${fitSize(state.comingTitle, 132, sq)}px">${H(state.comingTitle)}</h2>
           ${state.comingSub ? `<p class="igp-coming-sub" style="font-size:${sq ? 36 : 42}px">${hl(state.comingSub)}</p>` : ''}
           ${state.en ? `<div class="igp-en" style="font-size:${sq ? 26 : 30}px;margin-top:20px">${H(state.en)}</div>` : ''}
         </div>
@@ -691,9 +693,11 @@
       <div class="igp7-pad">
         <div class="igp7-tag">${H(state.icon_tag || 'GUIDE · 圖說')}</div>
         <h2 class="igp7b-head" style="font-size:${fitSize(state.icon_heading, 92, sq)}px">${H(state.icon_heading)}</h2>
+        <div style="flex:1"></div>
         <div class="igp9b-list">
           ${items.map(([ic, t]) => `<div class="igp9b-item">${iconSvg(ic, 'igp9b-ic')}<span class="igp9b-t" style="font-size:${sq ? 34 : 40}px">${H(t)}</span></div>`).join('')}
         </div>
+        <div style="flex:1"></div>
         ${foot()}
       </div>
     </div>`;
@@ -713,10 +717,10 @@
   }
 
   /* ===== 07/08 系列（2026-08 行銷版型：Hook／條列／問答／封面／數字／檔期） ===== */
-  // 字級隨字數自適應：明體大字在 12 字內單行～雙行皆穩
+  // 字級自適應：以最長行字數縮放（配合文字長短，避免溢版與空洞）
   const fitSize = (text, base, sq) => {
-    const n = String(text || '').replace(/\n/g, '').length;
-    const size = n > 10 ? base * 0.78 : n > 7 ? base * 0.88 : base;
+    const L = Math.max(...String(text || '').split('\n').map(l => l.trim().length), 1);
+    const size = L > 13 ? base * 0.62 : L > 10 ? base * 0.78 : L > 8 ? base * 0.88 : base;
     return Math.round(sq ? size * 0.86 : size);
   };
   const br = t => H(t).replace(/\n/g, '<br>');   // 大字欄位支援 \n 手動斷行
@@ -741,12 +745,14 @@
       <div class="igp7-pad">
         <div class="igp7-tag">GUIDE · 怎麼用</div>
         <h2 class="igp7b-head" style="font-size:${fitSize(state.heading, 92, sq)}px">${H(state.heading)}</h2>
+        <div style="flex:1"></div>
         <div class="igp7b-list">
           ${items.map((t, idx) => `<div class="igp7b-item">
             <span class="igp7b-num">0${idx + 1}</span>
             <span class="igp7b-txt" style="font-size:${sq ? 34 : 40}px">${idx === 0 ? `<span class="k">${H(t)}</span>` : H(t)}</span>
           </div>`).join('')}
         </div>
+        <div style="flex:1"></div>
         ${foot()}
       </div>
     </div>`;
@@ -870,7 +876,9 @@
     const root = document.createElement('div');
     root.className = 'igp' + (state.dark ? ' dark' : '');
     root.style.width = w + 'px'; root.style.height = h + 'px';
-    root.innerHTML = postInner();
+    const pageNo = Number(state.__total) > 1 && !(state.category === '08' && state.variant === 'a')
+      ? `<div class="igp-pageno">${String(state.__page).padStart(2, '0')} ／ ${String(state.__total).padStart(2, '0')}</div>` : '';
+    root.innerHTML = postInner() + pageNo;
     return root;
   }
 
@@ -901,6 +909,7 @@
     const category = LAYOUTS[s.category] ? s.category : '03';
     const variant = LAYOUTS[category][s.variant] ? s.variant : 'a';
     Object.assign(state, STATE_DEFAULTS);
+    state.__page = 0; state.__total = 0;
     for (const k of SPEC_TEXT_FIELDS) state[k] = '';
     state.m_menuIds = [];
     state.p_alcohol = false;
