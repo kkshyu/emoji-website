@@ -212,6 +212,13 @@
     .igp-coming-sub{font-family:var(--serif);font-size:42px;line-height:1.5;color:#B7B0A2;margin-top:40px;}
 
     /* ===== 09 系列：線條 icon ===== */
+    .igp9-wrap{position:relative;}
+    .igp9-wrap>.igp7-pad{position:relative;z-index:1;}
+    .igp9-clip{position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none;}
+    .igp9-bg{position:absolute;right:-170px;top:-100px;width:820px;height:820px;
+      color:rgba(27,26,23,.07);}
+    .igp.dark .igp9-bg{color:rgba(244,241,234,.09);}
+    .igp9-bg--soft{width:660px;height:660px;right:-130px;top:-70px;}
     .igp9-hero{position:relative;margin:auto 0 46px;color:var(--ink);}
     .igp.dark .igp9-hero{color:#F4F1EA;}
     .igp9-hero svg{width:100%;height:100%;display:block;}
@@ -661,15 +668,15 @@
     calendar: '<rect x="7" y="11" width="34" height="29" rx="3"/><path d="M7 19h34"/><path d="M15 7v8M33 7v8"/><path d="M18 30l4 4 8-9"/>',
     heart: '<path d="M24 40C11 31 7 22 13 16c4-4 9-2 11 2 2-4 7-6 11-2 6 6 2 15-11 24z"/>',
   };
-  const iconSvg = (name, cls) => `<svg class="${cls || ''}" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.sparkle}</svg>`;
+  const iconSvg = (name, cls, sw) => `<svg class="${cls || ''}" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="${sw || 2.6}" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.sparkle}</svg>`;
 
   function render09a() {
     const sq = state.format === 'square';
-    return `<div class="igp-layout" data-layout="09a">
+    return `<div class="igp-layout igp9-wrap" data-layout="09a">
+      <span class="igp9-clip">${iconSvg(state.icon, 'igp9-bg', 1.6)}</span>
       <div class="igp7-pad">
         <div class="igp7-tag">${H(state.icon_tag || 'ICON · 圖說')}</div>
-        <div class="igp9-hero" style="width:${sq ? 200 : 230}px;height:${sq ? 200 : 230}px"><span class="igp9-acc"></span>${iconSvg(state.icon)}</div>
-        <h2 class="igp9-title" style="font-size:${fitSize(state.icon_title, 96, sq)}px">${br(state.icon_title)}</h2>
+        <h2 class="igp9-title" style="margin-top:auto;font-size:${fitSize(state.icon_title, 104, sq)}px">${br(state.icon_title)}</h2>
         ${state.icon_sub ? `<p class="igp9-sub" style="font-size:${sq ? 27 : 30}px">${H(state.icon_sub)}</p>` : '<div style="margin-bottom:auto"></div>'}
         ${foot()}
       </div>
@@ -679,7 +686,8 @@
   function render09b() {
     const sq = state.format === 'square';
     const items = [[state.li1_icon, state.li1_text], [state.li2_icon, state.li2_text], [state.li3_icon, state.li3_text]].filter(x => x[1]);
-    return `<div class="igp-layout" data-layout="09b">
+    return `<div class="igp-layout igp9-wrap" data-layout="09b">
+      <span class="igp9-clip">${iconSvg(state.li1_icon, 'igp9-bg igp9-bg--soft', 1.6)}</span>
       <div class="igp7-pad">
         <div class="igp7-tag">${H(state.icon_tag || 'GUIDE · 圖說')}</div>
         <h2 class="igp7b-head" style="font-size:${fitSize(state.icon_heading, 92, sq)}px">${H(state.icon_heading)}</h2>
@@ -693,11 +701,11 @@
 
   function render09c() {
     const sq = state.format === 'square';
-    return `<div class="igp-layout" data-layout="09c">
+    return `<div class="igp-layout igp9-wrap" data-layout="09c">
+      <span class="igp9-clip">${iconSvg(state.icon, 'igp9-bg', 1.6)}</span>
       <div class="igp7-pad">
         <div class="igp7-tag" style="color:#B7B0A2">${H(state.icon_tag || 'ICON · 圖說')}</div>
-        <div class="igp9-hero" style="width:${sq ? 200 : 230}px;height:${sq ? 200 : 230}px"><span class="igp9-acc"></span>${iconSvg(state.icon)}</div>
-        <h2 class="igp9-title" style="font-size:${fitSize(state.icon_title, 96, sq)}px">${br(state.icon_title)}</h2>
+        <h2 class="igp9-title" style="margin-top:auto;font-size:${fitSize(state.icon_title, 104, sq)}px">${br(state.icon_title)}</h2>
         ${state.icon_sub ? `<p class="igp9-sub" style="font-size:${sq ? 27 : 30}px">${H(state.icon_sub)}</p>` : '<div style="margin-bottom:auto"></div>'}
         ${foot()}
       </div>
