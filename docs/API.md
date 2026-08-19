@@ -119,6 +119,41 @@ Google 授權回呼，簽發會員 token 並導回。
 ### DELETE /api/admin/social/posts/:id
 刪除貼文。刪除種子貼文（`sp_seed_*`）會寫入墓碑，避免下次部署復活。
 
+### POST /api/admin/social/:id/publish-ig
+立即發布單篇 IG 貼文（不等排程）。成功回 `{ ok, url, images }`；失敗把錯誤寫回貼文 `notes` 並回 502。
+
+### GET /api/admin/ig/status
+IG 自動發文系統狀態：token 有無、AI key 有無、未來排程、錯誤與逾期清單、素材庫統計。
+
+### POST /api/admin/ig/compose
+手動觸發 AI 補產（正常由每週日 cron 執行）。回 `{ ok, made }`；需 `ANTHROPIC_API_KEY`。
+
+### GET /api/admin/ig/assets
+素材庫清單（最新 100 筆）。回 `{ assets }`。
+
+### POST /api/admin/ig/assets
+登記素材：body `{ url, note }`。`url` 限 `/uploads/social/` 路徑或 https；`note` 必填（AI 產文要呼應照片內容）。
+
+### POST /api/admin/x/compose
+X 貼文 AI 起草：body `{ topic }`，回 `{ ok, draft: { title, caption, caption_ja } }`。
+沿用 IG 補產的品牌鐵律與禁用字守門；需 `ANTHROPIC_API_KEY`，未設回 502。
+
+### GET /api/admin/ads/campaigns
+廣告投放紀錄列表。回 `{ campaigns }`（日期為 `YYYY-MM-DD` 字串）。
+
+### POST /api/admin/ads/campaigns
+新增或更新投放紀錄。帶 `id` 為更新。body 欄位：
+
+- `layer`：`awareness`｜`retarget`｜`action`（三層廣告結構）
+- `status`：`planned`｜`running`｜`done`
+- `start_date`、`end_date`：`YYYY-MM-DD`；結束日不可早於開始日
+- `budget`、`spent`：NT 整數（負值歸零）
+- `post_id`：關聯的 social_posts id（選填，須存在）
+- `metrics{}`（如 `reach`、`clicks`）、`notes`
+
+### DELETE /api/admin/ads/campaigns/:id
+刪除投放紀錄。
+
 ### POST /api/admin/upload/social
 上傳貼文圖片。`multipart/form-data`，欄位名 `file`，限 5MB 影像。回 `{ url }`。
 

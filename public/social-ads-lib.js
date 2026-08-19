@@ -73,10 +73,10 @@
     const rationale = [rule.why];
     if (p.post_type === 'carousel') { score += 5; rationale.push('輪播利於收藏與逐頁停留，適合投放'); }
     const period = periodOf(p.scheduled_at);
-    if (!period) rationale.push('排程日期不在 7/15–10/31 釋放期內，建議併入最近一期或不投');
+    if (!period) rationale.push('排程日期不在 10/1–12/31 釋放期內，建議併入最近一期或不投');
     const layer = layerOf(rule.layer);
-    // 開幕行動期：產品與活動貼文加權（$25,000 集中在真實體驗與開幕倒數）
-    if (period && period.phase === '試營運' && rule.layer === 'action') { score += 10; rationale.push('試營運期的行動型內容是預算重心'); }
+    // 開幕後（10/27 起）：轉換權重加大，行動型內容加權
+    if (period && period.from >= '2026-10-27' && rule.layer === 'action') { score += 10; rationale.push('開幕後轉換權重加大，行動型內容是預算重心'); }
     score = Math.max(0, Math.min(100, score));
     const suitability = score >= 80 ? '高' : score >= 65 ? '中' : '低';
 

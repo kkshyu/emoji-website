@@ -110,6 +110,23 @@
   .sp-img button{position:absolute;top:-6px;right:-6px;border:1px solid var(--line);border-radius:999px;
     background:var(--paper);cursor:pointer;font-size:.7rem;line-height:1.4}
   #social-body select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+  /* X 貼文產生器 */
+  .xs-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:20px;align-items:start}
+  .xs-form label{font-size:.82rem;color:var(--muted);display:flex;flex-direction:column;gap:.25em;margin-bottom:10px}
+  .xs-form input,.xs-form textarea{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+  .xs-form textarea{resize:vertical}
+  .xp-card{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--paper);margin-bottom:12px}
+  .xp-head{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+  .xp-avatar{width:40px;height:40px;border-radius:999px;background:var(--accent,#FFDE34);color:#1B1A17;display:grid;place-items:center;font-weight:700;flex:none}
+  .xp-name{font-weight:700;font-size:.9rem;line-height:1.2}
+  .xp-handle{color:var(--muted);font-size:.8rem}
+  .xp-text{white-space:pre-wrap;font-size:.92rem;line-height:1.5;word-break:break-word}
+  .xs-count{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .xs-count.over{color:#c0392b;font-weight:700}
+  /* 廣告總覽：預算進度條 */
+  .ads-bar{height:10px;border-radius:999px;background:var(--line);overflow:hidden;position:relative;margin:8px 0 4px}
+  .ads-bar>i{position:absolute;top:0;left:0;height:100%}
+  @media(max-width:1020px){.xs-grid{grid-template-columns:1fr}}
   @media(max-width:1020px){.sp-edit{grid-template-columns:1fr}.sp-side{position:static}}
   @media(max-width:860px){
     .a-shell{grid-template-columns:1fr;gap:14px}
@@ -153,13 +170,18 @@ let MENU_DIRTY_TOASTED = false;
 let MENU_SEEDED = false;
 /* 社群經營分頁狀態（資料按需載入；編輯狀態存全域，refresh 重繪不遺失） */
 let SOCIAL_POSTS = null;          // null=未載入
-let SOCIAL_VIEW = 'calendar';     // list | calendar | ads | edit（預設月曆）
+let SOCIAL_VIEW = 'calendar';     // list | calendar | edit | igstudio | xstudio（預設月曆）
+let SOCIAL_POSTS_VIEW = 'calendar'; // 貼文總覽內最後停留檢視（list|calendar），從產生器切回時恢復
 let SOCIAL_CAL_MODE = 'week';     // week | month（預設週檢視）
 let SOCIAL_CAL_WEEK = null;       // 週檢視起始日（週一）；null=本週
 let SOCIAL_EDIT = null;           // 編輯中的貼文（複本）
 let SOCIAL_DIRTY = false;
 let SOCIAL_FILTER = { platform:'', status:'', q:'' };
 let SOCIAL_CAL_MONTH = null;      // 日曆顯示月份 'YYYY-MM'；null=自動
+/* 廣告總覽分頁狀態 */
+let ADS_CAMPS = null;             // 投放紀錄；null=未載入
+let ADS_EDIT = null;              // 編輯中的投放紀錄（複本；id='' 為新增）
+let ADS_LOADING = false;
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
 
 // datetime-local 值 ↔ ISO
@@ -501,8 +523,8 @@ const TABS = [
   { id:'updates',     label:'最新消息', render:tabUpdates },
   { id:'menu',        label:'菜單',     render:tabMenu },
   { id:'content',     label:'網站內容', render:tabContent },
-  { id:'ig',          label:'IG 貼文',  render:()=>`<div class="a-sec"><h2>IG 貼文產生器</h2><p class="hint">填資訊、上傳照片，即時預覽並下載可直接發布的 IG 貼文圖片（方形／直式）。</p><div id="ig-studio"></div></div>` },
   { id:'social',      label:'社群經營', render:tabSocial },
+  { id:'ads',         label:'廣告總覽', render:tabAds },
   { id:'admins',      label:'管理員',   render:tabAdmins, super:true },
 ];
 
@@ -546,7 +568,7 @@ function bindNav(){
   // 每個分頁有獨立網址（#hash），瀏覽器上一頁可回前一個分頁／檢視
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
     const t = b.dataset.tab;
-    location.hash = t === 'social' ? 'social/' + (SOCIAL_VIEW==='edit'?'calendar':SOCIAL_VIEW) : t;
+    location.hash = t === 'social' ? 'social/' + (SOCIAL_VIEW==='edit'?SOCIAL_POSTS_VIEW:SOCIAL_VIEW) : t;
   });
 }
 
@@ -554,22 +576,25 @@ function activateTab(t){
   TAB = t;
   document.querySelectorAll('[data-tab]').forEach(n=>n.classList.toggle('on',n.dataset.tab===TAB));
   document.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('on',p.dataset.panel===TAB));
-  // IG 分頁在 display:none 時掛載會得到負／零縮放；切入後重算預覽尺寸
-  if (TAB === 'ig' && window.IGStudio && typeof window.IGStudio.resize === 'function') {
-    requestAnimationFrame(() => window.IGStudio.resize());
-  }
 }
 
 function applyRoute(){
-  const h = decodeURIComponent(location.hash.slice(1));
+  let h = decodeURIComponent(location.hash.slice(1));
+  if (h === 'ig') h = 'social/igstudio';   // 舊網址相容：IG 產生器已併入社群經營
+  if (h === 'social/ads') h = 'ads';       // 廣告總覽已獨立成分頁
   if (!h || !document.querySelector('[data-panel]')) return;
   const parts = h.split('/');
   const tab = parts[0];
   if (!document.querySelector(`[data-panel="${CSS.escape(tab)}"]`)) return;
   activateTab(tab);
+  if (tab === 'ads') { paintAds(); return; }
   if (tab !== 'social') return;
-  if (SOCIAL_POSTS === null) { loadSocialPosts().then(()=>applyRoute()); return; }
   const v = parts[1] || SOCIAL_VIEW;
+  if (['igstudio','xstudio'].includes(v)) {
+    SOCIAL_VIEW = v; SOCIAL_EDIT = null; SOCIAL_DIRTY = false;
+    paintSocial(); return;
+  }
+  if (SOCIAL_POSTS === null) { loadSocialPosts().then(()=>applyRoute()); return; }
   if (v === 'edit' && parts[2]) {
     const p = (SOCIAL_POSTS||[]).find(x=>x.id===parts[2]);
     if (p) {
@@ -577,7 +602,7 @@ function applyRoute(){
       SOCIAL_EDIT.metrics = SOCIAL_EDIT.metrics||{}; SOCIAL_EDIT.pages = SOCIAL_EDIT.pages||[]; SOCIAL_EDIT.images = SOCIAL_EDIT.images||[];
       SOCIAL_DIRTY = false; SOCIAL_VIEW = 'edit';
     }
-  } else if (['list','calendar','ads'].includes(v)) {
+  } else if (['list','calendar'].includes(v)) {
     SOCIAL_VIEW = v; SOCIAL_EDIT = null; SOCIAL_DIRTY = false;
   }
   paintSocial();
@@ -694,18 +719,16 @@ function bind(d, x){
   // 管理員
   document.querySelectorAll('[data-admin]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/users/'+b.dataset.admin+'/admin',{method:'POST',body:{admin:b.dataset.on==='1'}}),'已更新管理權限'));
 
-  // IG 貼文產生器（掛載一次）
-  const igHost = document.getElementById('ig-studio');
-  if (igHost && window.IGStudio && !igHost.dataset.mounted){ igHost.dataset.mounted='1'; window.IGStudio.mount(igHost); }
-
   // 菜單
   bindMenu();
 
-  // 社群經營：refresh 後由目前狀態重繪（編輯中內容存於 SOCIAL_EDIT，不遺失）
+  // 社群經營：refresh 後由目前狀態重繪（編輯中內容存於 SOCIAL_EDIT，不遺失；IG/X 產生器由 paintSocial 掛載）
   if (SOCIAL_POSTS !== null || TAB === 'social') {
     if (SOCIAL_POSTS === null) loadSocialPosts();
     else paintSocial();
   }
+  // 廣告總覽：refresh 後重繪（資料未載入時由 paintAds 觸發載入）
+  if (ADS_CAMPS !== null || TAB === 'ads') paintAds();
 }
 
 /* ---------- 菜單：局部重繪 + 綁定（不觸發整頁 refresh，避免遺失未存檔編輯） ---------- */
@@ -879,21 +902,39 @@ const socialFmtSched = v => v ? String(v).replace('T',' ') : '—';
 
 function tabSocial(){
   return `<div class="a-sec"><h2>社群經營</h2>
-    <p class="hint">IG／X 貼文規劃、內容日曆與廣告投放建議。貼文內容與排程在此管理，實際發布仍於平台操作，發布後回填連結與成效。</p>
-    <div id="social-body"><p class="a-sub">載入貼文資料…</p></div></div>`;
+    <p class="hint">IG／X 貼文規劃、內容日曆與貼文產生器。IG 排程貼文自動發布；X 貼文發布後回填連結與成效。</p>
+    <div id="social-subnav" class="a-toolbar"></div>
+    <div id="social-body"><p class="a-sub">載入貼文資料…</p></div>
+    <div id="social-studio-ig" style="display:none">
+      <p class="hint">填資訊、上傳照片，即時預覽並下載可直接發布的 IG 貼文圖片（方形／直式）。</p>
+      <div id="ig-studio"></div>
+    </div>
+    <div id="social-studio-x" style="display:none"></div>
+  </div>`;
+}
+
+function socialSubnavHTML(){
+  const items = [['posts','貼文總覽'],['igstudio','IG 貼文產生器'],['xstudio','X (Twitter) 貼文產生器']];
+  const cur = SOCIAL_VIEW==='igstudio' ? 'igstudio' : SOCIAL_VIEW==='xstudio' ? 'xstudio' : 'posts';
+  return items.map(([v,l])=>`<button class="btn btn-sm ${cur===v?'btn--solid':'btn--ghost'}" data-social-sub="${v}">${l}</button>`).join('');
 }
 
 let SOCIAL_IG_STATUS = null;      // IG 自動發文系統狀態（/admin/ig/status）
-async function loadSocialPosts(){
-  try {
-    const { posts } = await api('/admin/social/posts');
-    SOCIAL_POSTS = posts;
-  } catch(e) {
-    SOCIAL_POSTS = [];
-    toast(e.message);
-  }
-  try { SOCIAL_IG_STATUS = await api('/admin/ig/status'); } catch(_) { SOCIAL_IG_STATUS = null; }
-  paintSocial();
+let SOCIAL_LOADP = null;          // 進行中的載入 promise（避免重複請求；applyRoute 需等真正完成）
+function loadSocialPosts(){
+  if (SOCIAL_LOADP) return SOCIAL_LOADP;
+  SOCIAL_LOADP = (async () => {
+    try {
+      const { posts } = await api('/admin/social/posts');
+      SOCIAL_POSTS = posts;
+    } catch(e) {
+      SOCIAL_POSTS = [];
+      toast(e.message);
+    }
+    try { SOCIAL_IG_STATUS = await api('/admin/ig/status'); } catch(_) { SOCIAL_IG_STATUS = null; }
+    paintSocial();
+  })().finally(()=>{ SOCIAL_LOADP = null; });
+  return SOCIAL_LOADP;
 }
 
 function socialFiltered(){
@@ -905,7 +946,7 @@ function socialFiltered(){
 }
 
 function socialToolbar(){
-  const views = [['list','清單'],['calendar','日曆'],['ads','廣告總覽']];
+  const views = [['list','清單'],['calendar','日曆']];
   const seg = views.map(([v,l])=>`<button class="btn btn-sm ${SOCIAL_VIEW===v?'btn--solid':'btn--ghost'}" data-social-view="${v}">${l}</button>`).join('');
   const opt = (v,l,cur)=>`<option value="${v}" ${cur===v?'selected':''}>${l}</option>`;
   return `<div class="a-toolbar" style="flex-wrap:wrap">
@@ -1092,9 +1133,9 @@ function socialCalendarHTML(){
   <div class="sp-cal-wrap"><div class="sp-cal">${head}${grid}</div></div>`;
 }
 
-function socialAdsHTML(){
+function adsPlanHTML(){
   const Ads = window.SocialAdsLib;
-  if (!Ads) return `${socialToolbar()}<p class="a-sub">廣告建議引擎載入中…</p>`;
+  if (!Ads) return `<p class="a-sub">廣告建議引擎載入中…</p>`;
   const today = new Date(), p2=n=>String(n).padStart(2,'0');
   const plan = Ads.budgetPlan(`${today.getFullYear()}-${p2(today.getMonth()+1)}-${p2(today.getDate())}`);
   const layerRows = plan.layers.map(l=>`<tr><td><b>${esc(l.name)}</b></td><td class="num">${NT(l.budget)}</td><td>${esc(l.audience)}</td><td>${esc(l.creatives)}</td><td>${esc(l.goal)}</td></tr>`).join('');
@@ -1104,17 +1145,21 @@ function socialAdsHTML(){
   const allocRows = plan.allocation.map(a=>`<tr><td>${esc(a.item)}</td><td class="num">${NT(a.amount)}</td><td class="num">${a.pct}%</td></tr>`).join('');
 
   const igPosts = (SOCIAL_POSTS||[]).filter(p=>p.platform==='ig');
+  const campOf = id => (ADS_CAMPS||[]).find(c=>c.post_id===id);
   const recRows = igPosts.map(p=>({ p, rec: Ads.recommendAd(p, SOCIAL_POSTS) }))
     .filter(x=>x.rec.eligible)
     .sort((a,b)=>b.rec.score-a.rec.score)
-    .map(({p,rec})=>`<tr>
+    .map(({p,rec})=>{
+      const c = campOf(p.id);
+      return `<tr>
       <td><a href="#" data-sp-edit="${esc(p.id)}">${esc(p.title)}</a></td>
       <td class="a-mono num">${esc(socialFmtSched(p.scheduled_at))}</td>
       <td>${esc(rec.suitability)} <span style="color:var(--muted)">(${rec.score})</span></td>
       <td>${esc(rec.layer)}</td>
       <td class="num">${rec.budgetHint!=null?NT(rec.budgetHint):'—'}</td>
-      <td style="font-size:.8rem;color:var(--muted)">${esc(rec.rationale[0]||'')}</td></tr>`).join('')
-    || '<tr><td colspan="6" class="a-empty">尚無 IG 貼文</td></tr>';
+      <td>${c?`<span class="pill pill-ok">已投 ${NT(c.budget)}</span>`:`<button class="btn btn--ghost btn-sm" data-ads-new-for="${esc(p.id)}">建投放</button>`}</td>
+      <td style="font-size:.8rem;color:var(--muted)">${esc(rec.rationale[0]||'')}</td></tr>`;}).join('')
+    || '<tr><td colspan="7" class="a-empty">尚無 IG 貼文</td></tr>';
 
   const published = igPosts.filter(p=>p.status==='published');
   const ampRows = published.map(p=>{
@@ -1123,17 +1168,16 @@ function socialAdsHTML(){
       <td>${esc(adv.flag)}</td><td style="font-size:.8rem;color:var(--muted)">${adv.notes.map(esc).join('；')}</td></tr>`;
   }).join('') || '<tr><td colspan="3" class="a-empty">尚無已發布貼文（發布後回填成效即可判讀）</td></tr>';
 
-  return `${socialToolbar()}
+  return `<h3 class="sp-h3">每貼適投建議（依分數排序）</h3>
+  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>貼文</th><th class="num">排程</th><th>適投</th><th>層級</th><th class="num">建議預算</th><th>投放</th><th>理由</th></tr></thead><tbody>${recRows}</tbody></table></div>
+  <h3 class="sp-h3">放大判讀（48–72 小時自然觀察後）</h3>
+  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>貼文</th><th>判讀</th><th>說明</th></tr></thead><tbody>${ampRows}</tbody></table></div>
   <h3 class="sp-h3">預算釋放節奏（廣告 ${NT(plan.adTotal)}／總預算 ${NT(plan.total)}）</h3>
   <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>期間</th><th>階段</th><th class="num">預算</th><th>任務</th></tr></thead><tbody>${relRows}</tbody></table></div>
   <h3 class="sp-h3">三層廣告結構</h3>
   <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>層級</th><th class="num">預算</th><th>受眾</th><th>素材</th><th>目的</th></tr></thead><tbody>${layerRows}</tbody></table></div>
   <h3 class="sp-h3">總預算配置</h3>
-  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>項目</th><th class="num">金額</th><th class="num">占比</th></tr></thead><tbody>${allocRows}</tbody></table></div>
-  <h3 class="sp-h3">每貼適投建議（依分數排序）</h3>
-  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>貼文</th><th class="num">排程</th><th>適投</th><th>層級</th><th class="num">建議預算</th><th>理由</th></tr></thead><tbody>${recRows}</tbody></table></div>
-  <h3 class="sp-h3">放大判讀（48–72 小時自然觀察後）</h3>
-  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>貼文</th><th>判讀</th><th>說明</th></tr></thead><tbody>${ampRows}</tbody></table></div>`;
+  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>項目</th><th class="num">金額</th><th class="num">占比</th></tr></thead><tbody>${allocRows}</tbody></table></div>`;
 }
 
 function socialPageCard(pg, i){
@@ -1249,20 +1293,263 @@ function socialEditHTML(){
 }
 
 function paintSocial(){
+  const sub = document.getElementById('social-subnav');
   const host = document.getElementById('social-body');
-  if (!host) return;
-  if (SOCIAL_POSTS === null){ host.innerHTML = '<p class="a-sub">載入貼文資料…</p>'; return; }
-  host.innerHTML = SOCIAL_VIEW==='edit' && SOCIAL_EDIT ? socialEditHTML()
-    : SOCIAL_VIEW==='calendar' ? socialCalendarHTML()
-    : SOCIAL_VIEW==='ads' ? socialAdsHTML()
-    : socialListHTML();
-  bindSocial();
-  if (SOCIAL_VIEW==='edit' && SOCIAL_EDIT && SOCIAL_EDIT.platform==='ig') renderSocialPreviews();
-  if (SOCIAL_VIEW==='calendar') renderCalendarPreviews();
+  const igHost = document.getElementById('social-studio-ig');
+  const xHost = document.getElementById('social-studio-x');
+  if (!sub || !host) return;
+  if (SOCIAL_VIEW==='list' || SOCIAL_VIEW==='calendar') SOCIAL_POSTS_VIEW = SOCIAL_VIEW;
+  sub.innerHTML = socialSubnavHTML();
+  sub.querySelectorAll('[data-social-sub]').forEach(b=>b.onclick=()=>{
+    if (SOCIAL_VIEW==='edit' && SOCIAL_DIRTY && !confirm('有未儲存的編輯，確定離開？')) return;
+    SOCIAL_VIEW = b.dataset.socialSub==='posts' ? SOCIAL_POSTS_VIEW : b.dataset.socialSub;
+    SOCIAL_EDIT=null; SOCIAL_DIRTY=false; paintSocial();
+  });
+  const mode = SOCIAL_VIEW==='igstudio' ? 'ig' : SOCIAL_VIEW==='xstudio' ? 'x' : 'posts';
+  host.style.display = mode==='posts' ? '' : 'none';
+  igHost.style.display = mode==='ig' ? '' : 'none';
+  xHost.style.display = mode==='x' ? '' : 'none';
+  if (mode==='ig'){
+    // 產生器 DOM 常駐（不隨貼文資料重繪），只掛載一次；display:none 期間縮放歸零，切入重算
+    const el = document.getElementById('ig-studio');
+    if (el && window.IGStudio && !el.dataset.mounted){ el.dataset.mounted='1'; window.IGStudio.mount(el); }
+    if (window.IGStudio && typeof window.IGStudio.resize==='function') requestAnimationFrame(()=>window.IGStudio.resize());
+  }
+  if (mode==='x') mountXStudio();
+  if (mode==='posts'){
+    if (SOCIAL_POSTS === null){ host.innerHTML = '<p class="a-sub">載入貼文資料…</p>'; loadSocialPosts(); }
+    else {
+      host.innerHTML = SOCIAL_VIEW==='edit' && SOCIAL_EDIT ? socialEditHTML()
+        : SOCIAL_VIEW==='calendar' ? socialCalendarHTML()
+        : socialListHTML();
+      bindSocial();
+      if (SOCIAL_VIEW==='edit' && SOCIAL_EDIT && SOCIAL_EDIT.platform==='ig') renderSocialPreviews();
+      if (SOCIAL_VIEW==='calendar') renderCalendarPreviews();
+    }
+  }
   if (TAB === 'social') {
     const want = 'social/' + (SOCIAL_VIEW==='edit' && SOCIAL_EDIT ? 'edit/'+SOCIAL_EDIT.id : SOCIAL_VIEW);
     if (location.hash.slice(1) !== want) history.pushState(null, '', '#'+want);
   }
+}
+
+/* ---------- X (Twitter) 貼文產生器 ---------- */
+// X 加權字數：CJK／全形／emoji 以 2 計（上限 280＝中日文約 140 字）、網址一律 23
+function xWeight(s){
+  let n = 0;
+  const rest = String(s||'').replace(/https?:\/\/\S+/g, ()=>{ n += 23; return ''; });
+  for (const ch of rest){
+    const cp = ch.codePointAt(0);
+    n += (cp > 0xFFFF || /[ᄀ-ᇿ⺀-꓏가-힣豈-﫿︰-﹏＀-￯]/.test(ch)) ? 2 : 1;
+  }
+  return n;
+}
+
+function mountXStudio(){
+  const el = document.getElementById('social-studio-x');
+  if (!el || el.dataset.mounted) return;
+  el.dataset.mounted = '1';
+  el.innerHTML = `
+  <p class="hint">寫一則 X 推文：即時預覽與字數檢查，可用 AI 依主題起草（需 ANTHROPIC_API_KEY）。存成草稿後到貼文總覽排程與回填成效。</p>
+  <div class="xs-grid">
+    <div class="xs-form">
+      <label>主題（給 AI 的方向）<span style="display:flex;gap:8px"><input id="xs-topic" placeholder="例：凌晨三點的重慶南路" style="flex:1">
+        <button class="btn btn--ghost btn-sm" id="xs-ai">AI 起草</button></span></label>
+      <label>標題（後台管理用）<input id="xs-title" placeholder="X｜主題"></label>
+      <label>中文推文<textarea id="xs-zh" rows="5"></textarea><span class="xs-count" id="xs-zh-count">0 / 280</span></label>
+      <label>日文版（選填，發文時另發一則）<textarea id="xs-ja" rows="5"></textarea><span class="xs-count" id="xs-ja-count">0 / 280</span></label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn--solid btn-sm" id="xs-save">存成草稿</button>
+        <button class="btn btn--ghost btn-sm" id="xs-copy-zh">複製中文</button>
+        <button class="btn btn--ghost btn-sm" id="xs-copy-ja">複製日文</button>
+      </div>
+    </div>
+    <div>
+      <div class="xp-card"><div class="xp-head"><span class="xp-avatar">言</span>
+        <span><span class="xp-name">言文字｜emoji</span><br><span class="xp-handle">@emoji0701</span></span></div>
+        <div class="xp-text" id="xs-prev-zh" style="color:var(--muted)">（中文推文預覽）</div></div>
+      <div class="xp-card" id="xs-card-ja" style="display:none"><div class="xp-head"><span class="xp-avatar">言</span>
+        <span><span class="xp-name">言文字｜emoji</span><br><span class="xp-handle">@emoji0701</span></span></div>
+        <div class="xp-text" id="xs-prev-ja"></div></div>
+    </div>
+  </div>`;
+  const $ = id => document.getElementById(id);
+  const sync = ()=>{
+    const zh = $('xs-zh').value, ja = $('xs-ja').value;
+    $('xs-prev-zh').textContent = zh || '（中文推文預覽）';
+    $('xs-prev-zh').style.color = zh ? '' : 'var(--muted)';
+    $('xs-card-ja').style.display = ja ? '' : 'none';
+    $('xs-prev-ja').textContent = ja;
+    for (const [t, id] of [[zh,'xs-zh-count'],[ja,'xs-ja-count']]) {
+      const w = xWeight(t);
+      const n = $(id); n.textContent = `${w} / 280`; n.classList.toggle('over', w > 280);
+    }
+  };
+  $('xs-zh').addEventListener('input', sync);
+  $('xs-ja').addEventListener('input', sync);
+  $('xs-ai').onclick = async ()=>{
+    const topic = $('xs-topic').value.trim();
+    if (!topic) return toast('請先輸入主題');
+    $('xs-ai').disabled = true; $('xs-ai').textContent = '起草中…';
+    try {
+      const { draft } = await api('/admin/x/compose', { method:'POST', body:{ topic } });
+      $('xs-title').value = draft.title || $('xs-title').value;
+      $('xs-zh').value = draft.caption || '';
+      $('xs-ja').value = draft.caption_ja || '';
+      sync(); toast('AI 草稿完成，請人工校閱');
+    } catch(e){ toast(e.message); }
+    finally { $('xs-ai').disabled = false; $('xs-ai').textContent = 'AI 起草'; }
+  };
+  $('xs-save').onclick = async ()=>{
+    const zh = $('xs-zh').value.trim();
+    if (!zh) return toast('請先寫中文推文');
+    if (xWeight(zh) > 280 || xWeight($('xs-ja').value) > 280) return toast('超過 280 字數上限，請縮短');
+    const title = $('xs-title').value.trim() || ('X｜' + zh.slice(0, 12));
+    try {
+      await api('/admin/social/posts', { method:'POST', body:{
+        platform:'x', post_type:'text', status:'draft', title, caption: zh, caption_ja: $('xs-ja').value.trim() } });
+      SOCIAL_POSTS = null;   // 下次進貼文總覽重新載入
+      toast('已存成草稿，到貼文總覽排程');
+    } catch(e){ toast(e.message); }
+  };
+  const copy = async (t, msg)=>{ if(!t) return toast('沒有內容可複製');
+    try { await navigator.clipboard.writeText(t); toast(msg); } catch(_) { toast('複製失敗'); } };
+  $('xs-copy-zh').onclick = ()=>copy($('xs-zh').value, '已複製中文推文');
+  $('xs-copy-ja').onclick = ()=>copy($('xs-ja').value, '已複製日文推文');
+}
+
+/* ---------- 廣告總覽（獨立分頁）：儀表板＋投放紀錄＋建議引擎 ---------- */
+const ADS_LAYER_META = { awareness:'陌生觸及', retarget:'互動再行銷', action:'具體行動' };
+const ADS_STATUS_META = { planned:['規劃中','pill-wait'], running:['投放中','pill-live'], done:['已結案','pill-ok'] };
+
+function tabAds(){
+  return `<div class="a-sec"><h2>廣告總覽</h2>
+    <p class="hint">預算計畫、每貼適投建議與投放紀錄。實際投放於 Meta 廣告管理員操作，回填實花與成效以追蹤執行進度。</p>
+    <div id="ads-body"><p class="a-sub">載入資料…</p></div></div>`;
+}
+
+async function loadAdsData(){
+  if (ADS_LOADING) return;
+  ADS_LOADING = true;
+  try {
+    if (SOCIAL_POSTS === null) { try { SOCIAL_POSTS = (await api('/admin/social/posts')).posts; } catch(e){ SOCIAL_POSTS=[]; toast(e.message); } }
+    if (ADS_CAMPS === null) { try { ADS_CAMPS = (await api('/admin/ads/campaigns')).campaigns; } catch(e){ ADS_CAMPS=[]; toast(e.message); } }
+  } finally { ADS_LOADING = false; }
+  paintAds();
+}
+
+function adsDashHTML(){
+  const Ads = window.SocialAdsLib;
+  if (!Ads) return '';
+  const p2=n=>String(n).padStart(2,'0'), today=new Date();
+  const plan = Ads.budgetPlan(`${today.getFullYear()}-${p2(today.getMonth()+1)}-${p2(today.getDate())}`);
+  const cur = plan.release.find(r=>r.current);
+  const spent = (ADS_CAMPS||[]).reduce((s,c)=>s+(Number(c.spent)||0),0);
+  const committed = (ADS_CAMPS||[]).reduce((s,c)=>s+(Number(c.budget)||0),0);
+  const running = (ADS_CAMPS||[]).filter(c=>c.status==='running').length;
+  const pct = v => Math.min(100, Math.round(v / (plan.adTotal||1) * 100));
+  return `<div class="a-kpis">
+    <div class="a-kpi"><div class="kl">目前階段</div><div class="kv" style="font-size:1.05rem">${cur?esc(cur.phase):'—'}</div>
+      <div class="kl" style="margin-top:.3em">${cur?esc(cur.from.slice(5))+' – '+esc(cur.to.slice(5))+'・'+esc(cur.task):''}</div></div>
+    <div class="a-kpi"><div class="kl">本階段預算</div><div class="kv">${cur?NT(cur.budget):'—'}</div></div>
+    <div class="a-kpi"><div class="kl">已編列／已實花</div><div class="kv" style="font-size:1.15rem">${NT(committed)}<span class="u"> ／ </span>${NT(spent)}</div></div>
+    <div class="a-kpi"><div class="kl">執行中</div><div class="kv">${running}<span class="u"> 檔</span></div></div>
+  </div>
+  <div class="kl" style="font-size:.78rem;color:var(--muted)">廣告總預算消耗（實花 ${NT(spent)}／${NT(plan.adTotal)}，已編列 ${pct(committed)}%）</div>
+  <div class="ads-bar"><i style="width:${pct(committed)}%;background:var(--line);filter:brightness(.85)"></i><i style="width:${pct(spent)}%;background:var(--accent,#FFDE34)"></i></div>`;
+}
+
+function adsCampaignsHTML(){
+  const postById = id => (SOCIAL_POSTS||[]).find(p=>p.id===id);
+  const rows = (ADS_CAMPS||[]).map(c=>{
+    const st = ADS_STATUS_META[c.status] || ADS_STATUS_META.planned;
+    const p = c.post_id ? postById(c.post_id) : null;
+    const m = c.metrics || {};
+    return `<tr>
+      <td class="a-mono">${esc(c.start_date||'—')}${c.end_date?' – '+esc(c.end_date):''}</td>
+      <td>${esc(ADS_LAYER_META[c.layer]||c.layer)}</td>
+      <td>${p?`<a href="#social/edit/${esc(p.id)}">${esc(p.title)}</a>`:(c.post_id?esc(c.post_id):'—')}</td>
+      <td class="num">${NT(c.budget)}</td><td class="num">${NT(c.spent)}</td>
+      <td class="num">${m.reach?num(m.reach):'—'}</td><td class="num">${m.clicks?num(m.clicks):'—'}</td>
+      <td><span class="pill ${st[1]}">${st[0]}</span></td>
+      <td style="font-size:.8rem;color:var(--muted);max-width:180px">${esc(c.notes||'')}</td>
+      <td style="white-space:nowrap"><button class="btn btn--ghost btn-sm" data-ads-edit="${esc(c.id)}">編輯</button>
+        <button class="btn btn--ghost btn-sm" data-ads-del="${esc(c.id)}">刪除</button></td></tr>`;
+  }).join('') || '<tr><td colspan="10" class="a-empty">尚無投放紀錄，按「＋新增投放」建立第一筆</td></tr>';
+
+  const e = ADS_EDIT;
+  const igOpts = ['<option value="">（不關聯貼文）</option>']
+    .concat((SOCIAL_POSTS||[]).filter(p=>p.platform==='ig').map(p=>`<option value="${esc(p.id)}" ${e&&e.post_id===p.id?'selected':''}>${esc(p.title)}</option>`)).join('');
+  const form = !e ? '' : `<div class="a-form" style="border:1px solid var(--line);border-radius:var(--radius);padding:14px;background:var(--paper)">
+    <label>開始日<input type="date" id="ac-start" value="${esc(e.start_date||'')}"></label>
+    <label>結束日<input type="date" id="ac-end" value="${esc(e.end_date||'')}"></label>
+    <label>層級<select id="ac-layer">${Object.entries(ADS_LAYER_META).map(([k,l])=>`<option value="${k}" ${e.layer===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    <label>關聯貼文<select id="ac-post" style="max-width:220px">${igOpts}</select></label>
+    <label>預算 NT$<input type="number" id="ac-budget" min="0" step="100" value="${e.budget||0}" style="width:110px"></label>
+    <label>實花 NT$<input type="number" id="ac-spent" min="0" step="100" value="${e.spent||0}" style="width:110px"></label>
+    <label>觸及<input type="number" id="ac-reach" min="0" value="${(e.metrics&&e.metrics.reach)||''}" style="width:100px"></label>
+    <label>點擊<input type="number" id="ac-clicks" min="0" value="${(e.metrics&&e.metrics.clicks)||''}" style="width:90px"></label>
+    <label>狀態<select id="ac-status">${Object.entries(ADS_STATUS_META).map(([k,[l]])=>`<option value="${k}" ${e.status===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    <label style="flex:1;min-width:180px">備註<input id="ac-notes" value="${esc(e.notes||'')}"></label>
+    <button class="btn btn--solid btn-sm" id="ac-save">${e.id?'儲存':'新增'}</button>
+    <button class="btn btn--ghost btn-sm" id="ac-cancel">取消</button></div>`;
+
+  return `<h3 class="sp-h3">投放紀錄&nbsp;<button class="btn btn--ghost btn-sm" id="ads-new" style="margin-left:8px">＋新增投放</button></h3>
+  ${form}
+  <div class="a-wrap2"><table class="a-tbl"><thead><tr><th>期間</th><th>層級</th><th>關聯貼文</th><th class="num">預算</th><th class="num">實花</th><th class="num">觸及</th><th class="num">點擊</th><th>狀態</th><th>備註</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function paintAds(){
+  const host = document.getElementById('ads-body');
+  if (!host) return;
+  if (SOCIAL_POSTS === null || ADS_CAMPS === null){ host.innerHTML='<p class="a-sub">載入資料…</p>'; loadAdsData(); return; }
+  host.innerHTML = adsDashHTML() + adsCampaignsHTML() + adsPlanHTML();
+  bindAds();
+}
+
+function adsBlankCamp(postId){
+  const p2=n=>String(n).padStart(2,'0'), t=new Date();
+  return { id:'', post_id: postId||'', layer:'awareness', status:'planned',
+    start_date:`${t.getFullYear()}-${p2(t.getMonth()+1)}-${p2(t.getDate())}`, end_date:'', budget:0, spent:0, metrics:{}, notes:'' };
+}
+
+function bindAds(){
+  const host = document.getElementById('ads-body');
+  if (!host) return;
+  const on = (id,ev,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener(ev,fn); };
+  on('ads-new','click',()=>{ ADS_EDIT = adsBlankCamp(); paintAds(); });
+  host.querySelectorAll('[data-ads-new-for]').forEach(b=>b.onclick=()=>{ ADS_EDIT = adsBlankCamp(b.dataset.adsNewFor); paintAds(); });
+  host.querySelectorAll('[data-ads-edit]').forEach(b=>b.onclick=()=>{
+    const c = (ADS_CAMPS||[]).find(x=>x.id===b.dataset.adsEdit); if(!c) return;
+    ADS_EDIT = JSON.parse(JSON.stringify(c)); ADS_EDIT.metrics = ADS_EDIT.metrics||{}; paintAds();
+  });
+  host.querySelectorAll('[data-ads-del]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('確定刪除此投放紀錄？')) return;
+    try { await api('/admin/ads/campaigns/'+b.dataset.adsDel,{method:'DELETE'});
+      ADS_CAMPS = ADS_CAMPS.filter(x=>x.id!==b.dataset.adsDel);
+      if (ADS_EDIT && ADS_EDIT.id===b.dataset.adsDel) ADS_EDIT=null;
+      toast('已刪除'); paintAds();
+    } catch(e){ toast(e.message); }
+  });
+  on('ac-cancel','click',()=>{ ADS_EDIT=null; paintAds(); });
+  on('ac-save','click',async()=>{
+    const v = id => document.getElementById(id).value;
+    const metrics = {};
+    if (Number(v('ac-reach'))) metrics.reach = Number(v('ac-reach'));
+    if (Number(v('ac-clicks'))) metrics.clicks = Number(v('ac-clicks'));
+    try {
+      await api('/admin/ads/campaigns',{method:'POST',body:{
+        id: ADS_EDIT.id || undefined, post_id: v('ac-post'), layer: v('ac-layer'), status: v('ac-status'),
+        start_date: v('ac-start'), end_date: v('ac-end'),
+        budget: Number(v('ac-budget'))||0, spent: Number(v('ac-spent'))||0, metrics, notes: v('ac-notes') }});
+      ADS_EDIT = null; ADS_CAMPS = null;   // 重新載入取回正規化後資料
+      toast('已儲存投放紀錄'); paintAds();
+    } catch(e){ toast(e.message); }
+  });
+  // 建議表中的貼文連結 → 跳社群經營編輯（hash 路由處理）
+  host.querySelectorAll('[data-sp-edit]').forEach(b=>b.onclick=(ev)=>{
+    ev.preventDefault(); location.hash = 'social/edit/' + b.dataset.spEdit;
+  });
 }
 
 // page 兼容：seed 巢狀 {layout,fields} → renderSpec 攤平格式

@@ -305,6 +305,20 @@ CREATE TABLE IF NOT EXISTS ig_assets (
   used_by TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS ad_campaigns (
+  id TEXT PRIMARY KEY,
+  post_id TEXT NOT NULL DEFAULT '',
+  layer TEXT NOT NULL DEFAULT 'awareness',
+  status TEXT NOT NULL DEFAULT 'planned',
+  start_date DATE,
+  end_date DATE,
+  budget INT NOT NULL DEFAULT 0,
+  spent INT NOT NULL DEFAULT 0,
+  metrics JSONB NOT NULL DEFAULT '{}',
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 `;
 
 async function migrate() {
@@ -1524,6 +1538,49 @@ app.delete('/api/admin/social/posts/:id', auth, adminOnly, requireDb, wrap(async
   res.json({ ok: true });
 }));
 
+/* ---- 廣告總覽：投放紀錄（實際投放於 Meta 廣告管理員操作，此處記錄與追蹤） ---- */
+const AD_LAYERS = ['awareness', 'retarget', 'action'];
+const AD_STATUS = ['planned', 'running', 'done'];
+
+app.get('/api/admin/ads/campaigns', auth, adminOnly, requireDb, wrap(async (_req, res) => {
+  const rows = (await q(`SELECT id,post_id,layer,status,
+      to_char(start_date,'YYYY-MM-DD') AS start_date, to_char(end_date,'YYYY-MM-DD') AS end_date,
+      budget,spent,metrics,notes FROM ad_campaigns ORDER BY start_date NULLS LAST, created_at DESC`)).rows;
+  res.json({ campaigns: rows });
+}));
+
+app.post('/api/admin/ads/campaigns', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const b = req.body || {};
+  const layer = AD_LAYERS.includes(b.layer) ? b.layer : 'awareness';
+  const status = AD_STATUS.includes(b.status) ? b.status : 'planned';
+  const D = /^\d{4}-\d{2}-\d{2}$/;
+  const start = String(b.start_date || '').trim() || null;
+  const end = String(b.end_date || '').trim() || null;
+  if ((start && !D.test(start)) || (end && !D.test(end))) return res.status(400).json({ error: '日期格式須為 YYYY-MM-DD。' });
+  if (start && end && end < start) return res.status(400).json({ error: '結束日不可早於開始日。' });
+  const budget = Math.max(0, Math.round(Number(b.budget) || 0));
+  const spent = Math.max(0, Math.round(Number(b.spent) || 0));
+  const postId = String(b.post_id || '').trim();
+  if (postId && !(await q(`SELECT 1 FROM social_posts WHERE id=$1`, [postId])).rows[0]) return res.status(400).json({ error: '關聯貼文不存在。' });
+  const metrics = (b.metrics && typeof b.metrics === 'object' && !Array.isArray(b.metrics)) ? b.metrics : {};
+  const vals = [postId, layer, status, start, end, budget, spent, JSON.stringify(metrics), String(b.notes ?? '')];
+  if (b.id) {
+    const r = await q(`UPDATE ad_campaigns SET post_id=$2,layer=$3,status=$4,start_date=$5,end_date=$6,budget=$7,spent=$8,metrics=$9,notes=$10,updated_at=now()
+       WHERE id=$1 RETURNING id`, [b.id, ...vals]);
+    if (!r.rows[0]) return res.status(404).json({ error: '找不到投放紀錄。' });
+    return res.json({ ok: true, id: b.id });
+  }
+  const id = uid('adc_');
+  await q(`INSERT INTO ad_campaigns (id,post_id,layer,status,start_date,end_date,budget,spent,metrics,notes)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`, [id, ...vals]);
+  res.json({ ok: true, id });
+}));
+
+app.delete('/api/admin/ads/campaigns/:id', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  await q(`DELETE FROM ad_campaigns WHERE id=$1`, [req.params.id]);
+  res.json({ ok: true });
+}));
+
 /* ---- 前台管理：社群貼文圖片上傳 ---- */
 const UPLOAD_SOCIAL_DIR = path.join(__dirname, 'uploads', 'social');
 fs.mkdirSync(UPLOAD_SOCIAL_DIR, { recursive: true });
@@ -1591,6 +1648,39 @@ const igComposer = require('./lib/ig-composer');
 app.post('/api/admin/ig/compose', auth, adminOnly, requireDb, wrap(async (_req, res) => {
   try { res.json({ ok: true, made: await igComposer.composeWeek(igDeps()) }); }
   catch (e) { res.status(502).json({ error: e.message }); }
+}));
+
+// X 貼文 AI 起草：主題 → 中日雙語推文草稿（沿用 IG 補產的品牌鐵律與禁用字守門；需 ANTHROPIC_API_KEY）
+app.post('/api/admin/x/compose', auth, adminOnly, wrap(async (req, res) => {
+  const topic = String((req.body || {}).topic || '').trim();
+  if (!topic) return res.status(400).json({ error: '請輸入主題或想講的事。' });
+  const t = new Date(Date.now() + 8 * 3600e3), p2 = n => String(n).padStart(2, '0');
+  const today = `${t.getUTCFullYear()}-${p2(t.getUTCMonth() + 1)}-${p2(t.getUTCDate())}`;
+  const { BRAND, milestone } = igComposer;
+  const system = `你是「${BRAND.name}」的 X(Twitter) 文案主筆。位置：${BRAND.address}（${BRAND.mrt}）。
+營業：${BRAND.hours}。空間：${BRAND.floors}。時程：${BRAND.nodes}。
+今天是 ${today}。目前階段：${milestone(today)}。
+
+鐵律：
+1. 內容必須對應目前階段的真實狀態，絕不超前或虛構進度。
+2. 嚴禁任何住宿類表述（住宿、床位、過夜、hotel、宿泊…）；床位一律稱「席位」；二樓口徑＝「24 小時看書休憩」。
+3. 品牌英文名一律「emoji」、帳號一律「@emoji0701」；嚴禁出現「yanwenzi」任何形式。
+4. 不用 AI 味用語（賦能、沉浸式、一站式、無縫、極致、快來、別錯過、讓我們一起…）。表情符號最多 1 個，可以不用。
+5. 語氣：內斂、誠實、短句、像人寫的。不油、不喊口號。不提任何價格數字。
+6. 中文版與日文版各自道地改寫，不逐字翻譯；各不超過 X 字數上限（中日字元以 2 計，約 140 字）。
+
+只輸出一個 JSON 物件，不要 code fence、不要任何其他文字。`;
+  const user = `任務：依主題寫一則 X 推文。主題：${topic}
+輸出 JSON 格式：
+{"title":"後台管理用標題，15 字內，格式：X｜主題","caption":"中文推文","caption_ja":"日文版推文"}`;
+  try {
+    const out = await igComposer.askClaude(system, user);
+    const draft = { title: String(out.title || '').trim(), caption: String(out.caption || '').trim(), caption_ja: String(out.caption_ja || '').trim() };
+    if (!draft.caption) return res.status(502).json({ error: 'AI 回應缺 caption，請再試一次。' });
+    const banned = igPublisher.checkBanned({ caption: [draft.title, draft.caption, draft.caption_ja].join('\n') });
+    if (banned.length) return res.status(502).json({ error: `AI 產文含禁用字（${banned.join('、')}），請再試一次。` });
+    res.json({ ok: true, draft });
+  } catch (e) { res.status(502).json({ error: e.message }); }
 }));
 
 // 素材庫：KK 丟素材到專案資料夾 → 上傳（既有 /api/admin/upload/social）→ 在此登記；補產器優先取用

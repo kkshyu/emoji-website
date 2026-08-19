@@ -37,7 +37,28 @@ test('server：上傳沿用 multer 雙重驗證與安全檔名', () => {
 
 test('admin：社群分頁註冊於 TABS 且按需載入', () => {
   assert.match(admin, /\{ id:'social',\s*label:'社群經營', render:tabSocial \}/);
-  assert.match(admin, /TAB === 'social' && SOCIAL_POSTS === null\) loadSocialPosts/);
+  assert.match(admin, /if \(SOCIAL_POSTS === null\) loadSocialPosts\(\)/);
+});
+
+test('admin：廣告總覽獨立分頁、產生器併入社群經營、舊網址相容', () => {
+  assert.match(admin, /\{ id:'ads',\s*label:'廣告總覽', render:tabAds \}/);
+  assert.doesNotMatch(admin, /\{ id:'ig',\s*label:'IG 貼文'/);            // IG 產生器已移入社群經營子頁
+  assert.match(admin, /data-social-sub="\$\{v\}"/);                        // 子導覽（貼文總覽／IG／X 產生器）
+  assert.match(admin, /h = 'social\/igstudio'/);                          // #ig → #social/igstudio
+  assert.match(admin, /if \(h === 'social\/ads'\) h = 'ads'/);            // #social/ads → #ads
+});
+
+test('server：投放紀錄 CRUD 與 X 起草端點皆掛 auth + adminOnly', () => {
+  assert.match(server, /CREATE TABLE IF NOT EXISTS ad_campaigns/);
+  assert.match(server, /app\.get\('\/api\/admin\/ads\/campaigns', auth, adminOnly, requireDb, wrap/);
+  assert.match(server, /app\.post\('\/api\/admin\/ads\/campaigns', auth, adminOnly, requireDb, wrap/);
+  assert.match(server, /app\.delete\('\/api\/admin\/ads\/campaigns\/:id', auth, adminOnly, requireDb, wrap/);
+  assert.match(server, /app\.post\('\/api\/admin\/x\/compose', auth, adminOnly, wrap/);
+});
+
+test('admin：X 產生器加權字數（CJK×2、網址 23）與 280 上限守門', () => {
+  assert.match(admin, /function xWeight/);
+  assert.match(admin, /xWeight\(zh\) > 280/);
 });
 
 test('admin：多平台上傳走裸 fetch（不經 api() 的 JSON 封裝）', () => {

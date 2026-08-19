@@ -25,11 +25,12 @@ test('四期釋放節奏合計 $50,000、三層結構合計 $50,000', () => {
 });
 
 test('periodOf 邊界：期首期尾含入、期外回 null', () => {
-  assert.equal(Ads.periodOf('2026-07-15').phase, '品牌重置');
-  assert.equal(Ads.periodOf('2026-08-15').phase, '品牌重置');
-  assert.equal(Ads.periodOf('2026-08-16').phase, '共同打造');
-  assert.equal(Ads.periodOf('2026-10-31').phase, '試營運');
-  assert.equal(Ads.periodOf('2026-11-01'), null);
+  assert.equal(Ads.periodOf('2026-10-01').phase, '雙十連假');
+  assert.equal(Ads.periodOf('2026-10-12').phase, '雙十連假');
+  assert.equal(Ads.periodOf('2026-10-13').phase, '試營運（低調）');
+  assert.equal(Ads.periodOf('2026-12-31').phase, '聖誕＋跨年');
+  assert.equal(Ads.periodOf('2026-09-30'), null);
+  assert.equal(Ads.periodOf('2027-01-01'), null);
   assert.equal(Ads.periodOf(''), null);
   assert.equal(Ads.periodOf('not-a-date'), null);
 });
@@ -49,21 +50,21 @@ test('受眾痛點輪播＝高適投、陌生觸及層', () => {
   assert.ok(r.checklist.some(c => c.includes('48')));
 });
 
-test('試營運期行動型內容加權', () => {
-  const base = Ads.recommendAd({ platform: 'ig', post_type: 'image', series: '產品與活動', scheduled_at: '2026-09-20 10:00' });
-  const boosted = Ads.recommendAd({ platform: 'ig', post_type: 'image', series: '產品與活動', scheduled_at: '2026-10-13 10:00' });
+test('開幕後（10/27 起）行動型內容加權', () => {
+  const base = Ads.recommendAd({ platform: 'ig', post_type: 'image', series: '產品與活動', scheduled_at: '2026-10-14 10:00' });
+  const boosted = Ads.recommendAd({ platform: 'ig', post_type: 'image', series: '產品與活動', scheduled_at: '2026-11-20 10:00' });
   assert.ok(boosted.score > base.score);
   assert.equal(boosted.layerKey, 'action');
 });
 
 test('budgetHint 依同期貼數分攤、依適投度加減', () => {
   const peers = [
-    { platform: 'ig', scheduled_at: '2026-07-17 19:00' },
-    { platform: 'ig', scheduled_at: '2026-07-24 19:00' },
-    { platform: 'ig', scheduled_at: '2026-07-31 19:00' },
+    { platform: 'ig', scheduled_at: '2026-10-14 19:00' },
+    { platform: 'ig', scheduled_at: '2026-10-17 19:00' },
+    { platform: 'ig', scheduled_at: '2026-10-24 19:00' },
   ];
-  const r = Ads.recommendAd({ platform: 'ig', post_type: 'carousel', series: '25–35 歲的生活難題', scheduled_at: '2026-07-24 19:00' }, peers);
-  // 期預算 3000 / 3 篇 = 1000；高適投 ×1.5 = 1500
+  const r = Ads.recommendAd({ platform: 'ig', post_type: 'carousel', series: '25–35 歲的生活難題', scheduled_at: '2026-10-17 19:00' }, peers);
+  // 試營運期預算 3000 / 3 篇 = 1000；高適投 ×1.5 = 1500
   assert.equal(r.budgetHint, 1500);
 });
 
@@ -88,7 +89,7 @@ test('budgetPlan 標出目前期別', () => {
   assert.equal(plan.total, 100000);
   const current = plan.release.filter(p => p.current);
   assert.equal(current.length, 1);
-  assert.equal(current[0].phase, '試營運');
+  assert.equal(current[0].phase, '試營運（低調）');
 });
 
 test('median 空陣列回 null、偶數取平均', () => {
