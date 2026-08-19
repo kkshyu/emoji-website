@@ -211,6 +211,22 @@
     .igp-coming-title{font-family:"Cormorant Garamond",var(--serif);font-size:132px;line-height:1.02;letter-spacing:.01em;}
     .igp-coming-sub{font-family:var(--serif);font-size:42px;line-height:1.5;color:#B7B0A2;margin-top:40px;}
 
+    /* ===== 09 系列：線條 icon ===== */
+    .igp9-hero{position:relative;margin:auto 0 46px;color:var(--ink);}
+    .igp.dark .igp9-hero{color:#F4F1EA;}
+    .igp9-hero svg{width:100%;height:100%;display:block;}
+    .igp9-acc{position:absolute;right:-16px;top:-10px;width:24px;height:24px;background:var(--ig-yellow);transform:rotate(45deg);}
+    .igp9-title{font-family:var(--serif);font-weight:700;line-height:1.22;letter-spacing:.02em;}
+    .igp9-sub{font-size:30px;line-height:1.7;color:var(--ink-soft);margin-top:36px;margin-bottom:auto;}
+    .igp.dark .igp9-sub{color:#D6D0C4;}
+    .igp9b-list{margin-top:auto;display:flex;flex-direction:column;}
+    .igp9b-item{display:flex;align-items:center;gap:32px;padding:42px 0;border-top:1px solid rgba(27,26,23,.16);}
+    .igp9b-item:first-child{border-top:2px solid var(--ink);}
+    .igp.dark .igp9b-item{border-top-color:rgba(244,241,234,.2);}
+    .igp9b-ic{width:74px;height:74px;flex:none;color:var(--ink);}
+    .igp.dark .igp9b-ic{color:#F4F1EA;}
+    .igp9b-item:first-child .igp9b-ic{color:#1B1A17;background:var(--ig-yellow);border-radius:8px;padding:10px;box-sizing:border-box;}
+    .igp9b-t{font-family:var(--serif);line-height:1.4;font-weight:500;}
     /* ===== 07/08 系列（2026-08 新版型：行銷結構化，CIS 新構圖） ===== */
     .igp7-pad{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:88px 92px 76px;}
     .igp7-tag{font-size:21px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:14px;}
@@ -627,6 +643,67 @@
     </div>`;
   }
 
+  /* ===== 09 系列：線條 icon（Outline）風 —— 依貼文內容選 icon ===== */
+  // 手繪 48×48 線條 icon；stroke currentColor，色彩隨亮暗版型自動切換
+  const ICONS = {
+    coffee: '<path d="M10 18h22v9a11 11 0 0 1-22 0z"/><path d="M32 20h4a5 5 0 0 1 0 10h-4"/><path d="M16 7c0 3-2 3-2 6M24 7c0 3-2 3-2 6"/><path d="M12 40h20"/>',
+    moon: '<path d="M28 6a17 17 0 1 0 14 26A15 15 0 0 1 28 6z"/><path d="M38 8l1.2 2.8L42 12l-2.8 1.2L38 16l-1.2-2.8L34 12l2.8-1.2z"/>',
+    book: '<path d="M24 13c-4-3-10-4-16-3v25c6-1 12 0 16 3 4-3 10-4 16-3V10c-6-1-12 0-16 3z"/><path d="M24 13v25"/>',
+    beam: '<path d="M6 34L24 13l18 21"/><path d="M12 27h24"/><path d="M24 13v21"/><path d="M6 34h36"/>',
+    people: '<circle cx="16" cy="15" r="5"/><path d="M6 38a10 9 0 0 1 20-2"/><circle cx="33" cy="19" r="5"/><path d="M24 40a10 9 0 0 1 18-4"/>',
+    pin: '<path d="M24 5a12 12 0 0 1 12 12c0 9-12 26-12 26S12 26 12 17A12 12 0 0 1 24 5z"/><circle cx="24" cy="17" r="4"/>',
+    clock: '<circle cx="24" cy="24" r="17"/><path d="M24 13v11l8 5"/>',
+    sparkle: '<path d="M22 6l3.5 11L37 20.5 25.5 24 22 35l-3.5-11L7 20.5 18.5 17z"/><path d="M38 30l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z"/>',
+    gift: '<path d="M8 15h32v7H8z"/><path d="M11 22h26v18H11z"/><path d="M24 15v25"/><path d="M24 15c-6-8-14-3-9 0M24 15c6-8 14-3 9 0"/>',
+    drink: '<path d="M9 9h30"/><path d="M9 9l15 16 15-16"/><path d="M24 25v13"/><path d="M17 38h14"/><path d="M15 15h18"/>',
+    rest: '<path d="M10 32v-8a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4v8"/><path d="M6 32h36v5H6z"/><path d="M9 37v4M39 37v4"/>',
+    floors: '<path d="M13 40V8h22v32"/><path d="M13 18h22M13 29h22"/><path d="M8 40h32"/><path d="M21 40v-5h6v5"/>',
+    calendar: '<rect x="7" y="11" width="34" height="29" rx="3"/><path d="M7 19h34"/><path d="M15 7v8M33 7v8"/><path d="M18 30l4 4 8-9"/>',
+    heart: '<path d="M24 40C11 31 7 22 13 16c4-4 9-2 11 2 2-4 7-6 11-2 6 6 2 15-11 24z"/>',
+  };
+  const iconSvg = (name, cls) => `<svg class="${cls || ''}" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.sparkle}</svg>`;
+
+  function render09a() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="09a">
+      <div class="igp7-pad">
+        <div class="igp7-tag">${H(state.icon_tag || 'ICON · 圖說')}</div>
+        <div class="igp9-hero" style="width:${sq ? 200 : 230}px;height:${sq ? 200 : 230}px"><span class="igp9-acc"></span>${iconSvg(state.icon)}</div>
+        <h2 class="igp9-title" style="font-size:${fitSize(state.icon_title, 96, sq)}px">${br(state.icon_title)}</h2>
+        ${state.icon_sub ? `<p class="igp9-sub" style="font-size:${sq ? 27 : 30}px">${H(state.icon_sub)}</p>` : '<div style="margin-bottom:auto"></div>'}
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render09b() {
+    const sq = state.format === 'square';
+    const items = [[state.li1_icon, state.li1_text], [state.li2_icon, state.li2_text], [state.li3_icon, state.li3_text]].filter(x => x[1]);
+    return `<div class="igp-layout" data-layout="09b">
+      <div class="igp7-pad">
+        <div class="igp7-tag">${H(state.icon_tag || 'GUIDE · 圖說')}</div>
+        <h2 class="igp7b-head" style="font-size:${fitSize(state.icon_heading, 92, sq)}px">${H(state.icon_heading)}</h2>
+        <div class="igp9b-list">
+          ${items.map(([ic, t]) => `<div class="igp9b-item">${iconSvg(ic, 'igp9b-ic')}<span class="igp9b-t" style="font-size:${sq ? 34 : 40}px">${H(t)}</span></div>`).join('')}
+        </div>
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
+  function render09c() {
+    const sq = state.format === 'square';
+    return `<div class="igp-layout" data-layout="09c">
+      <div class="igp7-pad">
+        <div class="igp7-tag" style="color:#B7B0A2">${H(state.icon_tag || 'ICON · 圖說')}</div>
+        <div class="igp9-hero" style="width:${sq ? 200 : 230}px;height:${sq ? 200 : 230}px"><span class="igp9-acc"></span>${iconSvg(state.icon)}</div>
+        <h2 class="igp9-title" style="font-size:${fitSize(state.icon_title, 96, sq)}px">${br(state.icon_title)}</h2>
+        ${state.icon_sub ? `<p class="igp9-sub" style="font-size:${sq ? 27 : 30}px">${H(state.icon_sub)}</p>` : '<div style="margin-bottom:auto"></div>'}
+        ${foot()}
+      </div>
+    </div>`;
+  }
+
   /* ===== 07/08 系列（2026-08 行銷版型：Hook／條列／問答／封面／數字／檔期） ===== */
   // 字級隨字數自適應：明體大字在 12 字內單行～雙行皆穩
   const fitSize = (text, base, sq) => {
@@ -768,6 +845,11 @@
       b: { label: '數字看板', forceDark: false, render: render08b },
       c: { label: '深色 · 檔期卡', forceDark: true, render: render08c },
     },
+    '09': {
+      a: { label: 'Icon 主視覺 · 線條', forceDark: false, render: render09a },
+      b: { label: 'Icon 條列 · 線條', forceDark: false, render: render09b },
+      c: { label: '深色 · Icon 卡', forceDark: true, render: render09c },
+    },
   };
   const currentLayout = () => LAYOUTS[state.category][state.variant];
 
@@ -797,6 +879,9 @@
     'hook', 'sub', 'heading', 'item1', 'item2', 'item3', 'question', 'answer',
     'cover_title', 'cover_eyebrow', 'big_number', 'number_label', 'number_desc',
     'event_date', 'event_name', 'event_meta',
+    // 09 系列
+    'icon', 'icon_tag', 'icon_title', 'icon_sub', 'icon_heading',
+    'li1_icon', 'li1_text', 'li2_icon', 'li2_text', 'li3_icon', 'li3_text',
   ];
   const STATE_DEFAULTS = Object.assign({}, state);
 

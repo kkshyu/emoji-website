@@ -868,6 +868,10 @@ const SOCIAL_LAYOUTS = {
   '08a': { label:'雜誌封面（需照片）', fields:[['cover_eyebrow','眉標'],['cover_title','封面大標'],['photo','照片 URL（/uploads/…）']] },
   '08b': { label:'數字看板',    fields:[['big_number','大數字'],['number_label','數字標題'],['number_desc','說明']] },
   '08c': { label:'檔期卡 · 深色', fields:[['event_date','大日期（如 11.01）'],['event_name','事件名'],['event_meta','時間地點（可換行）','ta']] },
+  // 09 系列：線條 icon（icon 名：coffee/moon/book/beam/people/pin/clock/sparkle/gift/drink/rest/floors/calendar/heart）
+  '09a': { label:'Icon 主視覺', fields:[['icon','icon 名（如 coffee）'],['icon_tag','眉標'],['icon_title','大標'],['icon_sub','副句']] },
+  '09b': { label:'Icon 條列',   fields:[['icon_tag','眉標'],['icon_heading','大標'],['li1_icon','條列1 icon'],['li1_text','條列1 文字'],['li2_icon','條列2 icon'],['li2_text','條列2 文字'],['li3_icon','條列3 icon'],['li3_text','條列3 文字']] },
+  '09c': { label:'Icon 卡 · 深色', fields:[['icon','icon 名（如 moon）'],['icon_tag','眉標'],['icon_title','大標'],['icon_sub','副句']] },
 };
 const socialLayoutId = pg => (pg.category||'03') + (pg.variant||'a');
 const socialXLen = s => [...String(s||'')].reduce((n,ch)=>n+(ch.codePointAt(0)>0x2E80?2:1),0);
