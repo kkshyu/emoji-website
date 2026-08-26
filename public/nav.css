@@ -6,6 +6,7 @@
    下拉：桌機 hover/鍵盤 focus 顯示；觸控/窄螢幕改「點擊展開」(.open)，避免 hover 殘留。
    ========================================================================= */
 main{overflow-wrap:anywhere}
+.nobr{display:inline-block}  /* CJK 詞組不在中間斷行 */
 
 header.site-nav{position:sticky;top:0;z-index:80;
   background:rgba(251,250,246,.82);-webkit-backdrop-filter:saturate(140%) blur(14px);backdrop-filter:saturate(140%) blur(14px);

@@ -106,6 +106,7 @@ h2.section-title{
   font-family:var(--serif);
   font-size:clamp(1.75rem,3.6vw,2.7rem);
   font-weight:600;line-height:1.2;
+  text-wrap:balance;
 }
 h2.section-title .en{
   display:block;font-family:var(--display);font-style:italic;font-weight:400;
@@ -279,7 +280,8 @@ body.authed{overflow-x:hidden}
   box-shadow:var(--shadow);padding:30px 30px 26px;position:relative;
 }
 .terms-card::before{content:"";position:absolute;inset:6px;border:1px solid var(--line-faint);border-radius:5px;pointer-events:none}
-.terms-card .tc-serial{font-family:var(--mono);font-size:1rem;letter-spacing:.18em;color:var(--brass);text-transform:uppercase;display:flex;justify-content:space-between}
+.terms-card .tc-serial{font-family:var(--mono);font-size:1rem;letter-spacing:.18em;color:var(--brass);text-transform:uppercase;display:flex;justify-content:space-between;flex-wrap:wrap;gap:2px 12px}
+.terms-card .tc-serial>span{white-space:nowrap}
 .terms-card h3{font-family:var(--serif);font-size:1.05rem;margin:14px 0 6px;color:var(--ink-2)}
 .terms-row{display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-bottom:1px dashed var(--line)}
 .terms-row:last-of-type{border-bottom:0}
@@ -327,6 +329,7 @@ body.authed{overflow-x:hidden}
 /* tables */
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--paper-card)}
 table.led{width:100%;border-collapse:collapse;font-size:1rem;min-width:480px}
+@media(max-width:560px){table.led{min-width:0}}
 table.led th,table.led td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line-faint)}
 table.led thead th{font-family:var(--mono);font-size:1rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--paper-sunk);font-weight:500}
 table.led tbody tr:last-child td{border-bottom:0}

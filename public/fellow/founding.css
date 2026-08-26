@@ -171,4 +171,5 @@
   /* 條件卡在窄螢幕改直排，避免長數值（如會籍起迄）橫向溢出破版 */
   .fnd-terms .terms-row{flex-direction:column;align-items:flex-start;gap:4px;padding:11px 0}
   .fnd-terms .terms-row .v.big{font-size:1.15rem}
+  .fnd-hero .eyebrow{letter-spacing:.1em}  /* 窄螢幕：讓「致信任 KK 的你」不孤字換行 */
 }

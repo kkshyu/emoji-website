@@ -300,6 +300,10 @@
     .sec-head{margin-bottom:36px}
     .hero{padding:52px 0 48px}
     .hero__loc{font-size:1rem;flex-wrap:wrap}
+    .hero .eyebrow{flex-wrap:wrap;row-gap:.3em;font-size:.8rem;letter-spacing:.2em}
+    .hero .eyebrow .eyebrow__dot{display:none}
+    .hero__soon{align-items:flex-start}
+    .hero__soon .dot{flex:none;margin-top:.55em}
     .duo article{padding:28px 24px}
   }
   @media(max-width:360px){
