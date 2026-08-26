@@ -25,7 +25,7 @@
 
 ## Global constraints
 
-- 工作目錄：`taiwan-talent-hub-website`；建議 branch `member-page-ux`。
+- 工作目錄：`emoji-website`；建議 branch `member-page-ux`。
 - 每個 Task 結束一次 commit；不 push，除非使用者要求。
 - 禁止投資術語（申購／本金／持倉／贖回）；用購買點數／退款／點數錢包。
 - QR 僅 overlay 開啟時 `startQrRefresh`；關閉時 `stopQrRefresh`。

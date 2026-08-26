@@ -91,7 +91,7 @@ test('header partials drop menu and floors system link', () => { ... });
 - [ ] **Step 2: 跑測試 — 預期 FAIL**
 
 ```bash
-cd /Users/kkshyu/Repos/taiwan-talent-hub/taiwan-talent-hub-website
+cd /Users/kkshyu/Repos/taiwan-talent-hub/emoji-website
 node --test scripts/test-layout.mjs
 ```
 

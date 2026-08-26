@@ -392,7 +392,7 @@ rg -n "財務基準|financial baseline|財務基準|探索" \
 - [ ] **Step 2: 手動瀏覽（起站）**
 
 ```bash
-cd /Users/kkshyu/Repos/taiwan-talent-hub/taiwan-talent-hub-website && node server.js
+cd /Users/kkshyu/Repos/taiwan-talent-hub/emoji-website && node server.js
 ```
 
 開啟：`/`、`/fellow`、`/partner`、`/startup` 及 `/en/*`、`/ja/*`。確認導覽標籤、hero、誠實須知；fellow 購買鈕與進度條仍在。

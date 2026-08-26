@@ -26,7 +26,7 @@
 
 ## Global constraints
 
-- 工作目錄：`taiwan-talent-hub-website`（建議 branch `member-points`）。
+- 工作目錄：`emoji-website`（建議 branch `member-points`）。
 - 每個 Task 結束一次 commit；不 push，除非使用者要求。
 - 包場不走點數；點數不可轉讓；已購時數預設不自動退點。
 - 時區：TIMESTAMPTZ／ISO UTC；測試用固定 `Date`。

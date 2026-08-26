@@ -65,7 +65,7 @@ test('stack uses tight seam not exploded gap', () => {
 - [ ] **Step 2: 跑測試確認失敗**
 
 ```bash
-cd taiwan-talent-hub-website && node --test scripts/test-space-dir-geometry.mjs
+cd emoji-website && node --test scripts/test-space-dir-geometry.mjs
 ```
 
 Expected: FAIL（現行 `W=120` 使 `W/D !== 4.5/20`，且仍有 `gap = 52`）

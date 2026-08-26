@@ -104,7 +104,7 @@ test('missingSpaceSeedKeys lists absent keys only', () => {
 - [ ] **Step 2: Run tests — expect FAIL**
 
 ```bash
-cd /Users/kkshyu/Repos/taiwan-talent-hub/taiwan-talent-hub-website/.worktrees/space-introduction
+cd /Users/kkshyu/Repos/taiwan-talent-hub/emoji-website/.worktrees/space-introduction
 node --test scripts/test-space-content.mjs
 ```
 

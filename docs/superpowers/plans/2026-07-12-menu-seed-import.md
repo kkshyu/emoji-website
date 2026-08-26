@@ -104,7 +104,7 @@ test('loadMenuSeedRows reads menu-data.js', () => {
 
 - [ ] **Step 2: 跑測試確認失敗**
 
-Run: `cd taiwan-talent-hub-website && node --test scripts/test-menu-seed.mjs`  
+Run: `cd emoji-website && node --test scripts/test-menu-seed.mjs`  
 Expected: FAIL（找不到模組）
 
 - [ ] **Step 3: 實作 `lib/menu-seed.js`**

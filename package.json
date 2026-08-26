@@ -1,5 +1,5 @@
 {
-  "name": "taiwan-talent-hub-website",
+  "name": "emoji-website",
   "version": "1.0.0",
   "private": true,
   "description": "台灣人才聚落官網 — 靜態官網（/）＋創始會員站 fellow（/fellow）＋API，單一 Node/Express 伺服器",

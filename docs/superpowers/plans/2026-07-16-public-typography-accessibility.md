@@ -12,7 +12,7 @@
 
 ## 工作區與檔案配置
 
-- Worktree：`/Users/kkshyu/Repos/taiwan-talent-hub/taiwan-talent-hub-website/.worktrees/public-typography-accessibility`
+- Worktree：`/Users/kkshyu/Repos/taiwan-talent-hub/emoji-website/.worktrees/public-typography-accessibility`
 - Branch：`codex/public-typography-accessibility`
 - Baseline：`npm test` 已有 175/175 通過。
 - Create：`scripts/test-public-typography.mjs` — 無依賴的字級來源碼防退步測試。

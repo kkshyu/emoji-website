@@ -119,11 +119,11 @@ state = {
 
 | 動作 | 路徑 |
 |---|---|
-| 重寫 | `taiwan-talent-hub-website/public/ig-studio.js` |
-| 更新 | `taiwan-talent-hub-website/public/menu-data.js` |
-| 更新 | `taiwan-talent-hub-website/public/admin.html` |
-| 新增 | `taiwan-talent-hub-website/public/vendor/html-to-image.LICENSE` |
-| 註記 | `taiwan-talent-hub-website/public/vendor/html-to-image.js` 檔頭 provenance |
+| 重寫 | `emoji-website/public/ig-studio.js` |
+| 更新 | `emoji-website/public/menu-data.js` |
+| 更新 | `emoji-website/public/admin.html` |
+| 新增 | `emoji-website/public/vendor/html-to-image.LICENSE` |
+| 註記 | `emoji-website/public/vendor/html-to-image.js` 檔頭 provenance |
 | 更新 | 本 spec |
 | 封存 | 根目錄 `言文字_IG貼文模板.html` → archive `superseded-brand-previews/` |
 

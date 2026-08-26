@@ -65,7 +65,7 @@ test('resolvePublicHtml resolves about', () => {
 - [ ] **Step 2: Run tests — expect fail**
 
 ```bash
-cd taiwan-talent-hub-website && node --test scripts/test-layout.mjs
+cd emoji-website && node --test scripts/test-layout.mjs
 ```
 
 Expected: `localePaths maps about locales` 與／或 `composeLayout about page…` FAIL（slug 非 about 或無 `aria-current`／仍含 `/#about`）。
@@ -700,7 +700,7 @@ EOF
 - [ ] **Step 1: 啟動伺服器，開三語頁**
 
 ```bash
-cd taiwan-talent-hub-website && npm start
+cd emoji-website && npm start
 # 瀏覽 /about /en/about /ja/about
 ```
 
