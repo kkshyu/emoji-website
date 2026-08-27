@@ -417,61 +417,183 @@
   </section>
 
   <section class="cis-sec" id="moji">
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <defs>
+    <g id="mj-front">
+      <path d="M62 72 C 26 58, 12 118, 44 130 C 52 132, 58 128, 64 122"/>
+      <path d="M138 72 C 174 58, 188 118, 156 130 C 148 132, 142 128, 136 122"/>
+      <path d="M62 72 C 66 44, 134 44, 138 72 C 144 92, 140 112, 130 124 M 70 124 C 60 112, 56 92, 62 72"/>
+      <path d="M100 100 C 106 130, 106 160, 86 180"/>
+      <circle fill="#FFDE34" stroke="none" cx="84" cy="80" r="6"/>
+      <circle fill="currentColor" stroke="none" cx="116" cy="80" r="6"/>
+    </g>
+    <g id="mj-oracle">
+      <path d="M104 96 C 96 60, 112 30, 84 22 C 56 14, 36 40, 42 66 C 45 78, 56 80, 60 72"/>
+      <path d="M104 96 C 124 108, 132 150, 128 236"/>
+      <path d="M84 96 C 76 130, 86 180, 82 236"/>
+      <path d="M84 150 L 56 162"/><path d="M86 200 L 58 212"/>
+      <path d="M128 150 L 156 162"/><path d="M128 200 L 156 212"/>
+      <path d="M128 236 L 140 252"/>
+      <circle fill="#FFDE34" stroke="none" cx="112" cy="70" r="7"/>
+    </g>
+    <g id="mj-foot">
+      <circle fill="currentColor" stroke="none" cx="80" cy="92" r="48"/>
+      <ellipse fill="currentColor" stroke="none" cx="34" cy="48" rx="9" ry="12" transform="rotate(-30 34 48)"/>
+      <ellipse fill="currentColor" stroke="none" cx="62" cy="30" rx="9" ry="12" transform="rotate(-10 62 30)"/>
+      <ellipse fill="currentColor" stroke="none" cx="98" cy="30" rx="9" ry="12" transform="rotate(10 98 30)"/>
+      <ellipse fill="#FFDE34" stroke="none" cx="126" cy="48" rx="9" ry="12" transform="rotate(30 126 48)"/>
+    </g>
+    <g id="mj-head">
+      <path d="M62 62 C 26 48, 12 108, 44 120 C 52 122, 58 118, 64 112"/>
+      <path d="M138 62 C 174 48, 188 108, 156 120 C 148 122, 142 118, 136 112"/>
+      <path d="M62 62 C 66 34, 134 34, 138 62 C 144 82, 140 102, 130 114 M 70 114 C 60 102, 56 82, 62 62"/>
+    </g>
+    <g id="mj-rest">
+      <use href="#mj-head"/>
+      <path d="M100 90 C 104 120, 104 150, 84 170"/>
+      <path d="M78 74 q 6 6 12 0 M 110 74 q 6 6 12 0"/>
+      <circle fill="currentColor" stroke="none" cx="150" cy="40" r="3"/><circle fill="currentColor" stroke="none" cx="162" cy="28" r="4"/><circle fill="#FFDE34" stroke="none" cx="178" cy="14" r="5"/>
+    </g>
+    </defs>
+    </svg>
+
     <div class="wrap">
       <header class="cis-sec__head cis-reveal">
         <span class="cis-sec__num">08</span>
         <h2 class="cis-sec__title">角色 · moji</h2>
-        <p class="cis-sec__lede">言文字的象。象，是最早的表情符號：甲骨文「象」就是一頭大象的畫。只有一個名字，小寫 moji，不取中文名。同一套線寬、同一點黃。</p>
+        <p class="cis-sec__lede">言文字的象。甲骨文的「象」，就是一頭大象的畫。象形文字是漢字的起點，emoji 是現代的象形。這隻象藏在字裡，是這棟樓最早的常客。Edition 01 · 定版 2026-08-26。</p>
       </header>
-      <div class="cis-logos cis-reveal">
-        <figure class="cis-logo-card">
-          <img src="/cis/assets/moji/moji-mark.svg" alt="moji 主符號：耳朵是對話框，鼻子是逗號" width="120" height="120">
-          <figcaption>主符號 · 耳鼻</figcaption>
+
+      <!-- 命名 -->
+      <h3 class="mj-h3 cis-reveal">命名 · 只有一個名字：moji</h3>
+      <p class="mj-lede cis-reveal">小寫，跟 emoji 同一套字型與大小寫。中文語境直接寫 moji，不另取中文名。</p>
+      <div class="cis-not-list cis-reveal" style="margin-top:0">
+        <div class="cis-not"><i class="mj-big">e<em>→</em>moji</i><b>e · moji</b><span>emoji 去掉 e。品牌英文名裡本來就有牠。</span></div>
+        <div class="cis-not"><i class="mj-big">もじ</i><b>文字 · もじ</b><span>日文「文字」讀音。日本市場直接可用，與言文字三字對位。</span></div>
+        <div class="cis-not"><i class="mj-big">mo·ji</i><b>read</b><span>兩音節，各語言都好唸。沒有大寫，沒有標點。</span></div>
+      </div>
+
+      <!-- 世界觀 -->
+      <h3 class="mj-h3 cis-reveal">世界觀 · 言、文、字，然後是象</h3>
+      <p class="mj-lede cis-reveal">品牌故事原有三段，象是第四段。字排在一起以後長出來的東西。</p>
+      <div class="mj-ladder cis-reveal">
+        <div><p class="mj-z">言</p><p>人開口說的話。</p></div>
+        <div><p class="mj-z">文</p><p>把話整理成可以留下的東西。</p></div>
+        <div><p class="mj-z">字</p><p>最小的單位。一個人就是一個字。</p></div>
+        <div><p class="mj-z">象</p><p>字排在一起以後，長出來的東西。象形、意象、想像、萬象。</p></div>
+      </div>
+      <p class="mj-thesis cis-reveal">言語形成文字，文字創造想像，想像成為萬象。<small>言之有象 — words become worlds</small></p>
+
+      <!-- 角色 -->
+      <h3 class="mj-h3 cis-reveal">性格 · 一隻不急著說話的象</h3>
+      <p class="mj-lede cis-reveal">走過很多城市，聽得懂很多語言。記得每個來過的人的故事。有人需要交流的時候，牠會留出一個位置。不是吉祥物，是這棟樓最早的常客。</p>
+      <div class="cis-not-list cis-reveal" style="margin-top:0">
+        <div class="cis-not"><b>記憶</b><span>象記得每一個字。實名會員，這裡記得你是誰。</span></div>
+        <div class="cis-not"><b>連結</b><span>象群生活。社群、陪伴、人才密度。</span></div>
+        <div class="cis-not"><b>穩定</b><span>龐大可靠，不具侵略性。民國 58 年的老屋。</span></div>
+        <div class="cis-not"><b>遠行</b><span>走過二十多個國家。遠端工作、跨國移動。</span></div>
+        <div class="cis-not"><b>傾聽</b><span>大耳朵。象用人耳聽不到的低頻，隔幾公里彼此聯絡。像遠端那幾年的文字。</span></div>
+        <div class="cis-not"><b>表達</b><span>象鼻延伸成筆、逗號、問號、對話線。</span></div>
+      </div>
+
+      <!-- 三個象 -->
+      <h3 class="mj-h3 cis-reveal">符號 · 三個象，一套線條</h3>
+      <p class="mj-lede cis-reveal">不畫寫實象。同一種線寬、同一個黃點。正面是主符號，甲骨文是印章，側影留給動線。</p>
+      <div class="mj-grid mj-grid--4 cis-reveal">
+        <figure class="mj-tile">
+          <img src="/cis/assets/moji/moji-mark.svg" alt="moji 主符號：耳朵是對話框，鼻子是逗號" width="150" height="150">
+          <figcaption><b>符號象 · 主 mark</b><span>耳朵是兩個對話框，鼻子是逗號。只用三個元素，就是一隻象。眼睛一點黃，每畫面唯一黃擊。</span></figcaption>
         </figure>
-        <figure class="cis-logo-card cis-logo-card--ink">
-          <img src="/cis/assets/moji/moji-seal-reverse.svg" alt="甲骨文象（墨底反白）" width="100" height="130">
-          <figcaption>字象 · 甲骨文印章</figcaption>
+        <figure class="mj-tile">
+          <span class="mj-sealbox"><img src="/cis/assets/moji/moji-seal-reverse.svg" alt="甲骨文象（墨底反白）" width="90" height="117"></span>
+          <figcaption><b>字象 · 印章</b><span>甲骨文「象」，最早的表情符號。用在印章、會員蓋印、包裝封條、限量物件。</span></figcaption>
         </figure>
-        <figure class="cis-logo-card">
-          <img src="/cis/assets/moji/moji-side.svg" alt="moji 側影，只露一角" width="140" height="120">
-          <figcaption>側象 · 余白</figcaption>
+        <figure class="mj-tile">
+          <img src="/cis/assets/moji/moji-side.svg" alt="moji 側影，只露一角" width="180" height="150">
+          <figcaption><b>側象 · 余白</b><span>只露一角，其餘在畫面外。用在樓梯、牆面、方向引導。鼻子仍是逗號。</span></figcaption>
         </figure>
-        <figure class="cis-logo-card">
-          <img src="/cis/assets/moji/moji-footprint.svg" alt="moji 腳印，一趾黃" width="96" height="96">
-          <figcaption>腳印 · 足跡</figcaption>
+        <figure class="mj-tile">
+          <img src="/cis/assets/moji/moji-footprint.svg" alt="moji 腳印，一趾黃" width="120" height="120">
+          <figcaption><b>腳印 · 足跡</b><span>象走過的地方留下痕跡。四趾一黃，用在樓梯與會員足跡。</span></figcaption>
         </figure>
       </div>
-      <h3 class="cis-reveal" style="font-family:var(--serif);font-size:1.1rem;letter-spacing:.08em;margin:8px 0 16px">狀態 · 三層樓</h3>
-      <div class="cis-logos cis-reveal">
-        <figure class="cis-logo-card">
-          <img src="/cis/assets/moji/moji-coffee.svg" alt="白日咖啡" width="120" height="120">
-          <figcaption>1F 白日 · 咖啡</figcaption>
-        </figure>
-        <figure class="cis-logo-card">
-          <img src="/cis/assets/moji/moji-night.svg" alt="入夜為酒" width="120" height="120">
-          <figcaption>1F 入夜 · 餐酒</figcaption>
-        </figure>
-        <figure class="cis-logo-card">
-          <img src="/cis/assets/moji/moji-rest.svg" alt="24 小時休憩" width="120" height="120">
-          <figcaption>2F 休憩 · 站著也能睡</figcaption>
-        </figure>
-        <figure class="cis-logo-card">
-          <img src="/cis/assets/moji/moji-remote.svg" alt="共享辦公" width="120" height="120">
-          <figcaption>3F 辦公 · 遠端通話</figcaption>
-        </figure>
+
+      <!-- 象鼻標點 -->
+      <h3 class="mj-h3 cis-reveal">象鼻 · 象鼻是標點</h3>
+      <p class="mj-lede cis-reveal">把鼻子單獨拿出來，就是一套標點。文字裡有象，象裡有文字。</p>
+      <div class="mj-punct cis-reveal">
+        <img src="/cis/assets/moji/moji-punctuation.svg" alt="象鼻延伸成的五種標點：逗號、問號、上引號、下引號、對話框" width="700" height="210">
+        <div class="mj-punct__cap"><span>逗號</span><span>問號</span><span>「</span><span>」</span><span>對話框</span></div>
       </div>
-      <div class="cis-logos cis-reveal" style="grid-template-columns:1fr">
-        <figure class="cis-logo-card cis-logo-card--wide">
-          <img src="/cis/assets/moji/moji-meet.svg" alt="象群見面用鼻子互碰" width="300" height="200">
-          <figcaption>3F 活動 · 鼻子碰到，字活過來</figcaption>
-        </figure>
+
+      <!-- 三層樓 -->
+      <h3 class="mj-h3 cis-reveal">狀態 · 同一隻象，三層樓</h3>
+      <p class="mj-lede cis-reveal">狀態版本跟著業態走。一樓、二樓、三樓，加上相遇那一刻。</p>
+      <div class="mj-grid mj-grid--3 cis-reveal">
+        <figure class="mj-scene"><img src="/cis/assets/moji/moji-coffee.svg" alt="白日咖啡" width="200" height="200"><figcaption><i>1F · 白日</i><b>象群在水邊相遇</b><span>杯套、餐墊、桌牌。watering hole 本義就是酒吧。</span></figcaption></figure>
+        <figure class="mj-scene"><img src="/cis/assets/moji/moji-night.svg" alt="入夜為酒" width="200" height="200"><figcaption><i>1F · 入夜</i><b>深夜旅人</b><span>酒單、杯墊。眼睛半閉，話變少。</span></figcaption></figure>
+        <figure class="mj-scene"><img src="/cis/assets/moji/moji-rest.svg" alt="24 小時休憩" width="200" height="200"><figcaption><i>2F · 24h 休憩</i><b>站著也能睡</b><span>象一天只睡兩小時。累了躺一下。席位牌、淋浴間標示。</span></figcaption></figure>
+        <figure class="mj-scene"><img src="/cis/assets/moji/moji-remote.svg" alt="共享辦公" width="200" height="200"><figcaption><i>3F · 共享辦公</i><b>遠端通話中</b><span>會議室名、專注中門牌。低頻溝通，隔幾公里也連著。</span></figcaption></figure>
+        <figure class="mj-scene mj-scene--wide"><img src="/cis/assets/moji/moji-meet.svg" alt="象群見面用鼻子互碰" width="300" height="200"><figcaption><i>3F · 活動</i><b>鼻子碰到，字活過來</b><span>象群見面用鼻子互碰。相遇的那一點，是整個品牌唯一的黃。活動主視覺、社群封面。</span></figcaption></figure>
       </div>
-      <div class="cis-not-list cis-reveal">
-        <div class="cis-not"><b>三個象一套線</b><span>viewBox 200 時線寬 8，40px 以下改 10。圓頭圓角。不畫寫實，不畫卡通。</span></div>
-        <div class="cis-not"><b>唯一黃擊</b><span>一個畫面只有一點黃：眼睛、相遇點、或腳印一趾。不同時出現。</span></div>
-        <div class="cis-not"><b>不白象，不象牙</b><span>象身不填白（white elephant）。任何素材不出現象牙。不用異國紋樣。</span></div>
+
+      <!-- 應用 -->
+      <h3 class="mj-h3 cis-reveal">應用 · 顧客實際會碰到的地方</h3>
+      <p class="mj-lede cis-reveal">象不只在 logo 裡。從杯套到樓梯，同一套線條串起整棟樓。</p>
+      <div class="mj-grid mj-grid--3 cis-reveal">
+        <div class="mj-app"><div class="mj-app__stage"><div class="mj-cup"><div class="mj-cup__sleeve"><svg class="mj-ico" viewBox="0 0 200 200" aria-hidden="true"><use href="#mj-front"/></svg><span>moji</span></div></div></div><b>杯套</b><span>墨色套、紙色杯。白日與入夜換不同狀態。</span></div>
+        <div class="mj-app"><div class="mj-app__stage"><div class="mj-mcard"><div class="mj-mcard__top"><svg class="mj-ico" viewBox="0 0 200 260" aria-hidden="true"><use href="#mj-oracle"/></svg><span class="mj-mcard__w">moji</span></div><div class="mj-mcard__row"><span>言文字 · member</span><span class="mj-mcard__dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></div></div></div><b>會員卡</b><span>每次來留一個足跡。點數維持 1 點＝1 元，足跡是紀錄，不是貨幣。</span></div>
+        <div class="mj-app"><div class="mj-app__stage"><div class="mj-stair"><div class="mj-stair__step"><svg class="mj-ico" viewBox="0 0 160 160" aria-hidden="true"><use href="#mj-foot"/></svg></div><div class="mj-stair__step"><svg class="mj-ico" viewBox="0 0 160 160" aria-hidden="true"><use href="#mj-foot"/></svg></div><div class="mj-stair__step"><svg class="mj-ico" viewBox="0 0 160 160" aria-hidden="true"><use href="#mj-foot"/></svg></div><div class="mj-stair__step"><svg class="mj-ico" viewBox="0 0 160 160" aria-hidden="true"><use href="#mj-foot"/></svg></div></div></div><b>樓梯腳印</b><span>象走過的地方留下痕跡。一樓到三樓的方向引導。</span></div>
+        <div class="mj-app"><div class="mj-app__stage"><div class="mj-stamp"><svg class="mj-ico" viewBox="0 0 200 260" aria-hidden="true"><use href="#mj-oracle"/></svg></div></div><b>印章</b><span>甲骨文象。活動蓋印、城市限定、明信片。</span></div>
+        <div class="mj-app"><div class="mj-app__stage"><div class="mj-avatar"><svg class="mj-ico" viewBox="0 0 200 200" aria-hidden="true"><use href="#mj-front"/></svg></div></div><b>IG 頭像 · 貼圖</b><span>@emoji0701 系列貼文的固定角色。狀態版本做成貼圖。</span></div>
+        <div class="mj-app"><div class="mj-app__stage"><div class="mj-tent"><svg class="mj-ico" viewBox="0 0 200 200" aria-hidden="true"><use href="#mj-rest"/></svg><p>這一席，有人正在休息。</p></div></div><b>桌牌 · 公告</b><span>空間規範由象用溫和口吻說。短句，無驚嘆號。</span></div>
       </div>
-      <div class="cis-names cis-reveal" style="margin-top:28px">
+
+      <!-- 活動語言 -->
+      <h3 class="mj-h3 cis-reveal">語言 · 象的活動語言</h3>
+      <p class="mj-lede cis-reveal">「象」可以長期用的字。活動名、空間名、內容欄目。</p>
+      <div class="mj-grid mj-grid--4 cis-reveal">
+        <div class="cis-not"><b>象聚</b><span>社群聚會</span></div>
+        <div class="cis-not"><b>象談</b><span>講座、對談</span></div>
+        <div class="cis-not"><b>夜象</b><span>夜間餐酒活動</span></div>
+        <div class="cis-not"><b>行象</b><span>旅行與遊牧內容</span></div>
+        <div class="cis-not"><b>印象</b><span>參與者留下的故事</span></div>
+        <div class="cis-not"><b>想像室</b><span>三樓會議室</span></div>
+        <div class="cis-not"><b>萬象牆</b><span>照片、名片、社群紀錄牆</span></div>
+        <div class="cis-not"><b>大象在房間</b><span>招牌對談。談大家都知道卻不容易開口的事。每天三十萬人經過，沒人停下來的那棟樓。</span></div>
+      </div>
+
+      <!-- 做與不做 -->
+      <h3 class="mj-h3 cis-reveal">規則 · 做與不做</h3>
+      <div class="mj-rules cis-reveal">
+        <div class="mj-rule"><b>線寬</b><span>viewBox 200 時 stroke 8；縮到 40px 以下改 10。圓頭、圓角接合。</span></div>
+        <div class="mj-rule"><b>黃</b><span>一個畫面只有一點黃。眼睛、相遇點、或腳印一趾。不同時出現。</span></div>
+        <div class="mj-rule"><b>色</b><span>墨色 #1B1A17 線、紙色 #FBFAF6 底。反白時線改紙色，黃不變。</span></div>
+        <div class="mj-rule"><b>余白</b><span>象可以只露一角。畫面永遠留一塊空的。</span></div>
+        <div class="mj-rule mj-rule--no"><b>不寫實</b><span>不畫皮膚皺褶、不畫立體陰影。</span></div>
+        <div class="mj-rule mj-rule--no"><b>不卡通</b><span>不加腮紅、不加大眼睛、不做兒童樂園式可愛。</span></div>
+        <div class="mj-rule mj-rule--no"><b>不白象</b><span>英文 white elephant 是昂貴無用之物。象身不填白。</span></div>
+        <div class="mj-rule mj-rule--no"><b>不象牙</b><span>任何素材不出現象牙。</span></div>
+        <div class="mj-rule mj-rule--no"><b>不異國</b><span>不用泰式、印度式紋樣。科技圈有 Mastodon、Evernote、PostgreSQL 的象，走字與線條的路線避開。</span></div>
+      </div>
+
+      <!-- 文案 -->
+      <h3 class="mj-h3 cis-reveal">文案 · 牠會說的話</h3>
+      <p class="mj-lede cis-reveal">余白語氣。短句、少形容、無驚嘆號。</p>
+      <div class="mj-copy cis-reveal">
+        <p>象，是最早的表情符號。<em>The elephant was the first emoji.</em></p>
+        <p>大象無形。</p>
+        <p>一個人摸到的，只是一部分。</p>
+        <p>象記得每一個字。</p>
+        <p>象群在水邊相遇。</p>
+        <p>站著也能睡。</p>
+        <p>三十萬人經過。房間裡有一頭象。</p>
+        <p>這棟樓不是象牙塔。</p>
+        <p>讓每段話，都有形狀。<em>A place where stories take shape.</em></p>
+        <p>言之有象。<em>Words become worlds.</em></p>
+      </div>
+
+      <div class="cis-names cis-reveal" style="margin-top:36px">
         <div class="cis-name cis-name--wide">
           <div class="cis-name__label">Character line · 定版</div>
           <div class="cis-name__primary">象，是最早的表情符號。</div>
