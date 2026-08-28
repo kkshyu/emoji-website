@@ -439,7 +439,7 @@
 
 .mj-punct{background:var(--paper-alt);border:1px solid var(--line);padding:36px 40px}
 .mj-punct img{width:min(100%,700px);height:auto;display:block}
-.mj-punct__cap{display:grid;grid-template-columns:repeat(5,1fr);max-width:700px;font-size:1rem;color:var(--muted);letter-spacing:.08em;margin-top:8px}
+.mj-punct__cap{position:relative;height:1.8em;width:min(100%,700px);font-size:1rem;color:var(--muted);letter-spacing:.08em;margin-top:8px}
 
 .mj-scene{margin:0;background:var(--card);border:1px solid var(--line);padding:20px 20px 18px;display:flex;flex-direction:column;gap:12px}
 .mj-scene img{width:100%;height:auto;max-height:220px;object-fit:contain}
@@ -494,5 +494,12 @@
   .mj-scene--wide{grid-column:auto}
   .mj-copy{columns:1}
   .mj-punct{padding:24px 18px}
+  .mj-punct__cap{display:none}
   .mj-rule{grid-template-columns:1fr;gap:6px}
 }
+.mj-punct__cap span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.mj-punct__cap span:nth-child(1){left:8%}
+.mj-punct__cap span:nth-child(2){left:35%}
+.mj-punct__cap span:nth-child(3){left:59%}
+.mj-punct__cap span:nth-child(4){left:71%}
+.mj-punct__cap span:nth-child(5){left:91%}
