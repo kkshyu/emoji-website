@@ -17,7 +17,7 @@
         4: '支援樓層 · 約 7.5 坪（含陽台）',
       },
       names: {
-        1: '在咖啡（At Cafe）／三點水（3AM）',
+        1: '在咖啡（at cafe）／三點水（3AM）',
         2: '等等空間 · 24 小時看書休憩',
         3: '等等空間 · 共享辦公與活動',
         4: '支援樓層',
@@ -40,13 +40,13 @@
       close: 'Close',
       menuTitle: 'Menu',
       areas: {
-        1: 'At Cafe / 3AM · ~25.2 ping',
+        1: 'at cafe / 3AM · ~25.2 ping',
         2: 'Stay Square · ~29.5 ping',
         3: 'Stay Square · ~29.9 ping',
         4: 'Support · ~7.5 ping incl. terrace',
       },
       names: {
-        1: '在咖啡 (At Cafe) / 三點水 (3AM)',
+        1: '在咖啡 (at cafe) / 三點水 (3AM)',
         2: 'Stay Square · 24-hour reading & rest',
         3: 'Stay Square · coworking & events',
         4: 'Support floor',
@@ -75,7 +75,7 @@
         4: 'サポート · 約7.5坪（バルコニー含む）',
       },
       names: {
-        1: '在咖啡（At Cafe）／三點水（3AM）',
+        1: '在咖啡（at cafe）／三點水（3AM）',
         2: '等等空間 · 24時間の読書と休憩',
         3: '等等空間 · コワーキング＆イベント',
         4: 'サポートフロア',
