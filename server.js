@@ -1218,6 +1218,7 @@ app.post('/api/me/points/orders', auth, requireDb, wrap(async (req, res) => {
   const memberBase = lang === 'en' ? '/en/member' : lang === 'ja' ? '/ja/member' : '/member';
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
+    payment_method_types: ['card'], // 帳戶未對 TWD 啟用預設付款方式時 Stripe 會拒建 session，明示 card 即可
     line_items: [{
       price_data: {
         currency: 'twd',
@@ -1756,6 +1757,7 @@ app.post('/api/checkout', wrap(async (req, res) => {
   const endMinus1 = (() => { const d = new Date(end + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); })();
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
+    payment_method_types: ['card'], // 同上：明示 card，避免帳戶未啟用 TWD 預設付款方式時回 500
     line_items: [{
       price_data: {
         currency: 'twd',
