@@ -12,14 +12,14 @@
   "cta": "追蹤，看蓋房子的整個過程",
   "audience": "全受眾",
   "pages": [],
-  "caption_ja": "3年やって、フォロワーはほぼ増えませんでした。\nそれでも、もっと大きな場所へ移ります。\n台北駅のそば、重慶南路一段11号。\n\n1階はカフェ＆バー、2階は24時間の読書・休憩ラウンジ、3階はコワーキング。\n10/13プレオープン、11/1グランドオープン。\n\nここが建つまでの過程を、全部公開します。"
+  "caption_ja": "3年やって、フォロワーはほぼ増えませんでした。\nそれでも、もっと大きな場所へ移ります。\n台北駅のそば、重慶南路一段11号。\n\n1階はカフェと深夜食堂、2階は24時間の読書・休憩ラウンジ、3階はコワーキング。\n10/13プレオープン、11/1グランドオープン。\n\nここが建つまでの過程を、全部公開します。"
  },
  {
   "id": "sp_seed_ig_s01",
   "platform": "ig",
   "post_type": "image",
   "title": "S1 單圖｜品牌煥新宣告",
-  "caption": "言文字，換上了新的名字。\n言文字｜台灣人才聚落。\n\n不只是換一個標誌。\n我們把開封街開了三年的店收起來，\n搬到重慶南路一段 11 號——\n台北車站站前地下街 Z10 出口斜對面。\n\n現在那裡還在裝修。\n一樓會是 Cafe & Bar，一杯咖啡就能進來；\n二樓留給會員休憩；\n三樓的挑高木樑下，一起工作、辦活動。\n\n接下來的每一週，\n我們會把裝修的過程、做過的選擇、\n甚至做錯的決定，都記錄在這裡。\n\n10/13 試營運，11/1 正式開幕。\n來坐坐之前，先來看我們把房子蓋起來。",
+  "caption": "言文字，換上了新的名字。\n言文字｜台灣人才聚落。\n\n不只是換一個標誌。\n我們把開封街開了三年的店收起來，\n搬到重慶南路一段 11 號——\n台北車站站前地下街 Z10 出口斜對面。\n\n現在那裡還在裝修。\n一樓白天是在咖啡（At Cafe），一杯咖啡就能進來；\n晚上是三點水（3AM）深夜食堂；\n二樓留給會員休憩；\n三樓的挑高木樑下，一起工作、辦活動。\n\n接下來的每一週，\n我們會把裝修的過程、做過的選擇、\n甚至做錯的決定，都記錄在這裡。\n\n10/13 試營運，11/1 正式開幕。\n來坐坐之前，先來看我們把房子蓋起來。",
   "hashtags": "#言文字 #台灣人才聚落 #台北車站 #品牌煥新 #北車咖啡廳 #北車 #台北生活",
   "scheduled_at": "2026-07-16 12:00",
   "series": "產品與活動",
@@ -36,7 +36,7 @@
     }
    }
   ],
-  "caption_en": "言文字 has a new name:\nTaiwan Talent Hub — 言文字｜台灣人才聚落.\n\nIt's more than a new logo.\nWe closed the small café we ran for three years on Kaifeng Street\nand moved to No. 11, Sec. 1, Chongqing S. Rd. —\ndiagonally across from Exit Z10\nof the Taipei Main Station underground mall.\n\nRight now, it's still a construction site.\n1F will be Emoji Café & Bar — a cup of coffee gets you in.\n2F, Member Plaza — a members-only floor for rest.\n3F, Talent Lounge — coworking and events under exposed timber beams.\n\nFrom now on, we'll document the build here every week:\nthe renovation, the choices we make,\neven the decisions we get wrong.\n\nSoft opening October 13. Grand opening November 1.\nBefore you come sit down, come watch the place take shape.\n\nFollow @emoji0701."
+  "caption_en": "言文字 has a new name:\nTaiwan Talent Hub — 言文字｜台灣人才聚落.\n\nIt's more than a new logo.\nWe closed the small café we ran for three years on Kaifeng Street\nand moved to No. 11, Sec. 1, Chongqing S. Rd. —\ndiagonally across from Exit Z10\nof the Taipei Main Station underground mall.\n\nRight now, it's still a construction site.\n1F will be At Cafe by day and 3AM by night — a cup of coffee gets you in.\n2F and 3F, Stay Square — members' floors:\nrest on 2F, coworking and events under exposed timber beams on 3F.\n\nFrom now on, we'll document the build here every week:\nthe renovation, the choices we make,\neven the decisions we get wrong.\n\nSoft opening October 13. Grand opening November 1.\nBefore you come sit down, come watch the place take shape.\n\nFollow @emoji0701."
  },
  {
   "id": "sp_seed_ig_w01",
@@ -72,7 +72,7 @@
     "layout": "03a",
     "fields": {
      "q_text": "一樓，一杯咖啡就能進來",
-     "q_sub": "Cafe & Bar，白天工作、晚上小酌，沒有門檻的入口",
+     "q_sub": "白天在咖啡、晚上三點水，沒有門檻的入口",
      "q_by": "新言文字 · 02",
      "en": "1F: a cup of coffee is all it takes to walk in"
     }
@@ -409,8 +409,8 @@
   "platform": "ig",
   "post_type": "carousel",
   "title": "W5 輪播｜一杯咖啡的入口",
-  "caption": "很多空間的第一步，是填表單。\n言文字的第一步，是一杯咖啡。\n\n一樓是 Cafe & Bar，完全開放，\n不用會員、不用預約。\n\n白天，帶著筆電來工作，\n旁邊可能是接案的設計師，\n也可能是正在準備轉職的人。\n晚上，吧檯亮起來，\n營業到深夜，\n下班後多了一個可以去的地方。\n\n我們把入口的門檻壓到最低，\n因為相遇不該有資格審查。\n你不需要先變厲害，\n才能走進一個厲害的社群。\n\n二樓與三樓的樣子，之後慢慢解鎖。\n\n10/13 試營運，11/1 正式開幕。\n留言告訴我們：\n你會在白天，還是深夜來坐坐？",
-  "hashtags": "#言文字 #台灣人才聚落 #北車咖啡廳 #深夜咖啡廳 #台北酒吧 #coworking #下班去處 #台北車站",
+  "caption": "很多空間的第一步，是填表單。\n言文字的第一步，是一杯咖啡。\n\n一樓白天是在咖啡（At Cafe），\n晚上是三點水（3AM）深夜食堂，\n完全開放，不用會員、不用預約。\n\n白天，帶著筆電來工作，\n旁邊可能是接案的設計師，\n也可能是正在準備轉職的人。\n晚上，吧檯亮起來，\n營業到深夜，\n下班後多了一個可以去的地方。\n\n我們把入口的門檻壓到最低，\n因為相遇不該有資格審查。\n你不需要先變厲害，\n才能走進一個厲害的社群。\n\n二樓與三樓的樣子，之後慢慢解鎖。\n\n10/13 試營運，11/1 正式開幕。\n留言告訴我們：\n你會在白天，還是深夜來坐坐？",
+  "hashtags": "#言文字 #台灣人才聚落 #北車咖啡廳 #深夜咖啡廳 #台北餐酒館 #coworking #下班去處 #台北車站",
   "scheduled_at": "2026-08-14 19:00",
   "series": "空間逐步解鎖",
   "phase": "品牌重置",
@@ -439,7 +439,7 @@
     "fields": {
      "q_text": "入口，是一杯咖啡",
      "q_sub": "不用會員、不用預約",
-     "q_by": "一樓 Cafe & Bar",
+     "q_by": "一樓 在咖啡 · 三點水",
      "en": "No membership, no booking — just order a coffee"
     }
    },
@@ -455,7 +455,7 @@
    {
     "layout": "03b",
     "fields": {
-     "q_text": "晚上，這裡變成 Bar",
+     "q_text": "晚上，這裡變成三點水",
      "q_sub": "營業到深夜，下班後還有地方去",
      "q_by": "一樓 · 夜",
      "en": "After dark, the bar counter lights up"
@@ -478,7 +478,7 @@
     }
    }
   ],
-  "caption_en": "A lot of spaces start with a sign-up form.\nOurs starts with a cup of coffee.\n\n1F is Emoji Café & Bar — fully open.\nNo membership, no booking.\n\nBy day, bring your laptop and work.\nThe person at the next table might be\na freelance designer, or someone preparing to switch careers.\nBy night, the bar counter lights up\nand stays open late —\none more place to go after work.\n\nWe kept the entrance as low as possible,\nbecause meeting people shouldn't require qualifications.\nYou don't have to become impressive first\nto walk into a room full of people worth meeting.\n\n2F and 3F — we'll unlock those in the coming weeks.\n\nSoft opening October 13. Grand opening November 1.\n\nTell us in the comments:\nwould you come by day, or late at night?"
+  "caption_en": "A lot of spaces start with a sign-up form.\nOurs starts with a cup of coffee.\n\n1F is At Cafe by day and 3AM at night — fully open.\nNo membership, no booking.\n\nBy day, bring your laptop and work.\nThe person at the next table might be\na freelance designer, or someone preparing to switch careers.\nBy night, the bar counter lights up\nand stays open late —\none more place to go after work.\n\nWe kept the entrance as low as possible,\nbecause meeting people shouldn't require qualifications.\nYou don't have to become impressive first\nto walk into a room full of people worth meeting.\n\n2F and 3F — we'll unlock those in the coming weeks.\n\nSoft opening October 13. Grand opening November 1.\n\nTell us in the comments:\nwould you come by day, or late at night?"
  },
  {
   "id": "sp_seed_x_w06",
@@ -558,7 +558,7 @@
      "q_text": "吧檯放哪，決定大家怎麼相遇",
      "q_sub": "放中間，陌生人容易搭話；放邊上，各自安靜——你喜歡哪一種？",
      "q_by": "取捨 04 · 吧檯",
-     "en": "Where the bar sits decides how people meet"
+     "en": "Where the bar counter sits decides how people meet"
     }
    },
    {
@@ -671,7 +671,7 @@
     }
    }
   ],
-  "caption_en": "Filling 2F with desks would be the profitable move.\nEvery extra table, extra revenue.\n\nWe did the math. Then decided against it.\n\nIn three years of running a café,\nwe watched too many people\nforce themselves to stay upright in a chair.\nWhen you're exhausted, what you need isn't a desk.\nIt's somewhere you're allowed to lie down —\nand this city has almost nowhere that lets you.\n\nSo 2F is Member Plaza — a members-only rest floor:\n24-hour reading and rest seats, private capsule pods to lie flat in,\nand a game and manga room for switching off completely.\nOne floor of this city where you're allowed to stop trying.\n\nThe most expensive thing in this building isn't the fit-out.\nIt's the empty space we decided to keep.\n\nSoft opening October 13. Grand opening November 1.\nThe priority notice list is open — link in bio.\nNews about 2F reaches that list first."
+  "caption_en": "Filling 2F with desks would be the profitable move.\nEvery extra table, extra revenue.\n\nWe did the math. Then decided against it.\n\nIn three years of running a café,\nwe watched too many people\nforce themselves to stay upright in a chair.\nWhen you're exhausted, what you need isn't a desk.\nIt's somewhere you're allowed to lie down —\nand this city has almost nowhere that lets you.\n\nSo 2F is Stay Square — a members-only rest floor:\n24-hour reading and rest seats, private capsule pods to lie flat in,\nand a game and manga room for switching off completely.\nOne floor of this city where you're allowed to stop trying.\n\nThe most expensive thing in this building isn't the fit-out.\nIt's the empty space we decided to keep.\n\nSoft opening October 13. Grand opening November 1.\nThe priority notice list is open — link in bio.\nNews about 2F reaches that list first."
  },
  {
   "id": "sp_seed_x_w08",
@@ -885,7 +885,7 @@
   "cta": "追蹤 @emoji0701",
   "audience": "自由工作者、成長型上班族",
   "pages": [],
-  "caption_ja": "なぜ、深夜3時まで営業するのか。\n\n昼にはできないことがあるからです。\n仕事終わりに始まる副業、\n締め切り前のフリーランス、\n終わらせたくない会話。\n\n台北の深夜、コンビニは多いけれど、\nまだ人のいる場所は少ない。\n\n1階のカフェ＆バーが、深夜まで付き合います。"
+  "caption_ja": "なぜ、深夜3時まで営業するのか。\n\n昼にはできないことがあるからです。\n仕事終わりに始まる副業、\n締め切り前のフリーランス、\n終わらせたくない会話。\n\n台北の深夜、コンビニは多いけれど、\nまだ人のいる場所は少ない。\n\n1階の深夜食堂「三點水」が、深夜まで付き合います。"
  },
  {
   "id": "sp_seed_ig_w10",
@@ -905,7 +905,7 @@
     "fields": {
      "comingTitle": "三樓解鎖",
      "comingSub": "同一層樓，一天有三種用法",
-     "en": "3F: the Talent Lounge. One floor, three uses a day."
+     "en": "3F: Stay Square. One floor, three uses a day."
     }
    },
    {
@@ -961,7 +961,7 @@
     }
    }
   ],
-  "caption_en": "Third floor.\n\nWe kept the exposed timber beams and left the ceiling open. This floor is the Talent Lounge — the one we set aside for work and events.\n\nMorning: find a seat, open the laptop, get focused work done.\nAfternoon: pull a table together with your people and talk something through.\nEvening: the desks fold away, and the same room becomes a venue for talks and gatherings.\n\nOne space, three shapes in a single day.\n\nAnd the person at the next table might come from a circle you'd never usually cross — a founder, a translator, someone building something you've never heard of. That's the point of this floor.\n\nSoft opening October 13, grand opening November 1.\nTap the link in bio to sign up for soft-opening updates."
+  "caption_en": "Third floor.\n\nWe kept the exposed timber beams and left the ceiling open. This floor is part of Stay Square — the one we set aside for work and events.\n\nMorning: find a seat, open the laptop, get focused work done.\nAfternoon: pull a table together with your people and talk something through.\nEvening: the desks fold away, and the same room becomes a venue for talks and gatherings.\n\nOne space, three shapes in a single day.\n\nAnd the person at the next table might come from a circle you'd never usually cross — a founder, a translator, someone building something you've never heard of. That's the point of this floor.\n\nSoft opening October 13, grand opening November 1.\nTap the link in bio to sign up for soft-opening updates."
  },
  {
   "id": "sp_seed_x_w11",
@@ -1012,7 +1012,7 @@
     "layout": "03a",
     "fields": {
      "q_text": "從一樓開始，往上走",
-     "q_sub": "一樓 Cafe & Bar，點杯咖啡就能進來；二樓會員 24 小時看書休憩；三樓共享工作與活動",
+     "q_sub": "一樓在咖啡／三點水，一杯咖啡就能進來；二、三樓等等空間，會員 24 小時看書休憩與共享工作",
      "q_by": "使用說明 · 動線",
      "en": "Start on 1F. One coffee is all it takes."
     }
@@ -1060,7 +1060,7 @@
     }
    }
   ],
-  "caption_en": "The question we get most while building this place: how does it actually work?\n\nSimple. Start on 1F.\nOrder a coffee at Emoji Café & Bar — that's your ticket in. No membership, no booking, no explaining yourself.\n\nBy day, it's a place to work.\nAfter hours, dinner and a drink.\nLate at night, deadlines and long conversations.\n\n2F Member Plaza and 3F Talent Lounge are member floors, for the people who want to keep coming back.\n\nThe questions we hear most:\nDo I need a reservation? Not for 1F — just push the door.\nCan I come alone? Most people here do.\nHow long can I stay? We're open late. Take your time.\n\nSoft opening October 13. Save this post for your first visit."
+  "caption_en": "The question we get most while building this place: how does it actually work?\n\nSimple. Start on 1F.\nGrab a coffee from At Cafe — that's your ticket in. No membership, no booking, no explaining yourself.\n\nBy day, it's a place to work.\nAfter hours, dinner and a drink.\nLate at night, deadlines and long conversations.\n\n2F and 3F — Stay Square — are member floors, for the people who want to keep coming back.\n\nThe questions we hear most:\nDo I need a reservation? Not for 1F — just push the door.\nCan I come alone? Most people here do.\nHow long can I stay? We're open late. Take your time.\n\nSoft opening October 13. Save this post for your first visit."
  },
  {
   "id": "sp_seed_x_w12",
@@ -1202,7 +1202,7 @@
     "layout": "03a",
     "fields": {
      "q_text": "一杯咖啡，就能進來",
-     "q_sub": "一樓 Cafe & Bar 開放。二樓與三樓是會員空間，想了解可以現場問我們",
+     "q_sub": "一樓在咖啡與三點水開放。二樓與三樓是會員空間，想了解可以現場問我們",
      "q_by": "試營運須知 · 範圍",
      "en": "One coffee is all it takes to walk in."
     }
@@ -1247,14 +1247,14 @@
     }
    }
   ],
-  "caption_en": "October 13, next Tuesday, we open the doors.\n\nNot the grand opening yet — a soft opening. The building is done; the details aren't.\n\nWhat you need to know:\n· From Tuesday, October 13\n· No. 11, Sec. 1, Chongqing S. Rd. — diagonally across from Exit Z10 of the Taipei Main Station underground mall\n· No sign-up needed. One coffee gets you into 1F Emoji Café & Bar\n· 2F and 3F are member floors — curious? Ask us on site\n\nThe paint is barely dry, and some things won't be perfect. That's what a soft opening is for. If you spot something off, tell us — your feedback becomes the fix list before the November 1 grand opening.\n\nOctober 13. Come sit for a while."
+  "caption_en": "October 13, next Tuesday, we open the doors.\n\nNot the grand opening yet — a soft opening. The building is done; the details aren't.\n\nWhat you need to know:\n· From Tuesday, October 13\n· No. 11, Sec. 1, Chongqing S. Rd. — diagonally across from Exit Z10 of the Taipei Main Station underground mall\n· No sign-up needed. One coffee gets you into 1F — At Cafe by day, 3AM by night\n· 2F and 3F are member floors — curious? Ask us on site\n\nThe paint is barely dry, and some things won't be perfect. That's what a soft opening is for. If you spot something off, tell us — your feedback becomes the fix list before the November 1 grand opening.\n\nOctober 13. Come sit for a while."
  },
  {
   "id": "sp_seed_ig_s02",
   "platform": "ig",
   "post_type": "image",
   "title": "S2 單圖｜今天，試營運",
-  "caption": "今天，試營運開始。\n\n裝修了三個月，今天把門打開。\n重慶南路一段 11 號，台北車站 Z10 出口斜對面。\n\n先說清楚：現在的言文字，是測試版。\n動線可能不順，出餐可能慢，\n某個角落的插座，可能還沒通電。\n我們選擇先開門，\n因為有些問題，只有人真的走進來才會出現。\n\n一樓 Cafe & Bar，一杯咖啡就能進來。\n工作、發呆、觀察我們，都可以。\n覺得哪裡怪，直接告訴現場的夥伴，\n或私訊 @emoji0701——\n你的每一句話，都會變成 11/1 正式開幕的樣子。\n\n10/13 試營運｜11/1 正式開幕",
+  "caption": "今天，試營運開始。\n\n裝修了三個月，今天把門打開。\n重慶南路一段 11 號，台北車站 Z10 出口斜對面。\n\n先說清楚：現在的言文字，是測試版。\n動線可能不順，出餐可能慢，\n某個角落的插座，可能還沒通電。\n我們選擇先開門，\n因為有些問題，只有人真的走進來才會出現。\n\n一樓在咖啡（At Cafe）與三點水（3AM），一杯咖啡就能進來。\n工作、發呆、觀察我們，都可以。\n覺得哪裡怪，直接告訴現場的夥伴，\n或私訊 @emoji0701——\n你的每一句話，都會變成 11/1 正式開幕的樣子。\n\n10/13 試營運｜11/1 正式開幕",
   "hashtags": "#言文字 #台灣人才聚落 #台北車站 #北車咖啡廳 #試營運 #台北咖啡廳 #重慶南路 #北車",
   "scheduled_at": "2026-10-13 10:00",
   "series": "產品與活動",
@@ -1277,7 +1277,7 @@
     }
    }
   ],
-  "caption_en": "Today, the soft opening begins.\n\nThree months of renovation, and this morning we opened the door. No. 11, Sec. 1, Chongqing S. Rd., diagonally across from Exit Z10 of the Taipei Main Station underground mall.\n\nTo be clear: this is the beta version of the place. Service might be clumsy, the kitchen might be slow, and one outlet in the corner may not have power yet. We chose to open anyway — some problems only show up when real people walk in.\n\n1F Emoji Café & Bar: one coffee gets you in. Work, stare out the window, watch us figure things out — all fine.\n\nIf something feels off, tell the team on site, or DM @emoji0701. Every word you give us shapes what November 1 looks like.\n\nSoft opening Oct 13 · Grand opening Nov 1"
+  "caption_en": "Today, the soft opening begins.\n\nThree months of renovation, and this morning we opened the door. No. 11, Sec. 1, Chongqing S. Rd., diagonally across from Exit Z10 of the Taipei Main Station underground mall.\n\nTo be clear: this is the beta version of the place. Service might be clumsy, the kitchen might be slow, and one outlet in the corner may not have power yet. We chose to open anyway — some problems only show up when real people walk in.\n\n1F, At Cafe by day and 3AM by night: one coffee gets you in. Work, stare out the window, watch us figure things out — all fine.\n\nIf something feels off, tell the team on site, or DM @emoji0701. Every word you give us shapes what November 1 looks like.\n\nSoft opening Oct 13 · Grand opening Nov 1"
  },
  {
   "id": "sp_seed_x_s02",
@@ -1354,7 +1354,7 @@
      "q_text": "想工作的人，會被吵到嗎",
      "q_sub": "檢查 02：噪音——吧檯與音樂的音量，正在調整",
      "q_by": "修正日記",
-     "en": "Fix 02: can you focus over the bar noise?"
+     "en": "Fix 02: can you focus over the noise from the bar counter?"
     }
    },
    {
@@ -1391,7 +1391,7 @@
     }
    }
   ],
-  "caption_en": "Day four of the soft opening.\n\nThere's a list on my desk titled \"things to fix in week one\".\n\nWe checked everything a hundred times before opening, and still wouldn't call it problem-free. Some things only show up when someone actually sits down. So this week, we're watching four of them:\n\n1. Flow — from the door to a seat, does anything get in your way?\n2. Noise — can you focus, or does the bar drown you out?\n3. Wifi — does it hold when the room is full?\n4. Speed — how long your coffee actually takes.\n\nThe list keeps growing. That's good news — every line is something we can fix before November 1.\n\nIf you came this week and something felt off, comment or DM us. One offhand remark might be the next line on the list.\n\nSoft opening now · Grand opening Nov 1"
+  "caption_en": "Day four of the soft opening.\n\nThere's a list on my desk titled \"things to fix in week one\".\n\nWe checked everything a hundred times before opening, and still wouldn't call it problem-free. Some things only show up when someone actually sits down. So this week, we're watching four of them:\n\n1. Flow — from the door to a seat, does anything get in your way?\n2. Noise — can you focus, or does the bar counter drown you out?\n3. Wifi — does it hold when the room is full?\n4. Speed — how long your coffee actually takes.\n\nThe list keeps growing. That's good news — every line is something we can fix before November 1.\n\nIf you came this week and something felt off, comment or DM us. One offhand remark might be the next line on the list.\n\nSoft opening now · Grand opening Nov 1"
  },
  {
   "id": "sp_seed_x_w15",
@@ -1463,7 +1463,7 @@
      "q_text": "深夜吧檯，一杯之後",
      "q_sub": "營業到深夜的一樓，很多對話從這裡開始",
      "q_by": "相遇 · 03",
-     "en": "Late at the bar, one drink in, names exchanged."
+     "en": "Late at the bar counter, one drink in, names exchanged."
     }
    },
    {
@@ -1482,7 +1482,7 @@
     }
    }
   ],
-  "caption_en": "When did you last make a new friend?\n\nPast a certain age — and especially in a city that isn't yours — the question gets hard. Office, apartment, the same route every day, and every new name in your phone is a work contact.\n\nWe built this place to change that. Here, meeting someone can look like this:\n\nThe freelancer at the next table who happens to know the thing you're stuck on.\nTen extra minutes of conversation after an event ends.\nA name exchanged at the bar, late, one drink in.\n\nNo forced networking. No business cards. Sit close enough, and the conversation starts on its own.\n\nWe're putting together Talent Night — a regular gathering where people from different circles actually meet. Details soon. Follow @emoji0701 to hear first.\n\nSoft opening now · Grand opening Nov 1"
+  "caption_en": "When did you last make a new friend?\n\nPast a certain age — and especially in a city that isn't yours — the question gets hard. Office, apartment, the same route every day, and every new name in your phone is a work contact.\n\nWe built this place to change that. Here, meeting someone can look like this:\n\nThe freelancer at the next table who happens to know the thing you're stuck on.\nTen extra minutes of conversation after an event ends.\nA name exchanged at the bar counter, late, one drink in.\n\nNo forced networking. No business cards. Sit close enough, and the conversation starts on its own.\n\nWe're putting together Talent Night — a regular gathering where people from different circles actually meet. Details soon. Follow @emoji0701 to hear first.\n\nSoft opening now · Grand opening Nov 1"
  },
  {
   "id": "sp_seed_x_w16",
@@ -1573,14 +1573,14 @@
     }
    }
   ],
-  "caption_en": "Two days to the grand opening.\n\nIn July, we announced the move — from a small shop on Kaifeng Street to a building by Taipei Main Station. August and September were renovation: outlets, lighting, seats, the bar, every decision laid out in the open. In October, the soft opening — the first guests walked in and handed us a long fix list.\n\nNow that list is nearly crossed off.\n\nTo everyone who watched this building go up: your comments, your votes, every \"this feels off\" said at the counter — all of it is built into these walls.\n\nNovember 1, we open for good. No. 11, Sec. 1, Chongqing S. Rd., diagonally across from Exit Z10. Coffee on 1F, the Member Plaza on 2F, work and events on 3F.\n\nCome see what you helped build."
+  "caption_en": "Two days to the grand opening.\n\nIn July, we announced the move — from a small shop on Kaifeng Street to a building by Taipei Main Station. August and September were renovation: outlets, lighting, seats, the bar counter, every decision laid out in the open. In October, the soft opening — the first guests walked in and handed us a long fix list.\n\nNow that list is nearly crossed off.\n\nTo everyone who watched this building go up: your comments, your votes, every \"this feels off\" said at the counter — all of it is built into these walls.\n\nNovember 1, we open for good. No. 11, Sec. 1, Chongqing S. Rd., diagonally across from Exit Z10. Coffee on 1F; Stay Square on 2F and 3F — rest, work and events.\n\nCome see what you helped build."
  },
  {
   "id": "sp_seed_ig_s03",
   "platform": "ig",
   "post_type": "image",
   "title": "S3 單圖｜正式開幕",
-  "caption": "今天，正式開幕。\n\n言文字｜台灣人才聚落，\n重慶南路一段 11 號，台北車站 Z10 出口斜對面。\n\n一樓 Cafe & Bar，一杯咖啡就能進來，營業到深夜。\n二樓，會員 24 小時看書休憩的空間。\n三樓，挑高木樑下，一起工作與活動。\n\n我們想做的事，從第一天就沒變過——\n讓你平常不會遇到的人，在台北車站旁相遇。\n\n從今天起，這裡是日常。\n路過的話，來坐坐。",
+  "caption": "今天，正式開幕。\n\n言文字｜台灣人才聚落，\n重慶南路一段 11 號，台北車站 Z10 出口斜對面。\n\n一樓在咖啡（At Cafe）與三點水（3AM），一杯咖啡就能進來，營業到深夜。\n二樓，等等空間（Stay Square），會員 24 小時看書休憩。\n三樓，挑高木樑下，一起工作與活動。\n\n我們想做的事，從第一天就沒變過——\n讓你平常不會遇到的人，在台北車站旁相遇。\n\n從今天起，這裡是日常。\n路過的話，來坐坐。",
   "hashtags": "#言文字 #台灣人才聚落 #台北車站 #正式開幕 #北車咖啡廳 #台北咖啡廳 #coworking #北車",
   "scheduled_at": "2026-11-01 11:00",
   "series": "產品與活動",
@@ -1598,7 +1598,7 @@
     }
    }
   ],
-  "caption_en": "Today, we open for good.\n\nEmoji - Taiwan Talent Hub. No. 11, Sec. 1, Chongqing S. Rd., diagonally across from Exit Z10 of the Taipei Main Station underground mall.\n\n1F, Emoji Café & Bar: one coffee gets you in, and we're open late.\n2F, the Member Plaza: 24-hour reading and rest for members.\n3F, the Talent Lounge: coworking and events under the timber beams.\n\nWhat we set out to do hasn't changed since day one — a place where you meet the people you'd never usually meet, by Taipei Main Station.\n\nWhether you've followed the build since July or you're hearing about us for the first time, the door works the same way: push it open, order a coffee, stay a while.\n\nFrom today, this is daily life. If you're passing through the station, come sit."
+  "caption_en": "Today, we open for good.\n\nEmoji - Taiwan Talent Hub. No. 11, Sec. 1, Chongqing S. Rd., diagonally across from Exit Z10 of the Taipei Main Station underground mall.\n\n1F, At Cafe by day and 3AM by night: one coffee gets you in, and we're open late.\n2F, Stay Square: 24-hour reading and rest for members.\n3F, Stay Square: coworking and events under the timber beams.\n\nWhat we set out to do hasn't changed since day one — a place where you meet the people you'd never usually meet, by Taipei Main Station.\n\nWhether you've followed the build since July or you're hearing about us for the first time, the door works the same way: push it open, order a coffee, stay a while.\n\nFrom today, this is daily life. If you're passing through the station, come sit."
  },
  {
   "id": "sp_seed_x_s03",

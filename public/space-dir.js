@@ -11,15 +11,15 @@
       close: '收合',
       menuTitle: '餐飲菜單 Menu',
       areas: {
-        1: 'Cafe & Bar · 約 25.2 坪',
-        2: 'Member Plaza · 約 29.5 坪',
-        3: 'Talent Lounge · 約 29.9 坪',
+        1: '在咖啡／三點水 · 約 25.2 坪',
+        2: '等等空間 · 約 29.5 坪',
+        3: '等等空間 · 約 29.9 坪',
         4: '支援樓層 · 約 7.5 坪（含陽台）',
       },
       names: {
-        1: 'Emoji · Café & Bar',
-        2: 'Member Plaza 會員休憩',
-        3: 'Talent Lounge 共享辦公',
+        1: '在咖啡（At Cafe）／三點水（3AM）',
+        2: '等等空間 · 24 小時看書休憩',
+        3: '等等空間 · 共享辦公與活動',
         4: '支援樓層',
       },
       kickers: {
@@ -40,15 +40,15 @@
       close: 'Close',
       menuTitle: 'Menu',
       areas: {
-        1: 'Cafe & Bar · ~25.2 ping',
-        2: 'Member Plaza · ~29.5 ping',
-        3: 'Talent Lounge · ~29.9 ping',
+        1: 'At Cafe / 3AM · ~25.2 ping',
+        2: 'Stay Square · ~29.5 ping',
+        3: 'Stay Square · ~29.9 ping',
         4: 'Support · ~7.5 ping incl. terrace',
       },
       names: {
-        1: 'Emoji · Café & Bar',
-        2: 'Member Plaza',
-        3: 'Talent Lounge',
+        1: '在咖啡 (At Cafe) / 三點水 (3AM)',
+        2: 'Stay Square · 24-hour reading & rest',
+        3: 'Stay Square · coworking & events',
         4: 'Support floor',
       },
       kickers: {
@@ -58,7 +58,7 @@
         4: 'Support · rooftop',
       },
       hints: {
-        1: 'Takeout, kitchen, bar, seats, stage',
+        1: 'Takeout, kitchen, bar counter, seats, stage',
         2: 'Tatami lounge, lattice/sofa, shower',
         3: 'Screen, desks, snack bar, toilet',
         4: 'Laundry and terrace tanks',
@@ -69,15 +69,15 @@
       close: '閉じる',
       menuTitle: 'メニュー Menu',
       areas: {
-        1: 'Cafe & Bar · 約25.2坪',
-        2: 'Member Plaza · 約29.5坪',
-        3: 'Talent Lounge · 約29.9坪',
+        1: '在咖啡／三點水 · 約25.2坪',
+        2: '等等空間 · 約29.5坪',
+        3: '等等空間 · 約29.9坪',
         4: 'サポート · 約7.5坪（バルコニー含む）',
       },
       names: {
-        1: 'Emoji · Café & Bar',
-        2: 'メンバープラザ',
-        3: 'タレントラウンジ',
+        1: '在咖啡（At Cafe）／三點水（3AM）',
+        2: '等等空間 · 24時間の読書と休憩',
+        3: '等等空間 · コワーキング＆イベント',
         4: 'サポートフロア',
       },
       kickers: {
@@ -87,7 +87,7 @@
         4: 'Support · rooftop',
       },
       hints: {
-        1: 'テイクアウト・厨房・バー・客席・ステージ',
+        1: 'テイクアウト・厨房・バーカウンター・客席・ステージ',
         2: '畳ラウンジ・lattice／ソファ・シャワー',
         3: '投影・可動デスク・セルフバー・トイレ',
         4: '洗濯乾燥とテラス水塔',
