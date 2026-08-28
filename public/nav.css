@@ -26,6 +26,13 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
 .site-nav__links>a:not(.btn)::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:1.5px;
   background:#1B1A17;transition:width .25s ease}
 .site-nav__links a[aria-current=page]{color:#1B1A17;font-weight:600}
+/* 桌機：頂層項目不換行；會員名稱過長時截斷（padding/負 margin 讓 overflow:hidden 不切到 hover 底線與字母下伸部） */
+@media(min-width:1001px){
+  .site-nav__links>a:not(.btn),.site-nav__dd-top{white-space:nowrap}
+  #navMember{max-width:11em;overflow:hidden;text-overflow:ellipsis;padding:4px 0 7px;margin:-4px 0 -7px}
+  #navMember::after{bottom:1px}
+}
+@media(min-width:1001px) and (max-width:1100px){.site-nav__links{gap:16px}#navMember{max-width:7em}}
 
 /* ── 下拉（計畫、語言） ── */
 .site-nav__dd{position:relative;display:inline-flex;align-items:center}
@@ -48,7 +55,7 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
 .site-nav__lang.open>.site-nav__menu{transform:translateY(0)}
 .site-nav__dd.open .site-nav__caret{transform:rotate(180deg)}
 /* 桌機（可 hover）：滑鼠移入或鍵盤 focus 即顯示 */
-@media (hover:hover) and (min-width:901px){
+@media (hover:hover) and (min-width:1001px){
   .site-nav__dd:hover>.site-nav__menu,.site-nav__dd:focus-within>.site-nav__menu{opacity:1;visibility:visible;transform:translate(-50%,0);transition-delay:0s}
   .site-nav__lang:hover>.site-nav__menu,.site-nav__lang:focus-within>.site-nav__menu{transform:translateY(0)}
   .site-nav__dd:hover .site-nav__caret,.site-nav__dd:focus-within .site-nav__caret{transform:rotate(180deg)}
@@ -67,7 +74,7 @@ header.site-nav.scrolled{border-bottom-color:rgba(27,26,23,.14);background:rgba(
 .site-nav__toggle{display:none;place-items:center;min-width:44px;min-height:44px;background:none;border:0;
   cursor:pointer;font-size:1.5rem;color:#1B1A17;line-height:1}
 
-@media(max-width:900px){
+@media(max-width:1000px){
   .site-nav .brand{flex:1 1 auto;min-width:0}
   .site-nav__links{position:fixed;inset:70px 0 auto 0;flex-direction:column;gap:0;align-items:stretch;
     background:#FBFAF6;border-bottom:1px solid rgba(27,26,23,.14);max-height:0;overflow:hidden auto;

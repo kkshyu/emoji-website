@@ -16,6 +16,7 @@
           if (!name) return;
           try { localStorage.setItem('tth_name', name); } catch (e) {}
           member.textContent = name;
+          member.title = name; // 桌機 CSS 截斷時 hover 可見全名
         };
         var fromTok = (function () {
           try {
@@ -80,7 +81,7 @@
   }
 
   // 下拉：觸控／窄螢幕改「點擊展開」（桌機可 hover 者交給 CSS，不攔截）
-  var touchLike = window.matchMedia('(hover:none), (max-width:900px)');
+  var touchLike = window.matchMedia('(hover:none), (max-width:1000px)');
   document.querySelectorAll('.site-nav__dd-top').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       if (!touchLike.matches) return;              // 桌機：hover 顯示，放行預設行為
