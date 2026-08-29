@@ -64,12 +64,10 @@
         "addressCountry": "TW"
       },
       "geo": { "@type": "GeoCoordinates", "latitude": "25.046198", "longitude": "121.51342" },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        "opens": "11:00",
-        "closes": "03:00"
-      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "name": "在咖啡（at cafe）", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "08:00", "closes": "17:30" },
+        { "@type": "OpeningHoursSpecification", "name": "三點水（3AM）", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "18:00", "closes": "03:00" }
+      ],
       "hasMap": "https://maps.app.goo.gl/phJPEkUbBwAXHtoE8",
       "memberOf": { "@type": "Organization", "name": "台灣數位遊牧者協會 TDNA", "url": "https://dna.org.tw" },
       "makesOffer": [
@@ -164,7 +162,7 @@
         {
           "@type": "Question",
           "name": "聚落是 24 小時開放嗎？",
-          "acceptedAnswer": { "@type": "Answer", "text": "採 24 小時分時營運：每日 11:00 至翌日凌晨 3:00 為有人服務時段，一樓餐飲與三樓共享辦公、活動空間開放；凌晨 3:00 至 11:00 為無人時段，會員可透過人臉辨識繼續進出一、二樓空間。二樓等等空間（Stay Square）的看書休憩與電動漫畫娛樂室，對會員 24 小時開放。" }
+          "acceptedAnswer": { "@type": "Answer", "text": "採 24 小時分時營運：在咖啡每日 08:00–17:30、三點水 18:00 至翌日凌晨 3:00 為有人服務時段（深夜段為條件式啟用），一樓餐飲與三樓共享辦公、活動空間開放；凌晨 3:00 至 08:00 為無人時段，會員可透過人臉辨識繼續進出一、二樓空間。二樓等等空間（Stay Square）的看書休憩與電動漫畫娛樂室，對會員 24 小時開放。" }
         },
         {
           "@type": "Question",
@@ -422,7 +420,7 @@
       </details>
       <details class="faq__item">
         <summary>聚落是 24 小時開放嗎？</summary>
-        <div class="faq__a"><p>採 24 小時分時營運：每日 11:00 至翌日凌晨 3:00 為有人服務時段，一樓餐飲與三樓共享辦公、活動空間開放；凌晨 3:00 至 11:00 為無人時段，會員可透過人臉辨識繼續進出一、二樓空間。二樓等等空間（Stay Square）的看書休憩與電動漫畫娛樂室，對會員 24 小時開放。</p></div>
+        <div class="faq__a"><p>採 24 小時分時營運：在咖啡每日 08:00–17:30、三點水 18:00 至翌日凌晨 3:00 為有人服務時段（深夜段為條件式啟用），一樓餐飲與三樓共享辦公、活動空間開放；凌晨 3:00 至 08:00 為無人時段，會員可透過人臉辨識繼續進出一、二樓空間。二樓等等空間（Stay Square）的看書休憩與電動漫畫娛樂室，對會員 24 小時開放。</p></div>
       </details>
       <details class="faq__item">
         <summary>適合哪些人加入？</summary>

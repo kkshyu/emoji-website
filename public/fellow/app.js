@@ -501,11 +501,15 @@ async function startCheckout(btn) {
 }
 
 // 從 Stripe 返回：顯示付款結果橫幅（自包含樣式，CIS 唯一黃／墨）
-function showPurchaseResult() {
+async function showPurchaseResult() {
   const p = new URLSearchParams(location.search);
-  const paid = p.get('paid') === '1', canceled = p.get('canceled') === '1';
+  let paid = p.get('paid') === '1'; const canceled = p.get('canceled') === '1';
   if (!paid && !canceled) return;
   history.replaceState(null, '', location.pathname); // 清掉 query，避免重整重複顯示
+  if (paid) { // 不信任 query：向後端以 Stripe session id 確認已付款
+    try { paid = !!(await api('/checkout/verify?s=' + encodeURIComponent(p.get('s') || ''))).paid; } catch (e) { paid = false; }
+    if (!paid) return;
+  }
   const bar = document.createElement('div');
   bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:300;padding:14px 52px 14px 20px;'
     + 'font-size:1rem;line-height:1.6;text-align:center;box-shadow:0 6px 20px -10px rgba(0,0,0,.5);'

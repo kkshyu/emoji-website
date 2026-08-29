@@ -63,12 +63,10 @@
         "addressCountry": "TW"
       },
       "geo": { "@type": "GeoCoordinates", "latitude": "25.046198", "longitude": "121.51342" },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        "opens": "11:00",
-        "closes": "03:00"
-      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "name": "在咖啡（at cafe）", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "08:00", "closes": "17:30" },
+        { "@type": "OpeningHoursSpecification", "name": "三點水（3AM）", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "18:00", "closes": "03:00" }
+      ],
       "hasMap": "https://maps.app.goo.gl/phJPEkUbBwAXHtoE8",
       "memberOf": { "@type": "Organization", "name": "Taiwan Digital Nomad Association (TDNA)", "url": "https://dna.org.tw" },
       "makesOffer": [
@@ -156,7 +154,7 @@
         {
           "@type": "Question",
           "name": "台湾タレントハブは24時間営業ですか？",
-          "acceptedAnswer": { "@type": "Answer", "text": "24時間の分割スケジュールで運営します：毎日11:00〜03:00はスタッフが常駐し、1Fのカフェ／ビストロと3Fのコワーキング＆イベントフロアが営業します。03:00〜11:00は無人となり、会員は顔認証で1Fと2Fを引き続き利用できます。" }
+          "acceptedAnswer": { "@type": "Answer", "text": "24時間の分割スケジュールで運営します：在咖啡（at cafe）08:00〜17:30・三點水（3AM）18:00〜翌03:00はスタッフが常駐し（深夜帯は条件付き）、1Fのカフェ／ビストロと3Fのコワーキング＆イベントフロアが営業します。03:00〜08:00は無人となり、会員は顔認証で1Fと2Fを引き続き利用できます。" }
         },
         {
           "@type": "Question",
@@ -420,7 +418,7 @@
       </details>
       <details class="faq__item">
         <summary>24時間営業ですか？</summary>
-        <div class="faq__a"><p>24時間の分割スケジュールで運営します：毎日11:00〜03:00はスタッフが常駐し、1Fのカフェ／ビストロと3Fのコワーキング＆イベントフロアが営業します。03:00〜11:00は無人となり、会員は顔認証で1Fと2Fを引き続き利用できます。</p></div>
+        <div class="faq__a"><p>24時間の分割スケジュールで運営します：在咖啡（at cafe）08:00〜17:30・三點水（3AM）18:00〜翌03:00はスタッフが常駐し（深夜帯は条件付き）、1Fのカフェ／ビストロと3Fのコワーキング＆イベントフロアが営業します。03:00〜08:00は無人となり、会員は顔認証で1Fと2Fを引き続き利用できます。</p></div>
       </details>
       <details class="faq__item">
         <summary>どんな人のための場所ですか？</summary>

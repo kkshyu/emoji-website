@@ -63,12 +63,10 @@
         "addressCountry": "TW"
       },
       "geo": { "@type": "GeoCoordinates", "latitude": "25.046198", "longitude": "121.51342" },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        "opens": "11:00",
-        "closes": "03:00"
-      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "name": "在咖啡（at cafe）", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "08:00", "closes": "17:30" },
+        { "@type": "OpeningHoursSpecification", "name": "三點水（3AM）", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "18:00", "closes": "03:00" }
+      ],
       "hasMap": "https://maps.app.goo.gl/phJPEkUbBwAXHtoE8",
       "memberOf": { "@type": "Organization", "name": "Taiwan Digital Nomad Association (TDNA)", "url": "https://dna.org.tw" },
       "makesOffer": [
@@ -156,7 +154,7 @@
         {
           "@type": "Question",
           "name": "Is Taiwan Talent Hub open 24 hours?",
-          "acceptedAnswer": { "@type": "Answer", "text": "The hub runs on a 24-hour split schedule: staffed daily from 11:00 to 03:00, when the 1F café & bistro and 3F coworking & event floor are open; from 03:00 to 11:00 it is unstaffed, and members can still access 1F and 2F via face recognition." }
+          "acceptedAnswer": { "@type": "Answer", "text": "The hub runs on a 24-hour split schedule: staffed from 08:00 to 17:30 (在咖啡 at cafe) and 18:00 to 03:00 (三點水 3AM; late-night hours conditional on launch gates), when the 1F café & bistro and 3F coworking & event floor are open; from 03:00 to 08:00 it is unstaffed, and members can still access 1F and 2F via face recognition." }
         },
         {
           "@type": "Question",
@@ -417,7 +415,7 @@
       </details>
       <details class="faq__item">
         <summary>Is it open 24 hours?</summary>
-        <div class="faq__a"><p>The hub runs on a 24-hour split schedule: staffed daily from 11:00 to 03:00, when the 1F café &amp; bistro and 3F coworking &amp; event floor are open; from 03:00 to 11:00 it is unstaffed, and members can still access 1F and 2F via face recognition.</p></div>
+        <div class="faq__a"><p>The hub runs on a 24-hour split schedule: staffed from 08:00 to 17:30 (在咖啡 at cafe) and 18:00 to 03:00 (三點水 3AM; late-night hours conditional on launch gates), when the 1F café &amp; bistro and 3F coworking &amp; event floor are open; from 03:00 to 08:00 it is unstaffed, and members can still access 1F and 2F via face recognition.</p></div>
       </details>
       <details class="faq__item">
         <summary>Who is it for?</summary>

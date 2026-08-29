@@ -51,7 +51,10 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" https://www.emoji.tw/api/state
 點數方案定價表。回 `{ price_twd, packs }`。
 
 ### POST /api/checkout
-建立 Stripe 結帳（購買創始會籍）。body：`{ lang }`。回 `{ url }`。未設 `STRIPE_SECRET_KEY` 時回 503。
+建立 Stripe 結帳（購買創始會籍）。body：`{ lang }`。回 `{ url }`。未設 `STRIPE_SECRET_KEY` 時回 503；超過 `SALE_END`（預設 2026-12-31）回 410；Stripe 已付款數達 `MAX_PARTICIPANTS`（預設 100）回 409。
+
+### GET /api/checkout/verify
+付款成功頁驗證。query：`s`（Stripe checkout session id）。向 Stripe 確認 `payment_status=paid` 且為創始會員商品，回 `{ paid }`。
 
 ### POST /api/access/verify
 驗證進出 QR token 是否有效。body：`{ token }`。回 `{ ok, claims }`。

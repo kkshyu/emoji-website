@@ -53,7 +53,11 @@ const MAX_PARTICIPANTS = Number(process.env.MAX_PARTICIPANTS || 100);
 // 個資加密金鑰（身分證字號等敏感欄位 at-rest 加密）；建議獨立設 PII_KEY，預設沿用 APP_SECRET 衍生
 const PII_KEY = require('crypto').createHash('sha256').update(process.env.PII_KEY || SECRET).digest();
 
-if (SECRET === 'dev-insecure-secret-change-me') console.warn('[warn] APP_SECRET 未設定，使用不安全的預設值，請於 Zeabur 設定 APP_SECRET。');
+if (SECRET === 'dev-insecure-secret-change-me') {
+  // 正式環境 fail closed：session 簽章與 PII 加密金鑰皆由 APP_SECRET 衍生，預設值等同無保護
+  if (process.env.NODE_ENV === 'production') { console.error('[fatal] APP_SECRET 未設定，正式環境拒絕啟動。'); process.exit(1); }
+  console.warn('[warn] APP_SECRET 未設定，使用不安全的預設值，請於 Zeabur 設定 APP_SECRET。');
+}
 if (!ACCESS_QR_SECRET) console.warn('[warn] ACCESS_QR_SECRET 未設定，進出 QR 停用。');
 if (!ACCESS_DOOR_SECRET) console.warn('[warn] ACCESS_DOOR_SECRET 未設定，access/scan 停用。');
 if (!ADMIN_API_KEY) console.warn('[warn] ADMIN_API_KEY 未設定，AI agent 管理 API 停用（後台 Google 登入不受影響）。');
@@ -63,7 +67,8 @@ else if (ADMIN_API_KEY.length < ADMIN_API_KEY_MIN)
 /* ---------- Stripe（開放購買；未設金鑰時 /api/checkout 回 503） ---------- */
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 if (!stripe) console.warn('[warn] STRIPE_SECRET_KEY 未設定，購買功能停用（/api/checkout 回 503）。');
-const MEMBERSHIP_START = process.env.MEMBERSHIP_START || '2026-11-01'; // 會籍起算＝開幕日
+const MEMBERSHIP_START = process.env.MEMBERSHIP_START || '2026-11-01'; // 會籍起算＝開幕日（/api/commitments 與 Stripe 共用此單一來源）
+const SALE_END = process.env.SALE_END || '2026-12-31'; // 創始會員售止日（含當日；須與 fellow 頁面三語同步）
 
 /* ---------- Google 登入（官網會員專區用；未設 GOOGLE_CLIENT_ID 時 /auth/google 回 503） ---------- */
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
@@ -1003,8 +1008,8 @@ app.post('/api/commitments', auth, requireDb, wrap(async (req, res) => {
 
   const seq = (await q(`SELECT COUNT(*)::int AS n FROM commitments`)).rows[0].n + 1;
   const id = uid('c_');
-  // 會籍起訖：以正式開幕日 2026-11-01 起算 18 個月；若開幕延後，依實際開幕日調整
-  const start = '2026-11-01';
+  // 會籍起訖：以正式開幕日起算 18 個月；開幕延後時改 MEMBERSHIP_START 環境變數即可
+  const start = MEMBERSHIP_START;
   const maturity = addMonthsISO(start, term);
   await q(
     `INSERT INTO commitments
@@ -1746,8 +1751,19 @@ app.delete('/api/events/:id/register', auth, requireDb, wrap(async (req, res) =>
 }));
 
 /* ---- Stripe Checkout（開放任何人購買，無需登入；Stripe 為訂單真相來源） ---- */
+// 已付款創始會員數：無 webhook，以 Stripe 已完成 session 即時盤點（Stripe 為真相來源）
+async function paidFoundingCount() {
+  let n = 0;
+  for await (const s of stripe.checkout.sessions.list({ status: 'complete', limit: 100 }))
+    if (s.payment_status === 'paid' && s.metadata && s.metadata.plan === 'founding-member') n++;
+  return n;
+}
+const todayTaipei = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+
 app.post('/api/checkout', wrap(async (req, res) => {
   if (!stripe) return res.status(503).json({ error: '購買功能尚未開通（未設定 Stripe）。' });
+  if (todayTaipei() > SALE_END) return res.status(410).json({ error: `創始會員已於 ${SALE_END} 截止販售。` });
+  if (await paidFoundingCount() >= MAX_PARTICIPANTS) return res.status(409).json({ error: `創始名額已滿（限量 ${MAX_PARTICIPANTS} 名，售罄不補）。` });
   // 不信任 Origin header（避免 open redirect）；導向目標一律用伺服器端常數，本地測試以 PUBLIC_ORIGIN 覆蓋
   const origin = SITE_BASE;
   // 結帳完成後導回購買者所在語系頁（僅允許 en/ja 前綴，其餘回中文 /fellow）
@@ -1776,8 +1792,16 @@ app.post('/api/checkout', wrap(async (req, res) => {
     metadata: { plan: 'founding-member', term_months: String(MAX_TERM), start_date: MEMBERSHIP_START, end_date: endMinus1 },
   });
   res.json({ url: session.url });
-  // ponytail: 未在後端硬性擋「限量 100」——上線初期以 Stripe 後台人工控管即可。
-  // 需嚴格庫存時，升級路徑：加 webhook（whsec_）累計已付款數，達 100 即回 409。
+  // ponytail: 容量以 Stripe list 即時盤點，非原子；同秒併發可能超賣 1–2 名。需嚴格庫存時改 webhook 累計。
+}));
+
+// 付款成功頁驗證：前端只憑 ?paid=1 不足採信，須以 session id 向 Stripe 確認已付款
+app.get('/api/checkout/verify', wrap(async (req, res) => {
+  if (!stripe) return res.status(503).json({ paid: false });
+  const id = String(req.query.s || '');
+  if (!/^cs_[A-Za-z0-9_]+$/.test(id)) return res.status(400).json({ paid: false });
+  const s = await stripe.checkout.sessions.retrieve(id);
+  res.json({ paid: s.payment_status === 'paid' && !!s.metadata && s.metadata.plan === 'founding-member' });
 }));
 
 /* ---- 前端靜態檔（官網掛 /、fellow 一頁式掛 /fellow；伺服器源碼不外露） ---- */
