@@ -195,7 +195,7 @@ test('system zh page structure', () => {
   assert.match(html, /href="\/partner"/);
   assert.match(html, /href="\/space"/);
   assert.match(html, /NT\$\s*4,000|NT\$4,000/);
-  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|共居|居住|入住/i);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|共居|居住|入住|酒吧|Cafe &amp; Bar|Cafe & Bar|Member Plaza|Talent Lounge/i);
 });
 
 test('resolvePublicHtml resolves system zh', () => {
@@ -210,7 +210,7 @@ test('system en page structure', () => {
   assert.match(html, /href="\/en\/partner"/);
   assert.match(html, /href="\/en\/space"/);
   assert.match(html, /canonical" href="https:\/\/www\.emoji\.tw\/en\/system"/);
-  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|共居|居住|入住/i);
+  assert.doesNotMatch(html, /旅館|hotel|住宿|過夜|共居|居住|入住|酒吧|Cafe &amp; Bar|Cafe & Bar|Member Plaza|Talent Lounge/i);
 });
 
 test('system ja page structure', () => {

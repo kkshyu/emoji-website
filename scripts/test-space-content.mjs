@@ -40,7 +40,7 @@ test('SPACE_SEED covers all floors and langs', () => {
   for (const f of FLOORS) {
     for (const lang of LANGS) {
       assert.ok(SPACE_SEED[spaceBodyKey(f, lang)], `${f} ${lang}`);
-      assert.doesNotMatch(SPACE_SEED[spaceBodyKey(f, lang)], /旅館|hotel|住宿|過夜|lodging|宿泊|入住|共居|居住/i);
+      assert.doesNotMatch(SPACE_SEED[spaceBodyKey(f, lang)], /旅館|hotel|住宿|過夜|lodging|宿泊|入住|共居|居住|酒吧|(?<!snack )\bbar\b|バー(?!ジ)|Cafe & Bar|Member Plaza|Talent Lounge/i);
     }
   }
 });

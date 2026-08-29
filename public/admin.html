@@ -489,7 +489,7 @@ function tabContent(d){
     <p class="hint">編輯官網首頁及空間介紹的可變內容，儲存後即時生效，免改程式重新部署。支援 Markdown 語法；請留意 CIS 規範：二樓禁用「住宿」／「旅館」／「hotel」等用詞。</p>
     <div class="a-form" style="flex-direction:column;align-items:stretch;max-width:800px">
       <label style="width:100%">首頁公告橫幅（留空則不顯示）
-        <textarea id="ct-notice" placeholder="例：創始名額倒數中，售至 2026/10/31 止。">${esc(c.home_notice||'')}</textarea>
+        <textarea id="ct-notice" placeholder="例：創始名額倒數中，售至 2026/12/31 止。">${esc(c.home_notice||'')}</textarea>
       </label>
       <label style="width:100%">空間介紹 - 主視覺（Hero）圖片
         ${ctImageField('hero', 'hero', c.space_hero_image)}
