@@ -10,14 +10,14 @@ PUB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public')
 PROGRAMS = [('fellow', '/fellow'), ('partner', '/partner'), ('startup', '/startup')]
 
 L = {
- # CIS 定案品牌名：zh「言文字｜台灣人才聚落」／en「Emoji - Taiwan Talent Hub」／ja「言文字｜台湾タレントハブ」
+ # CIS 定案品牌名：zh「言文字｜台灣人才聚落」／en「emoji — Taiwan Talent Hub」／ja「言文字｜台湾タレントハブ」
  'zh': dict(base='', about='關於聚落', floors='消費方式', space='空間介紹', proglabel='聚落計畫',
    brand='企業識別', member='會員登入', member_authed='會員專區', cta='追蹤我們', ltop='中文', mopen='開啟選單', mclose='關閉選單',
    baria='言文字｜台灣人才聚落 首頁', bsub='台灣人才聚落',
    prog={'fellow':'創始會員計畫','partner':'社群合作','startup':'新創支援（探索）'}),
  'en': dict(base='/en', about='About', floors='SYSTEM', space='Space', proglabel='Programs',
    brand='Brand', member='Member login', member_authed='Member area', cta='Follow us', ltop='English', mopen='Open menu', mclose='Close menu',
-   baria='Emoji - Taiwan Talent Hub home', bsub='Emoji - Taiwan Talent Hub',
+   baria='emoji — Taiwan Talent Hub home', bsub='emoji — Taiwan Talent Hub',
    prog={'fellow':'Founding Member','partner':'Community Collaboration','startup':'Startup Support (Exploratory)'}),
  'ja': dict(base='/ja', about='ハブについて', floors='システム', space='スペース', proglabel='プログラム',
    brand='ブランド', member='会員ログイン', member_authed='会員エリア', cta='フォローする', ltop='日本語', mopen='メニューを開く', mclose='メニューを閉じる',

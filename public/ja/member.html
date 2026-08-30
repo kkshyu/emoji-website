@@ -10,7 +10,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Member area · 言文字｜台灣人才聚落</title>
-<meta name="description" content="Member login and membership dashboard for Emoji - Taiwan Talent Hub.">
+<meta name="description" content="Member login and membership dashboard for emoji — Taiwan Talent Hub.">
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -142,7 +142,7 @@
       loginSub: '登入後可查看你的會籍狀態與會員專屬動態。',
       loginBtn: '使用 Google 登入',
       loginNote: '使用 Google 帳號一鍵登入，我們只讀取你的姓名與 Email。',
-      plans: { day_4h: '單日 4 小時', day_12h: '單日 12 小時', month: '月票', quarter: '季票', year: '年票', founding: '創始會員', fallback: '權益' },
+      plans: { day_4h: '單日 4 小時', day_12h: '單日 12 小時', month: '月會員', quarter: '季會員', year: '年會員', founding: '創始會員', fallback: '權益' },
       pendingActivate: '待首次進場啟用',
       noFloorAccess: '目前沒有可進出二三樓的權益。',
       qrTitle: '進出 QR',
@@ -928,7 +928,7 @@
       });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) { showToast(d.error || T.refundFail); btn.disabled = false; return; }
-      showToast(T.refundOk(d.refund?.refund_twd || n * 10));
+      showToast(T.refundOk(d.refund?.refund_twd || n * 1));
       await main();
     } catch (e) {
       showToast(T.netFail);
@@ -984,7 +984,7 @@
     if (!document.hidden) refreshQr();
   });
   // set document title by lang
-  if (LANG === 'en') document.title = 'Member area · Emoji - Taiwan Talent Hub';
+  if (LANG === 'en') document.title = 'Member area · emoji — Taiwan Talent Hub';
   else if (LANG === 'ja') document.title = '会員エリア｜言文字｜台湾タレントハブ';
   else document.title = '會員專區 · 言文字｜台灣人才聚落';
   const loading = card.querySelector('p');

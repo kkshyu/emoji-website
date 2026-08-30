@@ -48,7 +48,7 @@ const ACCESS_DOOR_SECRET = process.env.ACCESS_DOOR_SECRET || '';
 // AI agent 管理金鑰：以 Authorization: Bearer <key> 取得超級管理員權限打 /api/admin/*。
 // 等同超管密碼，僅存於環境變數、勿寫入前端；外洩即全後台淪陷，換金鑰即撤銷。
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || '';
-// 受邀制會籍預售：限定特定受邀者、名額上限 100 名，售罄不補
+// 會籍預售：限量 100 名，售罄不補
 const MAX_PARTICIPANTS = Number(process.env.MAX_PARTICIPANTS || 100);
 // 個資加密金鑰（身分證字號等敏感欄位 at-rest 加密）；建議獨立設 PII_KEY，預設沿用 APP_SECRET 衍生
 const PII_KEY = require('crypto').createHash('sha256').update(process.env.PII_KEY || SECRET).digest();
@@ -995,7 +995,7 @@ app.post('/api/commitments', auth, requireDb, wrap(async (req, res) => {
   if (!b.name || !b.email || !b.phone)
     return res.status(400).json({ error: '請填寫姓名、電話與 Email。' });
 
-  // 名額上限：受邀制、限量 100 名、售罄不補
+  // 名額上限：限量 100 名、售罄不補
   const agg = (await q(`SELECT COALESCE(SUM(amount),0)::bigint AS s, COUNT(DISTINCT user_id)::int AS p FROM commitments`)).rows[0];
   const isExisting = (await q(`SELECT 1 FROM commitments WHERE user_id=$1 LIMIT 1`, [req.auth.sub])).rowCount > 0;
   if (!isExisting && agg.p >= MAX_PARTICIPANTS)

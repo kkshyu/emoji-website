@@ -1,5 +1,5 @@
 /**
- * 空間頁等角樓層目錄：依平面圖繪製 1F–4F，點擊展開詳情（1F 含菜單）。
+ * 空間頁等角樓層目錄：依平面圖繪製三層樓＋附屬設施，點擊展開詳情（1F 含菜單）。
  * 依賴頁面提供 #space-dir-root、#floor-detail，以及 window.SpaceDirContent 注入。
  */
 (function (global) {
@@ -7,26 +7,27 @@
 
   var I18N = {
     zh: {
-      intro: '1F–4F',
+      intro: '三層樓＋附屬設施',
       close: '收合',
+      nos: { 1: '1F', 2: '2F', 3: '3F', 4: '附屬' },
       menuTitle: '餐飲菜單 Menu',
       areas: {
         1: '在咖啡／三點水 · 約 25.2 坪',
         2: '等等空間 · 約 29.5 坪',
         3: '等等空間 · 約 29.9 坪',
-        4: '支援樓層 · 約 7.5 坪（含陽台）',
+        4: '附屬設施 · 洗衣／吸菸區',
       },
       names: {
         1: '在咖啡（at cafe）／三點水（3AM）',
         2: '等等空間 · 24 小時看書休憩',
         3: '等等空間 · 共享辦公與活動',
-        4: '支援樓層',
+        4: '附屬設施',
       },
       kickers: {
         1: 'Public hospitality',
         2: 'Members only',
         3: 'Coworking & events',
-        4: 'Support · rooftop',
+        4: 'Auxiliary · laundry & smoking',
       },
       hints: {
         1: '外帶、廚房、吧台、客席、駐唱',
@@ -36,26 +37,27 @@
       },
     },
     en: {
-      intro: '1F–4F',
+      intro: 'Three floors + auxiliary facilities',
       close: 'Close',
+      nos: { 1: '1F', 2: '2F', 3: '3F', 4: 'AUX' },
       menuTitle: 'Menu',
       areas: {
         1: 'at cafe / 3AM · ~25.2 ping',
         2: 'Stay Square · ~29.5 ping',
         3: 'Stay Square · ~29.9 ping',
-        4: 'Support · ~7.5 ping incl. terrace',
+        4: 'Auxiliary · laundry / smoking area',
       },
       names: {
         1: '在咖啡 (at cafe) / 三點水 (3AM)',
         2: 'Stay Square · 24-hour reading & rest',
         3: 'Stay Square · coworking & events',
-        4: 'Support floor',
+        4: 'Auxiliary facilities',
       },
       kickers: {
         1: 'Public hospitality',
         2: 'Members only',
         3: 'Coworking & events',
-        4: 'Support · rooftop',
+        4: 'Auxiliary · laundry & smoking',
       },
       hints: {
         1: 'Takeout, kitchen, bar counter, seats, stage',
@@ -65,26 +67,27 @@
       },
     },
     ja: {
-      intro: '1F–4F',
+      intro: '3フロア＋附属施設',
       close: '閉じる',
+      nos: { 1: '1F', 2: '2F', 3: '3F', 4: '附属' },
       menuTitle: 'メニュー Menu',
       areas: {
         1: '在咖啡／三點水 · 約25.2坪',
         2: '等等空間 · 約29.5坪',
         3: '等等空間 · 約29.9坪',
-        4: 'サポート · 約7.5坪（バルコニー含む）',
+        4: '附属施設 · 洗濯／喫煙エリア',
       },
       names: {
         1: '在咖啡（at cafe）／三點水（3AM）',
         2: '等等空間 · 24時間の読書と休憩',
         3: '等等空間 · コワーキング＆イベント',
-        4: 'サポートフロア',
+        4: '附属施設',
       },
       kickers: {
         1: 'Public hospitality',
         2: 'Members only',
         3: 'Coworking & events',
-        4: 'Support · rooftop',
+        4: 'Auxiliary · laundry & smoking',
       },
       hints: {
         1: 'テイクアウト・厨房・バーカウンター・客席・ステージ',
@@ -243,7 +246,7 @@
       return slabGroup(ox, oy, f.z, f.W, f.D, H, f.furn(ox, oy, f.z, f.W, f.D, H), f.id);
     });
 
-    // 細長塔：x 約 -173…39，y 約 4F 頂到 1F 底；實作後若裁切再微調
+    // 細長塔：x 約 -173…39，y 約頂層到 1F 底；實作後若裁切再微調
     return (
       '<svg class="space-dir__svg" viewBox="-200 -160 280 420" role="img" aria-hidden="true">' +
         parts.join('') +
@@ -256,7 +259,7 @@
       return (
         '<li class="space-dir__item" data-floor-item="' + id + '">' +
           '<button type="button" class="space-dir__btn" data-floor="' + id + '" aria-pressed="false" aria-expanded="false">' +
-            '<span class="space-dir__no">' + id + 'F</span>' +
+            '<span class="space-dir__no">' + ((t.nos && t.nos[id]) || (id + 'F')) + '</span>' +
             '<span class="space-dir__meta">' +
               '<span class="space-dir__kicker">' + t.kickers[id] + '</span>' +
               '<span class="space-dir__name">' + t.names[id] + '</span>' +
@@ -385,7 +388,7 @@
     var menuBody = this.panel.querySelector('[data-panel-menu-body]');
     var menuTitle = this.panel.querySelector('[data-panel-menu-title]');
 
-    if (no) no.textContent = floor + 'F';
+    if (no) no.textContent = (t.nos && t.nos[floor]) || (floor + 'F');
     if (title) title.textContent = t.names[floor];
 
     var key = 'space_' + floor + 'f_' + this.lang;

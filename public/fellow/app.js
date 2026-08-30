@@ -12,14 +12,6 @@ const GIFT_POINTS = 20000;    // 會籍贈點（一年效期）
 const SLOTS = 100;            // 創始名額
 const TARGET = PRICE * SLOTS; // 預收會費總額 NT$3,500,000
 
-// 依 CIS：墨階色帶 + 唯一黃（標示最大占比）
-const FUND_USE = [
-  { name: '工程與家具', amount: 1500000, pct: 43, color: '#FFDE34', note: '二、三樓空間整備、休憩席（膠囊）設備、家具與燈光網路' },
-  { name: '開幕週轉',   amount: 1000000, pct: 29, color: '#1B1A17', note: '開幕初期人事、租金、水電與營運週轉' },
-  { name: '數位系統',   amount: 500000,  pct: 14, color: '#6E685E', note: '人臉辨識門禁、會員系統、點數與進出管理' },
-  { name: '社群啟動',   amount: 500000,  pct: 14, color: '#A79F92', note: '開幕前社群活動、創始晚餐、國際連結與品牌推廣' },
-];
-
 /* ---------- 工具 ---------- */
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -124,17 +116,6 @@ const memberCount = () => Math.min(SLOTS, Math.floor(confirmedRaised() / PRICE))
 /* =========================================================================
    渲染：靜態區塊
    ========================================================================= */
-function renderFundUse() {
-  const bar = $('#fundbar'), legend = $('#fund-legend'), tbody = $('#fund-table');
-  if (!bar) return;
-  bar.innerHTML = FUND_USE.map(f =>
-    `<span style="flex:${f.pct};background:${f.color}" title="${f.name} ${f.pct}%">${f.pct}%</span>`).join('');
-  legend.innerHTML = FUND_USE.map(f =>
-    `<div class="li"><span class="sw" style="background:${f.color}"></span>${f.name}<span class="amt">${NT(f.amount)}</span></div>`).join('');
-  tbody.innerHTML = FUND_USE.map(f =>
-    `<tr><td>${f.name}</td><td class="num">${NT(f.amount)}</td><td class="num">${f.pct}%</td><td>${f.note}</td></tr>`).join('');
-}
-
 const REVEAL_AT = 10;   // 低於此人數不顯示空進度條（0% 是負面社會證明），改質性文案
 function renderProgress() {
   const count = memberCount();
@@ -186,7 +167,7 @@ const CONTRACT_HTML = `
 <h4>第二條　贈點與兌換規則</h4>
 <p>乙方於付款成功時獲贈點數 20,000 點（每點 1 元，預設一年效期），得兌換二樓淋浴、膠囊休憩席與娛樂室等指定服務（淋浴 70 點／次；膠囊休憩席與娛樂室各 100 點／小時，須為 Active 會員）。贈點不得轉讓、不得折換現金；購買點另依點數規則辦理。</p>
 <h4>第三條　會費與付款</h4>
-<p>創始會費為新台幣 35,000 元整（固定，與一般年費同牌價），以匯款方式一次付清；甲方對帳確認入帳後，核發創始會員證並保留創始編號（001–100）。</p>
+<p>創始會費為新台幣 35,000 元整（固定，與一般年費同牌價），以線上刷卡或匯款一次付清；甲方對帳確認入帳後，核發創始會員證並保留創始編號（001–100）。</p>
 <h4>第四條　會籍起算日</h4>
 <p>會籍自 2026 年 11 月 1 日正式開幕日起算；若開幕延後，自實際開幕日起算，會籍期間與贈點均不縮減。</p>
 <h4>第五條　條件式服務揭露</h4>
@@ -217,8 +198,8 @@ function prefillJoin() {
 async function submitJoin(e) {
   e.preventDefault();
   const msg = $('#join-msg'); msg.className = 'form-msg';
-  if (!getToken()) { // 受邀制：送出前需先以邀請碼登入
-    msg.textContent = '創始會員為受邀制，請先以邀請碼或 Email 登入後送出。'; msg.classList.add('err');
+  if (!getToken()) { // 送出前需先以邀請碼或 Email 登入
+    msg.textContent = '請先以邀請碼或 Email 登入後送出。'; msg.classList.add('err');
     $('#cover').classList.remove('hidden'); $('#login-input').focus();
     return;
   }
@@ -402,7 +383,7 @@ function renderAgreement(certId) {
     <h4>第二條（贈點與兌換規則）</h4>
     <p>乙方於付款成功時獲贈點數 20,000 點（每點 1 元，預設一年效期），得兌換二樓指定服務；贈點不得轉讓、不得折換現金。</p>
     <h4>第三條（會費與付款）</h4>
-    <p>創始會費為新台幣 ${num(c.amount)} 元整（固定，與一般年費同牌價），乙方以匯款方式一次付清。甲方對帳確認入帳後，核發創始會員證並保留乙方之創始編號（001–100）。</p>
+    <p>創始會費為新台幣 ${num(c.amount)} 元整（固定，與一般年費同牌價），乙方以線上刷卡或匯款一次付清。甲方對帳確認入帳後，核發創始會員證並保留乙方之創始編號（001–100）。</p>
     <h4>第四條（會籍起算日）</h4>
     <p>會籍自 2026 年 11 月 1 日正式開幕日起算；若開幕延後，自實際開幕日起算，會籍期間與贈點均不縮減。系統顯示之起訖日（${fmtDate(c.start_date)} 至 ${fmtDate(c.maturity_date)}）將依實際開幕日調整。</p>
     <h4>第五條（條件式服務揭露）</h4>
