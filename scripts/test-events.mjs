@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import test from 'node:test';
 import { createRequire } from 'node:module';
 
@@ -18,6 +19,12 @@ test('event input accepts a private paid event', () => {
   assert.equal(value.visibility, 'private');
   assert.equal(value.priceTwd, 800);
   assert.equal(value.capacity, 20);
+});
+
+test('datetime-local is interpreted as Taiwan time', () => {
+  const { value } = normalizeEventInput({ title: 'Demo', starts_at: '2026-10-20T19:00' });
+  assert.equal(value.startsAt.toISOString(), '2026-10-20T11:00:00.000Z');
+  assert.match(fs.readFileSync(new URL('../server.js', import.meta.url), 'utf8'), /starts_at AT TIME ZONE 'Asia\/Taipei'/);
 });
 
 test('event input rejects inverted dates and fractional prices', () => {

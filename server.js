@@ -537,10 +537,10 @@ const SEL_C = `id,user_id,amount::bigint,interest_rate,term_years,
   contract_status,payment_status,membership_status,cert_no`;
 const SEL_UPD = `id,title,content,type,to_char(published_at,'YYYY/MM/DD') AS published_at`;
 const SEL_EVENT = `e.id,e.slug,e.title,e.description,e.location,e.capacity,e.price_twd,e.visibility,e.status,
-  to_char(e.starts_at,'YYYY/MM/DD HH24:MI') AS starts_at,
-  e.starts_at AS starts_at_iso,
-  to_char(e.ends_at,'YYYY/MM/DD HH24:MI') AS ends_at,
-  e.ends_at AS ends_at_iso`;
+  to_char(e.starts_at AT TIME ZONE 'Asia/Taipei','YYYY/MM/DD HH24:MI') AS starts_at,
+  to_char(e.starts_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD"T"HH24:MI') AS starts_at_iso,
+  to_char(e.ends_at AT TIME ZONE 'Asia/Taipei','YYYY/MM/DD HH24:MI') AS ends_at,
+  to_char(e.ends_at AT TIME ZONE 'Asia/Taipei','YYYY-MM-DD"T"HH24:MI') AS ends_at_iso`;
 const SEL_ENT = `id,user_id,plan,source,source_id,
   purchased_at, activated_at, starts_at, ends_at`;
 const numify = rows => rows.map(r => ({ ...r, amount: r.amount != null ? Number(r.amount) : r.amount }));
