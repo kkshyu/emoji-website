@@ -19,6 +19,7 @@ const {
 const { signAccessToken, verifyAccessToken } = require('./lib/access-token');
 const { isAdminApiKey, ADMIN_API_KEY_MIN } = require('./lib/admin-key');
 const { eventSlug, normalizeEventInput } = require('./lib/events');
+const { normalizeEventApplication } = require('./lib/event-applications');
 const {
   POINT_PRICE_TWD, PACKS, MEMBERSHIP_GIFT_POINTS,
   addYears, isLotAvailable, availableBalance, planDebit, planRefund, redeemPointsFor,
@@ -191,6 +192,30 @@ CREATE TABLE IF NOT EXISTS events (
   status TEXT DEFAULT '報名中',          -- 草稿 / 報名中 / 已結束
   created_at TIMESTAMPTZ DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS event_applications (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  request_id UUID NOT NULL,
+  request_hash TEXT NOT NULL,
+  community_name TEXT NOT NULL,
+  contact_name TEXT NOT NULL,
+  contact_email TEXT NOT NULL,
+  contact_phone TEXT NOT NULL DEFAULT '',
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  starts_at TIMESTAMPTZ NOT NULL,
+  ends_at TIMESTAMPTZ NOT NULL CHECK (ends_at > starts_at),
+  attendees INT NOT NULL CHECK (attendees BETWEEN 1 AND 10000),
+  requirements TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
+  review_note TEXT NOT NULL DEFAULT '',
+  reviewed_at TIMESTAMPTZ,
+  reviewed_by TEXT,
+  consent_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, request_id)
+);
+CREATE INDEX IF NOT EXISTS event_applications_created_idx ON event_applications(created_at DESC);
 CREATE TABLE IF NOT EXISTS event_regs (
   id TEXT PRIMARY KEY,
   event_id TEXT REFERENCES events(id) ON DELETE CASCADE,
@@ -1520,6 +1545,90 @@ app.delete('/api/admin/updates/:id', auth, adminOnly, requireDb, wrap(async (req
   res.json({ ok: true });
 }));
 
+/* ---- 社群場地申請：個案審核，不建立場地預訂或公開活動 ---- */
+const APPLICATION_FIELDS = `id,user_id,community_name,contact_name,contact_email,contact_phone,
+  title,description,starts_at,ends_at,attendees,requirements,status,review_note,created_at,reviewed_at`;
+
+app.post('/api/event-applications', auth, requireDb, wrap(async (req, res) => {
+  if (!req.auth.sub) return res.status(403).json({ error: '請使用個人帳號登入後申請。' });
+  const requestId = req.body?.request_id;
+  if (typeof requestId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId))
+    return res.status(400).json({ error: '申請識別碼不正確，請重新載入頁面。' });
+  const parsed = normalizeEventApplication(req.body);
+  if (parsed.error) return res.status(400).json({ error: parsed.error });
+  const v = parsed.value;
+  const hash = crypto.createHash('sha256').update(JSON.stringify(v)).digest('hex');
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // 同一帳號的申請序列化，讓重試與頻率限制在多個服務程序間一致。
+    const user = (await client.query('SELECT id FROM users WHERE id=$1 FOR UPDATE', [req.auth.sub])).rows[0];
+    if (!user) { await client.query('ROLLBACK'); return res.status(401).json({ error: '登入已失效，請重新登入。' }); }
+    const old = (await client.query(
+      `SELECT ${APPLICATION_FIELDS},request_hash FROM event_applications WHERE user_id=$1 AND request_id=$2`,
+      [req.auth.sub, requestId])).rows[0];
+    if (old) {
+      await client.query('COMMIT');
+      if (old.request_hash !== hash) return res.status(409).json({ error: '這筆申請已送出，請重新整理查看原申請。' });
+      delete old.request_hash;
+      return res.json({ ok: true, application: old });
+    }
+    if (new Date(v.starts_at).getTime() <= Date.now()) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: '請選擇未來的活動時間。' });
+    }
+    const recent = (await client.query(
+      `SELECT COUNT(*)::int AS n FROM event_applications WHERE user_id=$1 AND created_at>now()-interval '1 hour'`,
+      [req.auth.sub])).rows[0].n;
+    if (recent >= 10) {
+      await client.query('ROLLBACK');
+      return res.status(429).json({ error: '申請送出過於頻繁，請稍後再試。' });
+    }
+    const application = (await client.query(
+      `INSERT INTO event_applications
+       (id,user_id,request_id,request_hash,community_name,contact_name,contact_email,contact_phone,
+        title,description,starts_at,ends_at,attendees,requirements)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING ${APPLICATION_FIELDS}`,
+      [uid('ea_'),req.auth.sub,requestId,hash,v.community_name,v.contact_name,v.contact_email,v.contact_phone,
+        v.title,v.description,v.starts_at,v.ends_at,v.attendees,v.requirements])).rows[0];
+    await client.query('COMMIT');
+    res.status(201).json({ ok: true, application });
+  } catch (err) { await client.query('ROLLBACK'); throw err; }
+  finally { client.release(); }
+}));
+
+app.get('/api/me/event-applications', auth, requireDb, wrap(async (req, res) => {
+  if (!req.auth.sub) return res.status(403).json({ error: '請使用個人帳號登入。' });
+  res.set('Cache-Control', 'no-store');
+  const applications = (await q(
+    `SELECT ${APPLICATION_FIELDS} FROM event_applications WHERE user_id=$1 ORDER BY created_at DESC`,
+    [req.auth.sub])).rows;
+  res.json({ applications });
+}));
+
+app.get('/api/admin/event-applications', auth, adminOnly, requireDb, wrap(async (_req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const applications = (await q(`SELECT ${APPLICATION_FIELDS} FROM event_applications ORDER BY created_at DESC`)).rows;
+  res.json({ applications });
+}));
+
+app.post('/api/admin/event-applications/:id/review', auth, adminOnly, requireDb, wrap(async (req, res) => {
+  const b = req.body || {};
+  if (!['approved','rejected'].includes(b.status) || b.expected_status !== 'pending')
+    return res.status(400).json({ error: '請選擇通過或未通過，且只可審核待審申請。' });
+  if (typeof b.review_note !== 'string' || b.review_note.includes('\0') || !b.review_note.trim() || b.review_note.trim().length > 2000)
+    return res.status(400).json({ error: '請填寫給申請人的審核回覆（2000 字以內）。' });
+  const application = (await q(
+    `UPDATE event_applications SET status=$2,review_note=$3,reviewed_at=now(),reviewed_by=$4
+     WHERE id=$1 AND status='pending' RETURNING ${APPLICATION_FIELDS}`,
+    [req.params.id,b.status,b.review_note.trim(),req.auth.agent ? 'admin-api-key' : req.auth.sub])).rows[0];
+  if (!application) {
+    const exists = (await q('SELECT id FROM event_applications WHERE id=$1', [req.params.id])).rows.length;
+    return res.status(exists ? 409 : 404).json({ error: exists ? '此申請已完成審核，請重新載入。' : '找不到這筆申請。' });
+  }
+  res.json({ ok: true, application });
+}));
+
 /* ---- 活動管理：建/改/刪、名單、退款與簽到 ---- */
 app.post('/api/admin/events', auth, adminOnly, requireDb, wrap(async (req, res) => {
   const b = req.body || {};
@@ -2166,6 +2275,8 @@ for (const pre of ['', 'en', 'ja']) {
 }
 // 活動列表與詳情共用單一前端；詳情由 API 依 slug 讀取。私人連結不會出現在列表。
 const EVENTS_PAGE = path.join(PUB, 'events.html');
+app.get(['/event-application', '/en/event-application', '/ja/event-application'], (req, res) =>
+  sendPage(res, path.join(PUB, 'event-application.html'), req.path));
 app.get(['/events', '/en/events', '/ja/events'], (req, res) => sendPage(res, EVENTS_PAGE, req.path));
 app.get(['/events/:slug', '/en/events/:slug', '/ja/events/:slug'], (req, res) => {
   res.set('X-Robots-Tag', 'noindex');

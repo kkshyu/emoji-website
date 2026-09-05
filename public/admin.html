@@ -59,6 +59,16 @@
   .a-empty{color:var(--muted);padding:14px 0}
   .btn-sm{padding:.5em 1em;font-size:.85rem}
   .a-regs{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
+  .application-card{border-top:1px solid var(--line);padding:18px 0;overflow-wrap:anywhere}
+  .application-card h3{font-family:var(--serif);font-size:1.05rem;margin:0 0 12px}
+  .application-details{display:grid;grid-template-columns:7em minmax(0,1fr);gap:8px 12px;font-size:.88rem;margin:0 0 16px}
+  .application-details dt{color:var(--muted)}
+  .application-details dd{margin:0;white-space:pre-wrap}
+  .application-review label{width:100%;min-width:0}
+  .application-review textarea{box-sizing:border-box;width:100%;min-height:88px}
+  .application-message{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.88rem;margin-bottom:14px}
+  @media(max-width:480px){.application-details{grid-template-columns:1fr;gap:3px}.application-details dd{margin-bottom:9px}}
+
   .a-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);opacity:0;
     background:var(--ink);color:var(--paper);padding:.8em 1.4em;border-radius:999px;font-size:.9rem;
     transition:.25s;pointer-events:none;z-index:50}
@@ -168,6 +178,11 @@ let MENU_DOC = null;
 let MENU_DIRTY = false;
 let MENU_DIRTY_TOASTED = false;
 let MENU_SEEDED = false;
+/* 場地申請按需載入；審核草稿跨分頁、refresh 保留。 */
+let APPLICATIONS = null, APPLICATION_FILTER = 'pending', APPLICATION_LOADING = false;
+let APPLICATION_REVIEWING = '', APPLICATION_MESSAGE = '';
+const APPLICATION_DRAFTS = new Map();
+
 /* 社群經營分頁狀態（資料按需載入；編輯狀態存全域，refresh 重繪不遺失） */
 let SOCIAL_POSTS = null;          // null=未載入
 let SOCIAL_VIEW = 'calendar';     // list | calendar | edit | igstudio | xstudio（預設月曆）
@@ -199,7 +214,7 @@ async function api(path, { method='GET', body } = {}) {
     body: body ? JSON.stringify(body) : undefined,
   });
   let d={}; try{ d=await res.json(); }catch(e){}
-  if (!res.ok) throw new Error(d.error || ('伺服器錯誤（'+res.status+'）'));
+  if (!res.ok) throw Object.assign(new Error(d.error || ('伺服器錯誤（'+res.status+'）')), {status:res.status});
   return d;
 }
 
@@ -277,7 +292,7 @@ function tabOverview(d, x){
   </div>
   <div class="a-sec">
     <h2>快速指引</h2>
-    <p class="hint">此後台管理創始會員計畫與官網前台內容。左側分頁：<b>會員</b>可搜尋與匯出名單；<b>參與紀錄</b>確認會費入帳；<b>活動</b>建立並查看報名；<b>最新消息</b>會公開顯示於官網首頁；<b>網站內容</b>可編輯首頁公告；<a href="/access-mock" target="_blank" rel="noopener">門禁 Mock</a> 可協助手動驗簽與掃碼啟用。</p>
+    <p class="hint">此後台管理創始會員計畫與官網前台內容。左側分頁：<b>會員</b>可搜尋與匯出名單；<b>參與紀錄</b>確認會費入帳；<b>活動</b>建立並查看報名；<b>場地申請</b>審核社群申請並聯絡確認；<b>最新消息</b>會公開顯示於官網首頁；<b>網站內容</b>可編輯首頁公告；<a href="/access-mock" target="_blank" rel="noopener">門禁 Mock</a> 可協助手動驗簽與掃碼啟用。</p>
   </div>`;
 }
 
@@ -383,6 +398,116 @@ function tabEvents(d){
       <tbody>${body}</tbody></table></div>
     <div id="ev-regs" class="a-regs" style="display:none"></div>
   </div>`;
+}
+
+function tabApplications(){
+  return '<div class="a-sec" id="applications-body"></div>';
+}
+
+function applicationTime(iso){
+  const date = iso ? new Date(iso) : null;
+  return date && !isNaN(date) ? date.toLocaleString('zh-TW', {timeZone:'Asia/Taipei', hour12:false}) : '—';
+}
+
+function paintApplications(){
+  const host = document.getElementById('applications-body');
+  if (!host) return;
+  const pending = (APPLICATIONS || []).filter(a=>a.status==='pending').length;
+  const badge = document.querySelector('[data-application-count]');
+  if (badge) { badge.hidden = APPLICATIONS === null; badge.textContent = `待審 ${pending}`; }
+  const busy = APPLICATION_LOADING || !!APPLICATION_REVIEWING;
+  const labels = {pending:'待審', approved:'通過', rejected:'未通過'};
+  const rows = (APPLICATIONS || []).filter(a=>!APPLICATION_FILTER || a.status===APPLICATION_FILTER);
+  const cards = rows.map(a=>`<article class="application-card">
+    <h3>${esc(a.title)} <span class="pill ${a.status==='approved'?'pill-ok':'pill-wait'}">${esc(labels[a.status] || a.status)}</span></h3>
+    <dl class="application-details">
+      <dt>申請社群</dt><dd>${esc(a.community_name)}</dd>
+      <dt>聯絡人</dt><dd>${esc(a.contact_name)}</dd>
+      <dt>Email</dt><dd>${esc(a.contact_email)}</dd>
+      <dt>電話</dt><dd>${esc(a.contact_phone || '未提供')}</dd>
+      <dt>活動時間</dt><dd>${esc(applicationTime(a.starts_at))} 至 ${esc(applicationTime(a.ends_at))}（台灣時間）</dd>
+      <dt>預估人數</dt><dd>${esc(a.attendees)} 人</dd>
+      <dt>活動說明</dt><dd>${esc(a.description)}</dd>
+      <dt>場地與設備需求</dt><dd>${esc(a.requirements || '未填寫')}</dd>
+      <dt>申請時間</dt><dd>${esc(applicationTime(a.created_at))}（台灣時間）</dd>
+      ${a.status!=='pending'?`<dt>審核時間</dt><dd>${esc(applicationTime(a.reviewed_at))}（台灣時間）</dd><dt>審核回覆</dt><dd>${esc(a.review_note || '—')}</dd>`:''}
+    </dl>
+    ${a.status==='pending'?`<form class="a-form application-review" data-application-review="${esc(a.id)}">
+      <label>審核回覆（必填，申請者會看到）
+        <textarea name="review_note" required maxlength="2000" ${APPLICATION_REVIEWING===a.id?'readonly':''} placeholder="請填寫給申請社群的審核理由與後續聯絡事項">${esc(APPLICATION_DRAFTS.get(a.id) || '')}</textarea>
+      </label>
+      <button class="btn btn--solid btn-sm" type="submit" data-status="approved" ${busy?'disabled':''}>${APPLICATION_REVIEWING===a.id?'送出中…':'通過申請'}</button>
+      <button class="btn btn--ghost btn-sm" type="submit" data-status="rejected" ${busy?'disabled':''}>不通過申請</button>
+    </form>`:APPLICATION_DRAFTS.has(a.id)?`<details><summary>未送出的審核草稿</summary><p style="white-space:pre-wrap">${esc(APPLICATION_DRAFTS.get(a.id))}</p></details>`:''}
+  </article>`).join('');
+  host.setAttribute('aria-busy', String(busy));
+  host.innerHTML = `<h2>場地申請 <span class="pill pill-wait">${APPLICATIONS===null?'待審數尚未載入':`待審 ${pending} 件`}</span></h2>
+    <p class="hint">通過代表申請審核通過。檔期與費用仍須書面確認，不會自動保留場地或建立公開活動；請另行聯絡申請社群。</p>
+    <div class="a-toolbar">
+      <label>審核狀態 <select id="application-filter" ${busy?'disabled':''}>
+        ${Object.entries({pending:'待審',approved:'通過',rejected:'未通過','':'全部'}).map(([value,label])=>`<option value="${value}" ${APPLICATION_FILTER===value?'selected':''}>${label}</option>`).join('')}
+      </select></label>
+      <button class="btn btn--ghost btn-sm" id="application-reload" ${busy?'disabled':''}>${APPLICATION_LOADING?'載入中…':'重新載入'}</button>
+    </div>
+    <p class="application-message" role="status" aria-live="polite">${esc(APPLICATION_MESSAGE)}</p>
+    ${cards || `<p class="a-empty">${APPLICATION_LOADING?'載入申請中…':APPLICATIONS===null?'尚未取得申請資料，請重新載入。':'目前沒有符合篩選條件的申請。'}</p>`}`;
+  document.getElementById('application-filter').onchange = e=>{ APPLICATION_FILTER=e.target.value; paintApplications(); };
+  document.getElementById('application-reload').onclick = ()=>loadApplications();
+  host.querySelectorAll('[data-application-review]').forEach(form=>{
+    form.elements.review_note.oninput = e=>APPLICATION_DRAFTS.set(form.dataset.applicationReview, e.target.value);
+    form.onsubmit = e=>{
+      e.preventDefault();
+      reviewApplication(form, e.submitter?.dataset.status);
+    };
+  });
+}
+
+async function loadApplications(message=''){
+  if (APPLICATION_LOADING) return;
+  APPLICATION_LOADING = true;
+  APPLICATION_MESSAGE = message;
+  paintApplications();
+  try {
+    const data = await api('/admin/event-applications');
+    if (!Array.isArray(data.applications)) throw new Error('申請資料格式不正確，請重新載入。');
+    APPLICATIONS = data.applications;
+  } catch(e) {
+    APPLICATION_MESSAGE = (message ? message+' ' : '')+'載入失敗：'+e.message;
+  } finally {
+    APPLICATION_LOADING = false;
+    paintApplications();
+  }
+}
+
+async function reviewApplication(form, status){
+  if (APPLICATION_REVIEWING || APPLICATION_LOADING || !['approved','rejected'].includes(status)) return;
+  const id = form.dataset.applicationReview;
+  const note = form.elements.review_note;
+  APPLICATION_DRAFTS.set(id, note.value);
+  if (!note.value.trim() || note.value.trim().length>2000) {
+    note.setCustomValidity('請填寫 1 至 2000 字的審核回覆。');
+    note.reportValidity();
+    note.oninput = e=>{ note.setCustomValidity(''); APPLICATION_DRAFTS.set(id,e.target.value); };
+    return;
+  }
+  APPLICATION_REVIEWING = id;
+  APPLICATION_MESSAGE = '';
+  paintApplications();
+  try {
+    const data = await api('/admin/event-applications/'+encodeURIComponent(id)+'/review', {
+      method:'POST', body:{status, review_note:note.value.trim(), expected_status:'pending'},
+    });
+    if (data.ok!==true || data.application?.id!==id || data.application.status!==status) throw new Error('無法確認審核結果，請重新載入確認；草稿已保留。');
+    APPLICATIONS = APPLICATIONS.map(a=>a.id===id?data.application:a);
+    APPLICATION_DRAFTS.delete(id);
+    APPLICATION_MESSAGE = status==='approved'?'已通過申請；請另行聯絡社群，書面確認檔期與費用。':'已將申請標記為未通過；請另行聯絡申請社群。';
+  } catch(e) {
+    APPLICATION_MESSAGE = '審核未完成：'+e.message+' 審核草稿已保留。';
+    if (e.status===409) await loadApplications('此申請狀態已變更；未送出的審核草稿仍保留，可切換篩選查看。');
+  } finally {
+    APPLICATION_REVIEWING = '';
+    paintApplications();
+  }
 }
 
 function tabUpdates(d){
@@ -527,6 +652,7 @@ const TABS = [
   { id:'members',     label:'會員',     render:tabMembers },
   { id:'commitments', label:'參與紀錄', render:tabCommitments },
   { id:'events',      label:'活動',     render:tabEvents },
+  { id:'applications',label:'場地申請', render:tabApplications },
   { id:'updates',     label:'最新消息', render:tabUpdates },
   { id:'menu',        label:'菜單',     render:tabMenu },
   { id:'content',     label:'網站內容', render:tabContent },
@@ -556,7 +682,7 @@ function render(d){
   const tabs = TABS.filter(t => !t.super || d.super);
   if (!tabs.find(t=>t.id===TAB)) TAB='overview';
   const nav = tabs.map(t=>{
-    const badge = t.id==='events' && (d.events||[]).length ? `<span class="badge">${d.events.length}</span>` : '';
+    const badge = t.id==='applications' ? '<span class="badge" data-application-count hidden></span>' : t.id==='events' && (d.events||[]).length ? `<span class="badge">${d.events.length}</span>` : '';
     return `<button data-tab="${t.id}" class="${t.id===TAB?'on':''}">${t.label}${badge}</button>`;
   }).join('');
   const panels = tabs.map(t=>`<div class="a-tab ${t.id===TAB?'on':''}" data-panel="${t.id}">${t.render(d,x)}</div>`).join('');
@@ -594,6 +720,7 @@ function applyRoute(){
   const tab = parts[0];
   if (!document.querySelector(`[data-panel="${CSS.escape(tab)}"]`)) return;
   activateTab(tab);
+  if (tab === 'applications') { if (APPLICATIONS===null) loadApplications(); else paintApplications(); return; }
   if (tab === 'ads') { paintAds(); return; }
   if (tab !== 'social') return;
   const v = parts[1] || SOCIAL_VIEW;
@@ -745,6 +872,7 @@ function bind(d, x){
   }
   // 廣告總覽：refresh 後重繪（資料未載入時由 paintAds 觸發載入）
   if (ADS_CAMPS !== null || TAB === 'ads') paintAds();
+  paintApplications();
 }
 
 /* ---------- 菜單：局部重繪 + 綁定（不觸發整頁 refresh，避免遺失未存檔編輯） ---------- */

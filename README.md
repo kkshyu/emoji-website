@@ -11,6 +11,7 @@
 | `/member` | 會員專區（進出 QR、點數錢包、購點／兌換／退款） |
 | `/admin` | 後台（會籍、發點、活動、內容） |
 | `/events`、`/en/events`、`/ja/events` | 公開活動列表；私人活動以不列出的直接連結分享 |
+| `/event-application`、`/en/event-application`、`/ja/event-application` | 社群提出三樓場地活動申請、查詢自己的申請與審核回覆 |
 
 前端靜態檔全部在 `public/`（`public/fellow/` 為 fellow 前端），伺服器源碼（`server.js`、`package.json`）不外露。
 
@@ -54,10 +55,18 @@ DB 未設定時伺服器優雅降級：靜態頁照常，`/api/*` 回 503。
 
 ## 部署提醒
 
+- 社群場地申請沿用 Google 登入及 Postgres，無需付費會籍；啟動時自動建立 `event_applications`。後台「場地申請」分頁處理通過／未通過，回覆供申請人登入查看。送出與審核通過都不代表完成檔期預訂，亦不會自動發布活動或寄信。
+
 - Google OAuth：Console 的授權導回 URI 需設為 `https://www.emoji.tw/auth/google/callback`。
 - Stripe 結帳成功／取消導回同站的會籍或活動詳情頁。
 - Stripe Dashboard 需將 `checkout.session.completed`、`checkout.session.async_payment_succeeded`、`checkout.session.expired` 送至 `https://www.emoji.tw/api/stripe/webhook`。
 
+
+## 社群場地申請驗證
+
+2026-09-06：本機完成三語申請、草稿與重送保護、查詢及後台審核。以隔離 PostgreSQL 實測儲存、權限隔離、併發重送與審核衝突，並用 Chrome 走完送件 → 審核 → 申請人查看回覆；390px 手機頁面無水平溢出。本機驗證完成。
+
+`npm test` 包含輸入驗證及前台錯誤恢復測試。另設 `EVENT_APPLICATION_TEST_DATABASE_URL` 為本機 PostgreSQL URL 可執行資料庫整合測試；測試會建立及清除自己的隨機 schema，不載入正式環境設定。2026-09-06：隔離發布版完整測試為 220 通過、0 失敗、0 略過；其中本次申請功能的輸入、前台與 PostgreSQL 整合測試共 15 項通過。
 
 ## 會員點數（摘要）
 

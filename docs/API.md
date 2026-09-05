@@ -91,6 +91,12 @@ Google 授權回呼，簽發會員 token 並導回。
 
 ## 後台管理（需管理員或 agent 金鑰）
 
+### GET /api/admin/event-applications
+讀取社群場地申請及聯絡資料，回 `{ applications }`。僅管理員可讀，不會加入公開活動清單。
+
+### POST /api/admin/event-applications/:id/review
+審核待審申請。body：`{ status: "approved" | "rejected", review_note, expected_status: "pending" }`，回 `{ ok, application }`。回覆必填、最多 2000 字，申請人可見。不存在回 404；已審核或其他管理員先完成時回 409，不覆蓋既有結果。保存審核者與時間。審核通過不會自動保留場地、收費或建立／發布活動；檔期、費用與合作條件仍須書面確認。
+
 ### POST /api/admin/updates
 新增或更新最新消息。body：`{ id?, title, content, type, date }`。
 `type` 限：`月報`｜`季報`｜`重大事項`｜`活動通知`｜`財務摘要`（不合法則存為 `重大事項`）。
@@ -223,6 +229,21 @@ X 貼文 AI 起草：body `{ topic }`，回 `{ ok, draft: { title, caption, capt
 
 ### POST /api/commitments
 送出參與（創始會籍）申請。
+
+### POST /api/event-applications
+登入帳號提出三樓活動空間申請，不需付費會籍；agent 金鑰沒有申請人身分，回 403。
+
+body：`{ request_id, community_name, contact_name, contact_email, contact_phone?, title, description, starts_at, ends_at, attendees, requirements?, consent: true }`。
+
+- `request_id`：前端產生的 UUID；相同帳號與識別碼重試只會保存一次。同內容回原申請（200），不同內容回 409；新申請回 201。回應為 `{ ok, application }`。
+- 名稱長度上限：社群 120、聯絡人 80、Email 254、電話 40、活動名稱 160；活動內容 5000、需求 2000 字。電話與需求可留空，其餘必填；Email 必須有效。
+- `starts_at`／`ends_at`：台灣時間 `YYYY-MM-DDTHH:mm`，必須是真實日期、開始晚於現在、結束晚於開始。回應日期為 ISO 8601。
+- `attendees`：1–10000 整數，僅是預估人數，不代表場地容納量或核准人數。
+- 需明確同意須知，保存同意時間；伺服器固定初始狀態為 `pending`，忽略自訂審核與申請人欄位。
+- 每帳號每小時最多新增 10 筆，超過回 429；同筆重試不佔額度。資料庫未就緒回 503，不回報成功。
+
+### GET /api/me/event-applications
+讀取登入帳號自己的申請，回 `{ applications }`，包含申請內容、`id`、`status`（`pending`／`approved`／`rejected`）、`review_note`、`created_at` 與 `reviewed_at`。不接受指定其他使用者，agent 金鑰回 403；不在公開 API 提供申請或聯絡資料。
 
 ### POST /api/events/:id/register
 報名活動。body：`{ note?, lang? }`。免費票立即成立；付費票建立或沿用未過期的 Stripe Checkout，回 `{ url }`。付費活動未設定 `STRIPE_WEBHOOK_SECRET` 時 fail closed 回 503。
