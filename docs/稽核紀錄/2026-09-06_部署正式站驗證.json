@@ -1,0 +1,715 @@
+{
+  "checkedAt": "2026-09-05T19:32:23.072Z",
+  "origin": "https://www.emoji.tw",
+  "requests": [
+    {
+      "path": "/",
+      "status": 200,
+      "milliseconds": 259,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "milliseconds": 232,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/system",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/space",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/events",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/member",
+      "status": 200,
+      "milliseconds": 97,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/access",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/fellow",
+      "status": 200,
+      "milliseconds": 77,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/partner",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/startup",
+      "status": 200,
+      "milliseconds": 84,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/cis/",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/event-application",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/menu",
+      "status": 301,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/",
+      "status": 200,
+      "milliseconds": 76,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/about",
+      "status": 200,
+      "milliseconds": 82,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/system",
+      "status": 200,
+      "milliseconds": 80,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/space",
+      "status": 200,
+      "milliseconds": 76,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/events",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/member",
+      "status": 200,
+      "milliseconds": 77,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/access",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/fellow",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/partner",
+      "status": 200,
+      "milliseconds": 77,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/startup",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/cis/",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/event-application",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/en/menu",
+      "status": 301,
+      "milliseconds": 76,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/",
+      "status": 200,
+      "milliseconds": 84,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/about",
+      "status": 200,
+      "milliseconds": 81,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/system",
+      "status": 200,
+      "milliseconds": 82,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/space",
+      "status": 200,
+      "milliseconds": 84,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/events",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/member",
+      "status": 200,
+      "milliseconds": 95,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/access",
+      "status": 200,
+      "milliseconds": 81,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/fellow",
+      "status": 200,
+      "milliseconds": 80,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/partner",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/startup",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/cis/",
+      "status": 200,
+      "milliseconds": 77,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/event-application",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/ja/menu",
+      "status": 301,
+      "milliseconds": 77,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": null,
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": "no-store",
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/api/public",
+      "status": 200,
+      "milliseconds": 99,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": "no-store",
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/api/state",
+      "status": 401,
+      "milliseconds": 77,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": "no-store",
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/api/admin/event-applications",
+      "status": 401,
+      "milliseconds": 76,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": "no-store",
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/vendor/marked.js",
+      "status": 200,
+      "milliseconds": 77,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": "public, max-age=0",
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/vendor/purify.min.js",
+      "status": 200,
+      "milliseconds": 76,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": "public, max-age=0",
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/space-dir.js",
+      "status": 200,
+      "milliseconds": 79,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": "public, max-age=0",
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/fellow/app.js",
+      "status": 200,
+      "milliseconds": 78,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": "public, max-age=0",
+        "x-powered-by": null
+      }
+    },
+    {
+      "path": "/nav.js",
+      "status": 200,
+      "milliseconds": 77,
+      "headers": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "SAMEORIGIN",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+        "strict-transport-security": "max-age=31536000",
+        "cache-control": "public, max-age=0",
+        "x-powered-by": null
+      }
+    }
+  ],
+  "assets": [
+    {
+      "path": "/vendor/marked.js",
+      "sha256": "69451c8541c9c1e7a4bf3ffc6f73c4d89633de92bfbe3e484dfe182ef8091f88",
+      "matchesRelease": true
+    },
+    {
+      "path": "/vendor/purify.min.js",
+      "sha256": "c2f26ea4fc0d88141c9aa430eb515ac86fce59418ceebd85fa475b87a8d6c3e6",
+      "matchesRelease": true
+    },
+    {
+      "path": "/space-dir.js",
+      "sha256": "0585791ed7ae1e3415d3f73a8465255c62cba99c5c410c3eb8de7d598423dfff",
+      "matchesRelease": true
+    },
+    {
+      "path": "/fellow/app.js",
+      "sha256": "95e1f5c8740f861ea8b83768896886b78d23f440d04635cac7e1f4dec1e96a1d",
+      "matchesRelease": true
+    },
+    {
+      "path": "/nav.js",
+      "sha256": "a88b32eb067ea0ea281d9f67ff6aec08a747154768d5b26cbd9e1c654497c0d2",
+      "matchesRelease": true
+    }
+  ],
+  "failures": [],
+  "health": {
+    "ok": true,
+    "db": true,
+    "dbConfigured": true
+  },
+  "publicContent": {
+    "hasIgAccessToken": false,
+    "credentialKeyPresent": false
+  }
+}
