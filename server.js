@@ -2421,6 +2421,11 @@ function menuToSpace(req, res) {
   res.redirect(301, `${base}#menu`);
 }
 app.get(['/menu', '/menu/', '/en/menu', '/en/menu/', '/ja/menu', '/ja/menu/'], menuToSpace);
+// 後台 SPA：一般路徑路由（/admin/members、/admin/social/edit/:id…）皆回同一頁，前端依 pathname 切換分頁；
+// 舊 /admin.html 轉 301 至 /admin（瀏覽器保留 #hash，前端再轉為路徑）
+const ADMIN_PAGE = path.join(PUB, 'admin.html');
+app.get('/admin.html', (_req, res) => res.redirect(301, '/admin'));
+app.get(['/admin', '/admin/*'], (_req, res) => { res.set('X-Robots-Tag', 'noindex'); res.sendFile(ADMIN_PAGE); });
 // 含 <!--SITE_HEADER--> 的 HTML（member、menu、語系首頁…）在 static 前組裝
 app.use(layoutMiddleware(PUB));
 app.use('/fellow', express.static(path.join(PUB, 'fellow'), { extensions: ['html'] }));

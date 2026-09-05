@@ -9,7 +9,7 @@
 | `/fellow` | 言文字創始會員站（一頁式 SPA，含登入／會員儀表板／後台／Stripe 結帳） |
 | `/api/*`、`/auth/google/*` | 後端 REST API 與 Google 登入；資料存 Postgres |
 | `/member` | 會員專區（進出 QR、點數錢包、購點／兌換／退款） |
-| `/admin` | 後台（會籍、發點、活動、內容） |
+| `/admin`、`/admin/*` | 後台（會籍、發點、活動、內容、社群、廣告）；每個分頁為一般路徑（`/admin/members`、`/admin/social/edit/:id`…），伺服器對 `/admin/*` 皆回同一頁；舊 `/admin#tab` 書籤自動轉為路徑 |
 | `/events`、`/en/events`、`/ja/events` | 公開活動列表；私人活動以不列出的直接連結分享 |
 | `/event-application`、`/en/event-application`、`/ja/event-application` | 社群提出三樓場地活動申請、查詢自己的申請與審核回覆 |
 
@@ -64,9 +64,11 @@ DB 未設定時伺服器優雅降級：靜態頁照常，`/api/*` 回 503。
 
 ## 社群場地申請驗證
 
-2026-09-06：本機完成三語申請、草稿與重送保護、查詢及後台審核。以隔離 PostgreSQL 實測儲存、權限隔離、併發重送與審核衝突，並用 Chrome 走完送件 → 審核 → 申請人查看回覆；390px 手機頁面無水平溢出。本機驗證完成。
+2026-09-06：本機完成三語申請、草稿與重送保護、查詢及後台審核。以隔離 PostgreSQL 實測儲存、權限隔離、併發重送與審核衝突，並用 Chrome 走完送件 → 審核 → 申請人查看回覆；390px 手機頁面無水平溢出。
 
-`npm test` 包含輸入驗證及前台錯誤恢復測試。另設 `EVENT_APPLICATION_TEST_DATABASE_URL` 為本機 PostgreSQL URL 可執行資料庫整合測試；測試會建立及清除自己的隨機 schema，不載入正式環境設定。2026-09-06：隔離發布版完整測試為 220 通過、0 失敗、0 略過；其中本次申請功能的輸入、前台與 PostgreSQL 整合測試共 15 項通過。
+正式版本 `8fa5ee24f6cfa25a511f6f7989e36a363627f661` 已於 Zeabur 運行（RUNNING）。正式容器的後端、申請驗證模組、申請頁及管理頁 SHA-256 與發行版一致；健康檢查 `db=true`，管理申請清單唯讀查詢回應 200、`Cache-Control: no-store`，查核時共 0 筆。完整送件及審核流程僅在上述隔離環境實測，未對正式環境執行送件或審核寫入。
+
+`npm test` 包含輸入驗證及前台錯誤恢復測試。另設 `EVENT_APPLICATION_TEST_DATABASE_URL` 為本機 PostgreSQL URL 可執行資料庫整合測試；測試會建立及清除自己的隨機 schema，不載入正式環境設定。2026-09-06 本次隔離發行版本 `8fa5ee24` 完整測試結果：220 通過、0 失敗、0 略過。
 
 ## 會員點數（摘要）
 
