@@ -446,11 +446,17 @@
   }, {rootMargin:'-30% 0px -55% 0px', threshold:0});
   sections.forEach(function(s){ tocIo.observe(s); });
   document.querySelectorAll('.cis-swatch').forEach(function(btn){
-    btn.addEventListener('click', function(){
+    btn.addEventListener('click', async function(){
       var hex = btn.getAttribute('data-hex');
       if(!hex) return;
-      var done = function(){ btn.classList.add('is-copied'); setTimeout(function(){ btn.classList.remove('is-copied'); }, 1400); };
-      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(hex).then(done).catch(done); } else { done(); }
+      btn.classList.remove('is-copied');
+      try {
+        await navigator.clipboard.writeText(hex);
+        btn.classList.add('is-copied');
+        setTimeout(function(){ btn.classList.remove('is-copied'); }, 1400);
+      } catch(e) {
+        window.prompt('自動コピーできませんでした。次のカラーコードを手動でコピーしてください：', hex);
+      }
     });
   });
 })();

@@ -511,11 +511,11 @@ async function init() {
   });
   // 手機漢堡選單由共用 nav.js 處理（共用導覽列）
   bindGo(document);
-  await fetchPublic();   // 只更新首頁「已加入 N 名」進度
   // 深連結：/fellow#why-now 進站即開對應 view；並監聽 hash 變化（導覽下拉點選）
   const hv = location.hash.slice(1);
   go(VIEWS.includes(hv) ? hv : 'home');
   addEventListener('hashchange', () => { const v = location.hash.slice(1); go(VIEWS.includes(v) ? v : 'home'); });
+  fetchPublic();   // 進度在背景更新，不讓 API 延遲阻塞導覽與進場顯示。
 }
 
 document.addEventListener('DOMContentLoaded', init);

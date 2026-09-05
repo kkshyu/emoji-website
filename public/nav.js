@@ -5,6 +5,11 @@
   var nav = document.getElementById('nav');
   var toggle = document.getElementById('navToggle');
   var links = document.getElementById('navLinks');
+  function closeDropdown(dd) {
+    dd.classList.remove('open');
+    var button = dd.querySelector('.site-nav__dd-top');
+    if (button) button.setAttribute('aria-expanded', 'false');
+  }
 
   // 已登入時導覽列顯示會員名稱（token payload / 快取 / /api/state）
   var member = document.getElementById('navMember');
@@ -62,6 +67,7 @@
         ? (toggle.dataset.labelClose || 'Close menu')
         : (toggle.dataset.labelOpen || 'Open menu'));
       toggle.textContent = open ? '✕' : '☰';
+      if (!open) document.querySelectorAll('.site-nav__dd.open').forEach(closeDropdown);
     };
     toggle.addEventListener('click', function () {
       setMenu(!links.classList.contains('open'));
@@ -73,9 +79,10 @@
     // Esc 關閉手機選單並收合下拉
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
+        var wasOpen = links.classList.contains('open');
         setMenu(false);
-        document.querySelectorAll('.site-nav__dd.open').forEach(function (d) { d.classList.remove('open'); });
-        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+        if (wasOpen) toggle.focus();
+        else if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
       }
     });
   }
@@ -89,7 +96,7 @@
       if (!dd) return;
       if (btn.tagName === 'BUTTON') e.preventDefault();
       var willOpen = !dd.classList.contains('open');
-      document.querySelectorAll('.site-nav__dd.open').forEach(function (o) { if (o !== dd) o.classList.remove('open'); });
+      document.querySelectorAll('.site-nav__dd.open').forEach(function (o) { if (o !== dd) closeDropdown(o); });
       dd.classList.toggle('open', willOpen);
       btn.setAttribute('aria-expanded', String(willOpen));
     });
@@ -97,7 +104,7 @@
   // 點擊下拉以外處收合（桌機點擊模式或觸控）
   document.addEventListener('click', function (e) {
     if (!e.target.closest('.site-nav__dd')) {
-      document.querySelectorAll('.site-nav__dd.open').forEach(function (d) { d.classList.remove('open'); });
+      document.querySelectorAll('.site-nav__dd.open').forEach(closeDropdown);
     }
   });
 })();

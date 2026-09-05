@@ -1,0 +1,336 @@
+{
+  "marker": "audit-crud-1788635384821",
+  "requests": 66,
+  "report": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/state",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/state",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/state",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/state",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/updates",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/events",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/content",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/social/posts",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/ads/campaigns",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/points/grants",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/updates",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/updates",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/public",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/updates",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/public",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/public",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/content",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/public",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/content",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/content",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/public",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/events",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/events/audit-crud-1788635384821",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/events",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/events/audit-crud-1788635384821",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/events",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/events",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/events",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/events/audit-crud-1788635384821",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/events/e_27f10e4c06de4551/regs",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/events",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/events",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/social/posts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/social/posts",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/social/posts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/social/posts",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/social/posts",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/ads/campaigns",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/ads/campaigns",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/ads/campaigns",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/ads/campaigns",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/ads/campaigns",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/ads/campaigns",
+      "status": 400
+    },
+    {
+      "method": "GET",
+      "path": "/api/me/points",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/points/grants",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/me/points",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/users/audit_member/points",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/users/audit_other/points",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/points/grants",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/points/grants",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/users/audit_other/admin",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/users/audit_other/admin",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/state",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/social/posts",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/users/audit_other/admin",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/social/posts",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/ads/campaigns/adc_0629f879ddc54232",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/social/posts/sp_86482271fd4b468b",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/events/e_27f10e4c06de4551",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/updates/up_940d7d5aabb842ae",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/content",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/users/audit_other/admin",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/state",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/social/posts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/ads/campaigns",
+      "status": 200
+    }
+  ]
+}

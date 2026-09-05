@@ -18,6 +18,8 @@ const {
 } = require('./lib/entitlements');
 const { signAccessToken, verifyAccessToken } = require('./lib/access-token');
 const { isAdminApiKey, ADMIN_API_KEY_MIN } = require('./lib/admin-key');
+const { safeEqual, signToken: signSession, verifyToken: verifySession, matchesPointCheckout,
+  PUBLIC_CONTENT_KEYS, rateLimit } = require('./lib/security');
 const { eventSlug, normalizeEventInput } = require('./lib/events');
 const { normalizeEventApplication } = require('./lib/event-applications');
 const {
@@ -68,7 +70,7 @@ else if (ADMIN_API_KEY.length < ADMIN_API_KEY_MIN)
   console.warn(`[warn] ADMIN_API_KEY 長度不足 ${ADMIN_API_KEY_MIN} 字元，已忽略；請改用 openssl rand -hex 32 產生。`);
 
 /* ---------- Stripe（開放購買；未設金鑰時 /api/checkout 回 503） ---------- */
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, { timeout: 15000, maxNetworkRetries: 1 }) : null;
 if (!stripe) console.warn('[warn] STRIPE_SECRET_KEY 未設定，購買功能停用（/api/checkout 回 503）。');
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 if (stripe && !STRIPE_WEBHOOK_SECRET) console.warn('[warn] STRIPE_WEBHOOK_SECRET 未設定，付費活動停用。');
@@ -115,7 +117,7 @@ function poolConfig() {
   };
 }
 const cfg = poolConfig();
-const pool = cfg ? new Pool(cfg) : null;
+const pool = cfg ? new Pool({ ...cfg, connectionTimeoutMillis: 5000, statement_timeout: 15000 }) : null;
 let dbReady = false;
 const q = (text, params) => pool.query(text, params);
 
@@ -538,21 +540,8 @@ async function seedMenuContent() {
 }
 
 /* ---------- token (HMAC) ---------- */
-const b64 = s => Buffer.from(s).toString('base64url');
-const unb64 = s => Buffer.from(s, 'base64url').toString('utf8');
-const hmac = s => crypto.createHmac('sha256', SECRET).update(s).digest('base64url');
-function signToken(payload) {
-  const body = b64(JSON.stringify({ ...payload, iat: Date.now() }));
-  return body + '.' + hmac(body);
-}
-function verifyToken(token) {
-  if (!token || token.indexOf('.') < 0) return null;
-  const [body, sig] = token.split('.');
-  const expected = hmac(body);
-  if (sig.length !== expected.length ||
-      !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
-  try { return JSON.parse(unb64(body)); } catch (e) { return null; }
-}
+const signToken = (payload, options) => signSession(payload, SECRET, options);
+const verifyToken = (token, options) => verifySession(token, SECRET, options);
 
 /* ---------- SELECT 片段（日期格式化成 YYYY/MM/DD） ---------- */
 const SEL_USER = `id,name,email,phone,invite_code,id_no,address,bank,status,can_view,is_admin,to_char(created_at,'YYYY/MM/DD') AS created_at`;
@@ -807,8 +796,9 @@ async function fulfillEventCheckout(session) {
       await client.query('ROLLBACK');
       return { ignored: true };
     }
-    const paidTwd = Math.round(Number(session.amount_total || 0) / 100);
-    if (paidTwd !== Number(reg.amount_due)) throw new Error('活動付款金額與報名快照不符');
+    if (session.currency !== 'twd' || !Number.isSafeInteger(session.amount_total) || session.amount_total !== Number(reg.amount_due) * 100)
+      throw new Error('活動付款金額或幣別與報名快照不符');
+    const paidTwd = session.amount_total / 100;
     const paymentIntent = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
     await client.query(
       `UPDATE event_regs SET status='registered',amount_paid=$2,stripe_payment_intent_id=$3,paid_at=now()
@@ -835,9 +825,38 @@ async function expireEventCheckout(session) {
   );
 }
 
+async function fulfillPointsCheckout(session) {
+  if (session?.metadata?.kind !== 'point_pack' || session.payment_status !== 'paid') return;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const order = (await client.query(`SELECT * FROM point_orders WHERE id=$1 FOR UPDATE`, [session.metadata.point_order_id])).rows[0];
+    if (!matchesPointCheckout(session, order)) throw new Error('購點付款與訂單快照不符');
+    await fulfillPointOrder(client, order);
+    await client.query('COMMIT');
+  } catch (e) { await client.query('ROLLBACK'); throw e; }
+  finally { client.release(); }
+}
+
 /* ---------- app ---------- */
 const app = express();
-app.set('trust proxy', true);
+app.disable('x-powered-by');
+// 僅信任指定代理；預設信任一層部署 ingress，不採信攻擊者自填的 X-Forwarded-For 最左值。
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS || 1));
+app.use((req, res, next) => {
+  res.set({
+    'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Content-Security-Policy': "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://checkout.stripe.com",
+  });
+  if (SITE_BASE.startsWith('https://')) res.set('Strict-Transport-Security', 'max-age=31536000');
+  if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) res.set('Cache-Control', 'no-store');
+  next();
+});
+app.use('/auth', rateLimit({ max: 30 }));
+app.use('/api', (req, res, next) => req.path === '/stripe/webhook' ? next() : apiLimit(req, res, next));
+const apiLimit = rateLimit({ max: 240 });
+app.use('/api/checkout', rateLimit({ max: 20 }));
 // Stripe 簽章必須驗證原始 body；此路由需在 express.json() 之前。
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json', limit: '256kb' }), async (req, res) => {
   if (!stripe || !STRIPE_WEBHOOK_SECRET) return res.status(503).send('webhook not configured');
@@ -847,6 +866,7 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json', limit: '
     if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
       if (!pool || !dbReady) return res.status(503).send('database not ready');
       await fulfillEventCheckout(event.data.object);
+      await fulfillPointsCheckout(event.data.object);
     } else if (event.type === 'checkout.session.expired') {
       if (!pool || !dbReady) return res.status(503).send('database not ready');
       await expireEventCheckout(event.data.object);
@@ -864,7 +884,7 @@ app.use((req, res, next) => {
   const o = req.headers.origin;
   if (o && WEB_ORIGINS.includes(o)) {
     res.set('Access-Control-Allow-Origin', o);
-    res.set('Vary', 'Origin');
+    res.vary('Origin');
     res.set('Access-Control-Allow-Headers', 'authorization, content-type');
     res.set('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   }
@@ -878,7 +898,16 @@ function requireDb(req, res, next) {
   if (!dbReady) return res.status(503).json({ error: '資料庫尚未就緒，請稍候再試。' });
   next();
 }
-function auth(req, res, next) {
+async function sessionAuth(t) {
+  const p = verifyToken(t);
+  if (!p || !pool || !dbReady) return p;
+  const user = (await q(`SELECT id,email,is_admin FROM users WHERE id=$1`, [p.sub])).rows[0];
+  if (!user) return null;
+  const isSuper = String(user.email || '').toLowerCase() === SUPER_ADMIN_EMAIL;
+  return { ...p, email: user.email, super: isSuper,
+    role: isSuper || user.is_admin === true ? 'admin' : p.role === 'admin' ? 'invited' : p.role };
+}
+async function auth(req, res, next) {
   const h = req.headers.authorization || '';
   const t = h.startsWith('Bearer ') ? h.slice(7) : '';
   // AI agent：金鑰即超管身分，sub 為 null（不綁任何會員，故 /api/me/* 一律拒絕）
@@ -886,20 +915,22 @@ function auth(req, res, next) {
     req.auth = { role: 'admin', super: true, sub: null, agent: true };
     return next();
   }
-  const p = verifyToken(t);
-  if (!p) return res.status(401).json({ error: '請先登入。' });
-  req.auth = p; next();
+  try {
+    const p = await sessionAuth(t);
+    if (!p) return res.status(401).json({ error: '請先登入。' });
+    if (!pool || !dbReady) return requireDb(req, res, next);
+    req.auth = p; next();
+  } catch (e) { next(e); }
 }
-function optionalAuth(req, _res, next) {
+async function optionalAuth(req, _res, next) {
   const h = req.headers.authorization || '';
   const t = h.startsWith('Bearer ') ? h.slice(7) : '';
-  req.auth = verifyToken(t);
-  next();
+  try { req.auth = await sessionAuth(t); next(); } catch (e) { next(e); }
 }
 function doorAuth(req, res, next) {
   const h = req.headers.authorization || '';
   const t = h.startsWith('Bearer ') ? h.slice(7) : '';
-  if (!ACCESS_DOOR_SECRET || t !== ACCESS_DOOR_SECRET)
+  if (!ACCESS_DOOR_SECRET || !safeEqual(t, ACCESS_DOOR_SECRET))
     return res.status(401).json({ error: '門禁憑證無效。' });
   next();
 }
@@ -924,7 +955,9 @@ app.get('/auth/google', (req, res) => {
   if (!GOOGLE_CLIENT_ID) return res.status(503).send('Google 登入尚未開通（未設定 GOOGLE_CLIENT_ID）。');
   const redirect = safeRedirect(req.query.redirect) || DEFAULT_MEMBER_URL;
   // state：HMAC 簽章保護導回目標並帶 nonce（CSRF 防護），callback 端驗章與時效
-  const state = signToken({ r: redirect, n: crypto.randomBytes(8).toString('hex') });
+  const state = signToken({ r: redirect, n: crypto.randomBytes(24).toString('hex') }, { purpose: 'oauth' });
+  res.cookie('oauth_state', state, { httpOnly: true, sameSite: 'lax', secure: SITE_BASE.startsWith('https://'),
+    path: '/auth/google', maxAge: 10 * 60 * 1000 });
   const p = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID, redirect_uri: GOOGLE_REDIRECT_URI,
     response_type: 'code', scope: 'openid email profile', state, prompt: 'select_account',
@@ -934,13 +967,17 @@ app.get('/auth/google', (req, res) => {
 
 app.get('/auth/google/callback', wrap(async (req, res) => {
   if (!GOOGLE_CLIENT_ID) return res.status(503).send('Google 登入尚未開通。');
-  const st = verifyToken(String(req.query.state || ''));
-  if (!st || !st.r || Date.now() - (st.iat || 0) > 10 * 60 * 1000)
+  const state = String(req.query.state || '');
+  const st = verifyToken(state, { purpose: 'oauth' });
+  const cookieState = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith('oauth_state='))?.slice(12);
+  res.clearCookie('oauth_state', { path: '/auth/google', httpOnly: true, sameSite: 'lax', secure: SITE_BASE.startsWith('https://') });
+  if (!st || !st.r || !safeEqual(state, cookieState))
     return res.status(400).send('登入連結已失效，請重新登入。');
   const redirect = safeRedirect(st.r) || DEFAULT_MEMBER_URL;
   if (!req.query.code) return res.status(400).send('登入未完成。');
   // 以授權碼換 access_token（後端持 client_secret）
   const tok = await fetch('https://oauth2.googleapis.com/token', {
+    signal: AbortSignal.timeout(10000),
     method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       code: String(req.query.code), client_id: GOOGLE_CLIENT_ID,
@@ -950,14 +987,17 @@ app.get('/auth/google/callback', wrap(async (req, res) => {
   }).then(r => r.json()).catch(() => ({}));
   if (!tok.access_token) return res.status(400).send('Google 驗證失敗，請重試。');
   const info = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+    signal: AbortSignal.timeout(10000),
     headers: { authorization: 'Bearer ' + tok.access_token },
   }).then(r => r.json()).catch(() => ({}));
-  if (!info.email || info.email_verified === false)
+  if (typeof info.email !== 'string' || info.email_verified !== true)
     return res.status(400).send('無法取得已驗證的 Google Email。');
   if (!pool || !dbReady) return res.status(503).send('資料庫尚未就緒，請稍後再試。');
   // upsert：以已驗證 email 為鍵（Google 保證 email_verified 時為本人所有）
   const email = String(info.email).toLowerCase();
-  let u = (await q(`SELECT id, name FROM users WHERE lower(email)=$1 LIMIT 1`, [email])).rows[0];
+  const accounts = (await q(`SELECT id, name FROM users WHERE lower(email)=$1 LIMIT 2`, [email])).rows;
+  if (accounts.length > 1) return res.status(409).send('此信箱存在重複帳號，請聯絡管理員確認身分。');
+  let u = accounts[0];
   if (!u) {
     const id = uid('u_');
     const name = info.name || info.email;
@@ -981,7 +1021,7 @@ app.get('/auth/google/callback', wrap(async (req, res) => {
 
 // 網站內容（首頁公告等）：讀成 { key: value } 物件
 async function readContent() {
-  const rows = (await q(`SELECT key, value FROM site_content`)).rows;
+  const rows = (await q(`SELECT key, value FROM site_content WHERE key = ANY($1::text[])`, [PUBLIC_CONTENT_KEYS])).rows;
   return Object.fromEntries(rows.map(r => [r.key, r.value]));
 }
 
@@ -993,12 +1033,21 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
   if (req.auth.role === 'admin') {
     const users = (await q(`SELECT ${SEL_USER} FROM users ORDER BY created_at`)).rows.map(pubUser);
     const commitments = numify((await q(`SELECT ${SEL_C} FROM commitments ORDER BY created_at`)).rows);
-    const entitlements = (await q(`SELECT ${SEL_ENT} FROM entitlements`)).rows.map(rowToEnt);
+    const now = new Date();
+    const entitlements = await persistLazyActivations((await q(`SELECT ${SEL_ENT} FROM entitlements`)).rows.map(rowToEnt), now);
+    const byUser = new Map();
+    for (const entitlement of entitlements) {
+      if (!byUser.has(entitlement.user_id)) byUser.set(entitlement.user_id, []);
+      byUser.get(entitlement.user_id).push(entitlement);
+    }
+    const balances = new Map((await q(`SELECT user_id,SUM(remaining)::bigint AS balance FROM point_lots
+      WHERE remaining>0 AND (expires_at IS NULL OR expires_at>now()) GROUP BY user_id`)).rows
+      .map(r => [r.user_id, Number(r.balance)]));
     for (const u of users) {
-      const access = await memberAccessFor(u.id);
+      const access = deriveMemberAccess(byUser.get(u.id) || [], now);
       u.access_active = access.active;
       u.access_summary = accessSummary(access);
-      u.points_balance = (await pointsSummaryFor(u.id)).balance;
+      u.points_balance = balances.get(u.id) || 0;
     }
     // 活動 + 每場報名人數（後台總覽用）
     const events = (await q(
@@ -1008,7 +1057,16 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
        FROM events e ORDER BY starts_at DESC NULLS LAST, created_at DESC`)).rows;
     const content = await readContent();
     const me = users.find(u => u.id === req.auth.sub) || null;  // 管理員自己：供會員頁顯示姓名
-    return res.json({ role: 'admin', super: req.auth.super === true, me, bond, users, commitments, entitlements, events, content, updates });
+    const self = {};
+    if (me) {
+      self.access = deriveMemberAccess(byUser.get(me.id) || [], now);
+      self.points = await pointsSummaryFor(me.id);
+      self.point_orders = (await q(`SELECT id,pack_id,principal,bonus,pay_twd,status,paid_at,created_at
+        FROM point_orders WHERE user_id=$1 ORDER BY created_at DESC`, [me.id])).rows;
+      self.point_refunds = (await q(`SELECT id,point_order_id,principal_points,refund_twd,status,stripe_refund_id
+        FROM point_refunds WHERE user_id=$1 AND status='pending' ORDER BY created_at`, [me.id])).rows;
+    }
+    return res.json({ role: 'admin', super: req.auth.super === true, me, bond, users, commitments, entitlements, events, content, updates, ...self });
   }
   const me = pubUser((await q(`SELECT ${SEL_USER} FROM users WHERE id=$1`, [req.auth.sub])).rows[0]);
   if (!me) return res.status(401).json({ error: '帳號不存在，請重新登入。' });
@@ -1019,6 +1077,8 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
     `SELECT id, pack_id, principal, bonus, pay_twd, status, paid_at, created_at
      FROM point_orders WHERE user_id=$1 ORDER BY created_at DESC`, [me.id]
   )).rows;
+  const pointRefunds = (await q(`SELECT id,point_order_id,principal_points,refund_twd,status,stripe_refund_id
+    FROM point_refunds WHERE user_id=$1 AND status='pending' ORDER BY created_at`, [me.id])).rows;
   // 會員專區：報名中的活動 + 我是否已報名（供報名/取消按鈕）
   const events = (await q(
     `SELECT ${SEL_EVENT},
@@ -1041,6 +1101,7 @@ app.get('/api/state', auth, requireDb, wrap(async (req, res) => {
     },
     points,
     point_orders: pointOrders,
+    point_refunds: pointRefunds,
   });
 }));
 
@@ -1088,6 +1149,8 @@ app.post('/api/access/scan', doorAuth, requireDb, wrap(async (req, res) => {
     return res.status(400).json({ ok: false, error: '權益不符。' });
 
   const now = new Date();
+  if (p.plan !== ent.plan || !pickEntitlementForQr([ent], now))
+    return res.status(403).json({ ok: false, error: '權益已失效，無法開門。' });
   // 冪等：同一 token_iat + entitlement 只記一次
   const scanId = uid('as_');
   const ins = await q(
@@ -1140,6 +1203,11 @@ app.post('/api/commitments', auth, requireDb, wrap(async (req, res) => {
   if (!(term >= MIN_TERM && term <= MAX_TERM)) return res.status(400).json({ error: '會籍期間為固定 18 個月。' });
   if (!b.name || !b.email || !b.phone)
     return res.status(400).json({ error: '請填寫姓名、電話與 Email。' });
+  if (typeof b.name !== 'string' || typeof b.email !== 'string' || typeof b.phone !== 'string' ||
+      b.name.length > 200 || b.phone.length > 80 || b.email.length > 320)
+    return res.status(400).json({ error: '姓名、電話與 Email 格式不正確。' });
+  if (b.email.trim().toLowerCase() !== String(req.auth.email || '').toLowerCase())
+    return res.status(400).json({ error: '請使用目前 Google 登入帳號的 Email，登入信箱不能由表單變更。' });
 
   // 名額上限：限量 100 名、售罄不補
   const agg = (await q(`SELECT COALESCE(SUM(amount),0)::bigint AS s, COUNT(DISTINCT user_id)::int AS p FROM commitments`)).rows[0];
@@ -1149,8 +1217,8 @@ app.post('/api/commitments', auth, requireDb, wrap(async (req, res) => {
   if (Number(agg.s) + amount > TARGET)
     return res.status(400).json({ error: '創始名額已售罄，請與發起方聯繫。' });
 
-  await q(`UPDATE users SET name=$2,email=$3,phone=$4,status='已參與' WHERE id=$1`,
-    [req.auth.sub, b.name, b.email, b.phone]);
+  await q(`UPDATE users SET name=$2,phone=$3,status='已參與' WHERE id=$1`,
+    [req.auth.sub, b.name.trim(), b.phone.trim()]);
 
   const seq = (await q(`SELECT COUNT(*)::int AS n FROM commitments`)).rows[0].n + 1;
   const id = uid('c_');
@@ -1399,11 +1467,12 @@ app.post('/api/me/points/orders/:id/fulfill', auth, requireDb, wrap(async (req, 
     return res.json({ ok: true, already: true, balance: (await pointsSummaryFor(req.auth.sub)).balance });
   }
 
-  const sessionId = (req.body.session_id || order.stripe_session_id || '').trim();
-  if (!sessionId) return res.status(400).json({ error: '缺少 session_id。' });
+  const sessionId = String(req.body.session_id || order.stripe_session_id || '');
+  if (!sessionId || sessionId !== order.stripe_session_id)
+    return res.status(400).json({ error: 'session 與訂單不符。' });
   const session = await stripe.checkout.sessions.retrieve(sessionId);
   if (session.payment_status !== 'paid') return res.status(402).json({ error: '尚未付款。' });
-  if (session.metadata?.point_order_id && session.metadata.point_order_id !== order.id) {
+  if (!matchesPointCheckout(session, order)) {
     return res.status(400).json({ error: 'session 與訂單不符。' });
   }
 
@@ -1411,6 +1480,7 @@ app.post('/api/me/points/orders/:id/fulfill', auth, requireDb, wrap(async (req, 
   try {
     await client.query('BEGIN');
     const locked = (await client.query(`SELECT * FROM point_orders WHERE id=$1 FOR UPDATE`, [order.id])).rows[0];
+    if (!matchesPointCheckout(session, locked)) throw new Error('付款快照已變更');
     await fulfillPointOrder(client, locked);
     await client.query('COMMIT');
   } catch (e) {
@@ -1450,72 +1520,101 @@ app.post('/api/me/points/refunds', auth, requireDb, wrap(async (req, res) => {
   const order = (await q(`SELECT * FROM point_orders WHERE id=$1`, [orderId])).rows[0];
   if (!order || order.user_id !== req.auth.sub) return res.status(404).json({ error: '找不到訂單。' });
   if (order.status !== 'paid') return res.status(400).json({ error: '訂單未付款。' });
+  if (!stripe || !order.stripe_session_id)
+    return res.status(503).json({ error: '此訂單需由管理員辦理退款，目前未執行退款或扣點。' });
+  const paidSession = await stripe.checkout.sessions.retrieve(order.stripe_session_id);
+  const paymentIntentId = typeof paidSession.payment_intent === 'string' ? paidSession.payment_intent : paidSession.payment_intent?.id;
+  if (!matchesPointCheckout(paidSession, order) || !paymentIntentId)
+    return res.status(409).json({ error: '訂單付款資料不符，尚未扣點，請聯絡管理員。' });
 
   const client = await pool.connect();
   let refundRow;
   try {
     await client.query('BEGIN');
-    await expireLotsForUser(req.auth.sub);
-    const lots = (await client.query(
-      `SELECT * FROM point_lots WHERE user_id=$1 FOR UPDATE`, [req.auth.sub]
-    )).rows.map(rowToLot);
-    const plan = planRefund(lots, orderId, principalPoints);
-    if (!plan.ok) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: '無法退款。', code: plan.error });
-    }
-    const rid = uid('prf_');
-    const bonusVoided = plan.void_bonus.reduce((s, x) => s + x.amount, 0);
-    await applyDebit(client, req.auth.sub, plan.debit_principal, 'refund', 'point_refund', rid, req.auth.sub);
-    for (const v of plan.void_bonus) {
-      const u = await client.query(
-        `UPDATE point_lots SET remaining = 0 WHERE id=$1 AND remaining=$2 RETURNING id`,
-        [v.lot_id, v.amount]
-      );
-      if (!u.rowCount) continue;
-      await client.query(
-        `INSERT INTO point_ledger (id, user_id, lot_id, delta, reason, ref_type, ref_id, actor)
-         VALUES ($1,$2,$3,$4,'void_bonus','point_refund',$5,$6)`,
-        [uid('ldg_'), req.auth.sub, v.lot_id, -v.amount, rid, req.auth.sub]
-      );
-    }
-
-    let stripeRefundId = null;
-    if (stripe && order.stripe_session_id) {
-      const session = await stripe.checkout.sessions.retrieve(order.stripe_session_id, {
-        expand: ['payment_intent'],
-      });
-      const pi = session.payment_intent;
-      const piId = typeof pi === 'string' ? pi : pi && pi.id;
-      if (piId) {
-        const rf = await stripe.refunds.create({
-          payment_intent: piId,
-          amount: plan.refund_twd * 100,
-        });
-        stripeRefundId = rf.id;
+    await client.query(`SELECT id FROM point_orders WHERE id=$1 FOR UPDATE`, [orderId]);
+    refundRow = (await client.query(`SELECT * FROM point_refunds WHERE point_order_id=$1 AND status='pending' ORDER BY created_at LIMIT 1`, [orderId])).rows[0];
+    if (!refundRow) {
+      await expireLotsForUser(req.auth.sub);
+      const lots = (await client.query(
+        `SELECT * FROM point_lots WHERE user_id=$1 FOR UPDATE`, [req.auth.sub]
+      )).rows.map(rowToLot);
+      const plan = planRefund(lots, orderId, principalPoints);
+      if (!plan.ok) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: '無法退款。', code: plan.error });
       }
-    }
+      const rid = uid('prf_');
+      const bonusVoided = plan.void_bonus.reduce((s, x) => s + x.amount, 0);
+      await applyDebit(client, req.auth.sub, plan.debit_principal, 'refund', 'point_refund', rid, req.auth.sub);
+      for (const v of plan.void_bonus) {
+        const u = await client.query(
+          `UPDATE point_lots SET remaining = 0 WHERE id=$1 AND remaining=$2 RETURNING id`,
+          [v.lot_id, v.amount]
+        );
+        if (!u.rowCount) continue;
+        await client.query(
+          `INSERT INTO point_ledger (id, user_id, lot_id, delta, reason, ref_type, ref_id, actor)
+           VALUES ($1,$2,$3,$4,'void_bonus','point_refund',$5,$6)`,
+          [uid('ldg_'), req.auth.sub, v.lot_id, -v.amount, rid, req.auth.sub]
+        );
+      }
 
-    await client.query(
-      `INSERT INTO point_refunds
-         (id, point_order_id, user_id, principal_points, refund_twd, bonus_voided, status, stripe_refund_id)
-       VALUES ($1,$2,$3,$4,$5,$6,'completed',$7)`,
-      [rid, orderId, req.auth.sub, principalPoints, plan.refund_twd, bonusVoided, stripeRefundId]
-    );
+      await client.query(
+        `INSERT INTO point_refunds
+           (id, point_order_id, user_id, principal_points, refund_twd, bonus_voided, status, stripe_refund_id)
+         VALUES ($1,$2,$3,$4,$5,$6,'pending',NULL)`,
+        [rid, orderId, req.auth.sub, principalPoints, plan.refund_twd, bonusVoided]
+      );
+      refundRow = {
+        id: rid,
+        principal_points: principalPoints,
+        refund_twd: plan.refund_twd,
+        bonus_voided: bonusVoided,
+        stripe_refund_id: null, status: 'pending',
+      };
+    }
     await client.query('COMMIT');
-    refundRow = {
-      id: rid,
-      principal_points: principalPoints,
-      refund_twd: plan.refund_twd,
-      bonus_voided: bonusVoided,
-      stripe_refund_id: stripeRefundId,
-    };
   } catch (e) {
     await client.query('ROLLBACK');
     if (e.status === 409) return res.status(409).json({ error: '退款衝突，請重試。' });
     throw e;
   } finally {
     client.release();
+  }
+  // 扣點與 pending intent 已持久化，外部成功後 DB 失敗也可用同一 intent 重試。
+  try {
+    let rf;
+    for await (const existing of stripe.refunds.list({ payment_intent: paymentIntentId, limit: 100 })) {
+      if (existing.metadata?.point_refund_id === refundRow.id) { rf = existing; break; }
+    }
+    if (!rf) rf = await stripe.refunds.create({ payment_intent: paymentIntentId, amount: Number(refundRow.refund_twd) * 100,
+      metadata: { point_refund_id: refundRow.id } }, { idempotencyKey: `points-refund-${refundRow.id}` });
+    if (rf.status === 'failed' || rf.status === 'canceled') {
+      const restore = await pool.connect();
+      try {
+        await restore.query('BEGIN');
+        const pending = (await restore.query(`SELECT id FROM point_refunds WHERE id=$1 AND status='pending' FOR UPDATE`, [refundRow.id])).rows[0];
+        if (pending) {
+          const debits = (await restore.query(`SELECT lot_id,delta FROM point_ledger WHERE ref_type='point_refund' AND ref_id=$1 AND delta<0`, [refundRow.id])).rows;
+          for (const debit of debits) {
+            await restore.query(`UPDATE point_lots SET remaining=remaining-$2 WHERE id=$1`, [debit.lot_id, debit.delta]);
+            await restore.query(`INSERT INTO point_ledger (id,user_id,lot_id,delta,reason,ref_type,ref_id,actor)
+              VALUES ($1,$2,$3,$4,'refund_failed','point_refund',$5,'system')`,
+              [uid('ldg_'), req.auth.sub, debit.lot_id, -Number(debit.delta), refundRow.id]);
+          }
+          await restore.query(`UPDATE point_refunds SET status='failed',stripe_refund_id=$2 WHERE id=$1`, [refundRow.id, rf.id]);
+        }
+        await restore.query('COMMIT');
+      } catch (e) { await restore.query('ROLLBACK'); throw e; }
+      finally { restore.release(); }
+      return res.status(409).json({ error: '退款未成功，已恢復原點數與贈點，請聯絡管理員。', refund_id: refundRow.id });
+    }
+    if (rf.status !== 'succeeded') throw new Error('Stripe 退款尚未完成');
+    await q(`UPDATE point_refunds SET status='completed',stripe_refund_id=$2 WHERE id=$1`, [refundRow.id, rf.id]);
+    refundRow = { ...refundRow, status: 'completed', stripe_refund_id: rf.id };
+  } catch (e) {
+    console.error('[point refund pending]', e.message);
+    return res.status(502).json({ error: '退款仍在處理中；點數已保留，再次送出將重試同一筆退款。', refund_id: refundRow.id });
   }
   res.json({ refund: refundRow, balance: (await pointsSummaryFor(req.auth.sub)).balance });
 }));
@@ -1664,10 +1763,20 @@ app.post('/api/admin/events', auth, adminOnly, requireDb, wrap(async (req, res) 
 }));
 
 app.delete('/api/admin/events/:id', auth, adminOnly, requireDb, wrap(async (req, res) => {
-  const n = (await q(`SELECT COUNT(*)::int AS n FROM event_regs WHERE event_id=$1`, [req.params.id])).rows[0].n;
-  if (n) return res.status(409).json({ error: '已有報名紀錄，請改為「已結束」以保留付款與簽到稽核。' });
-  await q(`DELETE FROM events WHERE id=$1`, [req.params.id]);
-  res.json({ ok: true });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query(`SELECT id FROM events WHERE id=$1 FOR UPDATE`, [req.params.id]);
+    const n = (await client.query(`SELECT COUNT(*)::int AS n FROM event_regs WHERE event_id=$1`, [req.params.id])).rows[0].n;
+    if (n) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: '已有報名紀錄，請改為「已結束」以保留付款與簽到稽核。' });
+    }
+    await client.query(`DELETE FROM events WHERE id=$1`, [req.params.id]);
+    await client.query('COMMIT');
+    res.json({ ok: true });
+  } catch (e) { await client.query('ROLLBACK'); throw e; }
+  finally { client.release(); }
 }));
 
 app.get('/api/admin/events/:id/regs', auth, adminOnly, requireDb, wrap(async (req, res) => {
@@ -1727,12 +1836,12 @@ app.post('/api/admin/events/:id/regs/:registrationId/refund', auth, adminOnly, r
     return res.status(409).json({ error: '這筆報名沒有可退款的已付款票券。' });
   const refund = await stripe.refunds.create(
     { payment_intent: reg.stripe_payment_intent_id, metadata: { kind: 'event-registration', registration_id: reg.id } },
-    { idempotencyKey: `event-refund-${reg.id}` }
+    { idempotencyKey: `event-refund-${reg.id}-${reg.stripe_payment_intent_id}` }
   );
   await q(
     `UPDATE event_regs SET status='refunded',refunded_at=now(),stripe_refund_id=$2,
-       checked_in_at=NULL,checked_in_by=NULL WHERE id=$1`,
-    [reg.id, refund.id]
+       checked_in_at=NULL,checked_in_by=NULL WHERE id=$1 AND stripe_payment_intent_id=$3`,
+    [reg.id, refund.id, reg.stripe_payment_intent_id]
   );
   res.json({ ok: true, refund_id: refund.id });
 }));
@@ -1745,7 +1854,7 @@ const spaceUpload = multer({
     destination: (req, file, cb) => cb(null, UPLOAD_SPACE_DIR),
     filename: (req, file, cb) => cb(null, buildSafeSpaceFilename(file.originalname, file.mimetype)),
   }),
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 2 },
   fileFilter: (_req, file, cb) => {
     const err = assertSpaceImageFile({ mimetype: file.mimetype, size: 0 });
     cb(err ? new Error(err) : null, !err);
@@ -1760,6 +1869,11 @@ app.post('/api/admin/upload/space', auth, adminOnly, (req, res) => {
       try { fs.unlinkSync(req.file.path); } catch (_) {}
       return res.status(400).json({ error: sizeErr });
     }
+    const head = fs.readFileSync(req.file.path).subarray(0, 12);
+    if (sniffImageType(head) !== req.file.mimetype) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: '檔案內容不是有效的圖片。' });
+    }
     return res.json({ url: `/uploads/space/${req.file.filename}` });
   });
 });
@@ -1767,7 +1881,7 @@ app.post('/api/admin/upload/space', auth, adminOnly, (req, res) => {
 /* ---- 前台管理：網站內容（首頁公告等 key-value） ---- */
 app.post('/api/admin/content', auth, adminOnly, requireDb, wrap(async (req, res) => {
   const key = (req.body.key || '').trim();
-  if (!key) return res.status(400).json({ error: '缺少內容鍵值。' });
+  if (!PUBLIC_CONTENT_KEYS.includes(key)) return res.status(400).json({ error: '不允許的公開內容鍵值。' });
   await q(`INSERT INTO site_content (key,value,updated_at) VALUES ($1,$2,now())
            ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now()`,
     [key, String(req.body.value ?? '')]);
@@ -1898,7 +2012,7 @@ const socialUpload = multer({
     destination: (req, file, cb) => cb(null, UPLOAD_SOCIAL_DIR),
     filename: (req, file, cb) => cb(null, buildSafeSocialFilename(file.originalname, file.mimetype)),
   }),
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 2 },
   fileFilter: (_req, file, cb) => {
     const err = assertSocialImageFile({ mimetype: file.mimetype, size: 0 });
     cb(err ? new Error(err) : null, !err);
@@ -2198,48 +2312,65 @@ app.delete('/api/events/:id/register', auth, requireDb, wrap(async (req, res) =>
 }));
 
 /* ---- Stripe Checkout（開放任何人購買，無需登入；Stripe 為訂單真相來源） ---- */
-// 已付款創始會員數：無 webhook，以 Stripe 已完成 session 即時盤點（Stripe 為真相來源）
-async function paidFoundingCount() {
-  let n = 0;
-  for await (const s of stripe.checkout.sessions.list({ status: 'complete', limit: 100 }))
-    if (s.payment_status === 'paid' && s.metadata && s.metadata.plan === 'founding-member') n++;
-  return n;
+// 已付款與仍可付款的 checkout 皆占名額；Stripe 為真相來源。
+async function reservedFoundingCount() {
+  const ids = new Set();
+  // 先 open 再 complete，掃描中完成付款的 session 只會重複，不能漏計。
+  for (const status of ['open', 'complete']) {
+    for await (const s of stripe.checkout.sessions.list({ status, limit: 100 })) {
+      if (s.metadata?.plan === 'founding-member' &&
+          (s.payment_status === 'paid' || (status === 'open' && s.expires_at > Date.now() / 1000))) ids.add(s.id);
+      if (ids.size >= MAX_PARTICIPANTS) return ids.size;
+    }
+  }
+  return ids.size;
 }
 const todayTaipei = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
 
-app.post('/api/checkout', wrap(async (req, res) => {
+app.post('/api/checkout', requireDb, wrap(async (req, res) => {
   if (!stripe) return res.status(503).json({ error: '購買功能尚未開通（未設定 Stripe）。' });
   if (todayTaipei() > SALE_END) return res.status(410).json({ error: `創始會員已於 ${SALE_END} 截止販售。` });
-  if (await paidFoundingCount() >= MAX_PARTICIPANTS) return res.status(409).json({ error: `創始名額已滿（限量 ${MAX_PARTICIPANTS} 名，售罄不補）。` });
-  // 不信任 Origin header（避免 open redirect）；導向目標一律用伺服器端常數，本地測試以 PUBLIC_ORIGIN 覆蓋
-  const origin = SITE_BASE;
-  // 結帳完成後導回購買者所在語系頁（僅允許 en/ja 前綴，其餘回中文 /fellow）
-  const langPrefix = ['en', 'ja'].includes(req.body && req.body.lang) ? '/' + req.body.lang : '';
-  // 會籍：自開幕日起算 18 個月（起訖明確帶入商品說明與 metadata）
-  const end = addMonthsISO(addMonthsISO(MEMBERSHIP_START, MAX_TERM), 0);
-  const endMinus1 = (() => { const d = new Date(end + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); })();
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    payment_method_types: ['card'], // 同上：明示 card，避免帳戶未啟用 TWD 預設付款方式時回 500
-    line_items: [{
-      price_data: {
-        currency: 'twd',
-        product_data: {
-          name: '言文字創始會員',
-          description: `18 個月會籍（${MEMBERSHIP_START} 起算至 ${endMinus1}）＋贈點 20,000（一年效期）・限量 100 名`,
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // 所有 instance 共用 Postgres 鎖，盤點＋建立 checkout 保留名額不可併行。
+    await client.query(`SELECT pg_advisory_xact_lock(hashtext('founding-checkout'))`);
+    if (await reservedFoundingCount() >= MAX_PARTICIPANTS) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: `創始名額已滿或正在結帳中（限量 ${MAX_PARTICIPANTS} 名），請稍後再試。` });
+    }
+    // 不信任 Origin header（避免 open redirect）；導向目標一律用伺服器端常數，本地測試以 PUBLIC_ORIGIN 覆蓋
+    const origin = SITE_BASE;
+    // 結帳完成後導回購買者所在語系頁（僅允許 en/ja 前綴，其餘回中文 /fellow）
+    const langPrefix = ['en', 'ja'].includes(req.body && req.body.lang) ? '/' + req.body.lang : '';
+    // 會籍：自開幕日起算 18 個月（起訖明確帶入商品說明與 metadata）
+    const end = addMonthsISO(addMonthsISO(MEMBERSHIP_START, MAX_TERM), 0);
+    const endMinus1 = (() => { const d = new Date(end + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); })();
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+      payment_method_types: ['card'], // 同上：明示 card，避免帳戶未啟用 TWD 預設付款方式時回 500
+      line_items: [{
+        price_data: {
+          currency: 'twd',
+          product_data: {
+            name: '言文字創始會員',
+            description: `18 個月會籍（${MEMBERSHIP_START} 起算至 ${endMinus1}）＋贈點 20,000（一年效期）・限量 100 名`,
+          },
+          unit_amount: PRICE * 100, // TWD 為 2 位小數幣別：NT$35,000 → 3,500,000
         },
-        unit_amount: PRICE * 100, // TWD 為 2 位小數幣別：NT$35,000 → 3,500,000
-      },
-      quantity: 1,
-    }],
-    success_url: `${origin}${langPrefix}/fellow?paid=1&s={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}${langPrefix}/fellow?canceled=1`,
-    billing_address_collection: 'required',
-    phone_number_collection: { enabled: true },
-    metadata: { plan: 'founding-member', term_months: String(MAX_TERM), start_date: MEMBERSHIP_START, end_date: endMinus1 },
-  });
-  res.json({ url: session.url });
-  // ponytail: 容量以 Stripe list 即時盤點，非原子；同秒併發可能超賣 1–2 名。需嚴格庫存時改 webhook 累計。
+        quantity: 1,
+      }],
+      success_url: `${origin}${langPrefix}/fellow?paid=1&s={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}${langPrefix}/fellow?canceled=1`,
+      billing_address_collection: 'required',
+      phone_number_collection: { enabled: true },
+      metadata: { plan: 'founding-member', term_months: String(MAX_TERM), start_date: MEMBERSHIP_START, end_date: endMinus1 },
+    });
+    await client.query('COMMIT');
+    res.json({ url: session.url });
+  } catch (e) { await client.query('ROLLBACK'); throw e; }
+  finally { client.release(); }
 }));
 
 // 付款成功頁驗證：前端只憑 ?paid=1 不足採信，須以 session id 向 Stripe 確認已付款
@@ -2299,6 +2430,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
 }));
 // 靜態官網（無標記 HTML／資產）
 app.use(express.static(PUB, { extensions: ['html'] }));
+// JSON/parser/路由錯誤不可回傳 Express 預設的 stack trace 或伺服器路徑。
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  const status = err.status >= 400 && err.status < 500 ? err.status : 500;
+  if (status === 500) console.error('[request error]', err.message);
+  res.status(status).json({ error: status === 413 ? '請求內容過大。' : status < 500 ? '請求格式不正確。' : '伺服器處理失敗。' });
+});
 
 /* ---------- 啟動 ---------- */
 async function boot() {
@@ -2327,4 +2465,5 @@ async function boot() {
     console.log('[ig-publish] 自動發佈未啟用（IG_AUTOPUBLISH!=1 或無資料庫）');
   }
 }
-boot();
+if (require.main === module) boot();
+module.exports = { app };

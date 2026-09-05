@@ -175,6 +175,8 @@
       orderPaid: (id) => `${id} 訂單`,
       orderRemain: (n) => `剩餘可退 ${n} 點`,
       refund: '退款',
+      retryRefund: '重試退款',
+      refundPending: '退款處理中',
       noOrders: '尚無已付款購點訂單。',
       walletLabel: '點數錢包',
       walletTitle: '點數錢包',
@@ -282,6 +284,8 @@
       orderPaid: (id) => `Order ${id}`,
       orderRemain: (n) => `Refundable left: ${n} pts`,
       refund: 'Refund',
+      retryRefund: 'Retry refund',
+      refundPending: 'Refund processing',
       noOrders: 'No paid point orders yet.',
       walletLabel: 'Points wallet',
       walletTitle: 'Points wallet',
@@ -389,6 +393,8 @@
       orderPaid: (id) => `注文 ${id}`,
       orderRemain: (n) => `返金可能の残り ${n} pt`,
       refund: '返金',
+      retryRefund: '返金を再試行',
+      refundPending: '返金処理中',
       noOrders: '支払い済みのポイント注文はまだありません。',
       walletLabel: 'ポイントウォレット',
       walletTitle: 'ポイントウォレット',
@@ -476,7 +482,7 @@
   const hash = new URLSearchParams(location.hash.slice(1));
   if (hash.get('token')) {
     localStorage.setItem(KEY, hash.get('token'));
-    history.replaceState(null, '', location.pathname);
+    history.replaceState(null, '', location.pathname + location.search);
   }
   const token = localStorage.getItem(KEY);
 
@@ -709,6 +715,7 @@
   function renderPoints(data) {
     const points = data.points || { balance: 0, lots: [] };
     const orders = Array.isArray(data.point_orders) ? data.point_orders : [];
+    const refunds = Array.isArray(data.point_refunds) ? data.point_refunds : [];
     const active = !!(data.access && data.access.active);
     const balance = Number(points.balance) || 0;
     const expiring = expiringPointsSummary(points.lots || []);
@@ -731,9 +738,11 @@
     const orderRows = orders.filter(o => o.status === 'paid').map(o => {
       const purchaseLot = (points.lots || []).find(l => l.type === 'purchase' && l.source_id === o.id);
       const rem = purchaseLot ? purchaseLot.remaining : 0;
+      const pending = refunds.find(r => r.point_order_id === o.id && r.status === 'pending');
       return `<div class="m-row"><b>${esc(T.orderPaid(o.pack_id))}</b>
         <span>${T.orderRemain(rem)}
-          ${rem > 0 ? `<button class="btn btn--ghost" type="button" data-refund="${esc(o.id)}" data-max="${rem}" style="margin-left:.5em;padding:.35em .8em">${T.refund}</button>` : ''}
+          ${pending ? `<span role="status"> · ${T.refundPending}</span>` : ''}
+          ${pending || rem > 0 ? `<button class="btn btn--ghost" type="button" data-refund="${esc(o.id)}" data-max="${pending ? Number(pending.principal_points) : rem}" data-pending="${pending ? '1' : '0'}" style="margin-left:.5em;padding:.35em .8em">${pending ? T.retryRefund : T.refund}</button>` : ''}
         </span></div>`;
     }).join('') || `<div class="m-empty">${T.noOrders}</div>`;
     return `<section class="m-panel m-panel--wallet" aria-label="${esc(T.walletLabel)}">
@@ -769,7 +778,7 @@
       <div class="m-center">
         <h1 class="m-hi">${T.loginTitle}</h1>
         <p class="m-sub">${T.loginSub}</p>
-        ${loginBtn(location.origin + MEMBER_PATH)}
+        ${loginBtn(location.origin + MEMBER_PATH + location.search)}
         <p class="m-note">${T.loginNote}</p>
       </div>`;
   }
@@ -918,7 +927,7 @@
   }
 
   async function refundPoints(orderId, max, btn) {
-    const raw = prompt(T.refundPrompt(max), String(max));
+    const raw = btn.dataset.pending === '1' ? String(max) : prompt(T.refundPrompt(max), String(max));
     if (raw == null) return;
     const n = Number(raw);
     if (!Number.isInteger(n) || n < 1 || n > max) { showToast(T.refundBad(max)); return; }
@@ -930,7 +939,10 @@
         body: JSON.stringify({ point_order_id: orderId, principal_points: n }),
       });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) { showToast(d.error || T.refundFail); btn.disabled = false; return; }
+      if (!r.ok) {
+        if (d.refund_id) await main();
+        showToast(d.error || T.refundFail); btn.disabled = false; return;
+      }
       showToast(T.refundOk(d.refund?.refund_twd || n * 1));
       await main();
     } catch (e) {
@@ -944,15 +956,16 @@
     if (q.get('points_paid') !== '1') return;
     const oid = q.get('oid');
     const s = q.get('s');
-    history.replaceState(null, '', location.pathname);
-    if (!oid || !token) return;
-    try {
-      await fetch(FELLOW + '/api/me/points/orders/' + encodeURIComponent(oid) + '/fulfill', {
-        method: 'POST',
-        headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
-        body: JSON.stringify({ session_id: s }),
-      });
-    } catch (e) {}
+    if (!oid || !token) throw new Error(T.opFail);
+    const r = await fetch(FELLOW + '/api/me/points/orders/' + encodeURIComponent(oid) + '/fulfill', {
+      method: 'POST',
+      headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
+      body: JSON.stringify({ session_id: s }),
+    });
+    const d = await r.json();
+    if (!r.ok || d.ok !== true) throw Object.assign(new Error(d.error || T.opFail), { status: r.status });
+    ['points_paid', 'oid', 's'].forEach(key => q.delete(key));
+    history.replaceState(null, '', location.pathname + (q.size ? '?' + q : '') + location.hash);
   }
 
   async function regEvent(id, method, btn) {
@@ -973,10 +986,12 @@
     try {
       await fulfillPointsIfNeeded();
       const r = await fetch(FELLOW + '/api/state', { headers: { authorization: 'Bearer ' + token } });
-      if (r.status === 401) { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); return renderLoggedOut(); }
-      if (!r.ok) throw new Error('state ' + r.status);
-      renderMember(await r.json());
+      if (!r.ok) throw Object.assign(new Error('state ' + r.status), { status: r.status });
+      const data = await r.json();
+      data.commitments = (data.commitments || []).filter(c => c.user_id === data.me?.id);
+      renderMember(data);
     } catch (e) {
+      if (e.status === 401) { localStorage.removeItem(KEY); localStorage.removeItem('tth_name'); return renderLoggedOut(); }
       stopQrRefresh();
       card.innerHTML = `<p class="m-center" style="color:var(--muted)">
         ${T.sysFail}<br>

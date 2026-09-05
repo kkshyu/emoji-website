@@ -59,9 +59,6 @@
 <link rel="stylesheet" href="/nav.css">
 <link rel="stylesheet" href="/space-dir.css">
 <script defer src="/nav.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="/menu-lib.js"></script>
-<script src="/space-dir.js"></script>
 </head>
 <body>
 <a href="#content" class="skip-link">本文へスキップ</a>
@@ -109,6 +106,10 @@
 
 <!--SITE_FOOTER-->
 
+<script src="/vendor/marked.js"></script>
+<script src="/vendor/purify.min.js"></script>
+<script src="/menu-lib.js"></script>
+<script src="/space-dir.js"></script>
 <script>
 (function() {
   var htmlLang = (document.documentElement.getAttribute('lang') || 'zh').toLowerCase();

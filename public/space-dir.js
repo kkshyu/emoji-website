@@ -395,7 +395,9 @@
     var raw = String(this.content[key] || '').trim();
     if (!raw && this.lang === 'zh') raw = String(this.content['space_' + floor + 'f'] || '').trim();
     if (md) {
-      if (raw && global.marked) md.innerHTML = global.marked.parse(raw);
+      if (raw && global.marked && global.DOMPurify) {
+        md.innerHTML = global.DOMPurify.sanitize(global.marked.parse(raw), { USE_PROFILES: { html: true } });
+      }
       else if (raw) md.textContent = raw;
       else md.innerHTML = '<p class="menu-empty">…</p>';
     }
@@ -428,8 +430,8 @@
 
   SpaceDir.prototype.openFromHash = function () {
     var h = (location.hash || '').replace(/^#/, '');
-    if (h === 'menu' || h === 'f1') this.select(1);
-    else if (/^f[2-4]$/.test(h)) this.select(Number(h.slice(1)));
+    var floor = h === 'menu' || h === 'f1' ? 1 : (/^f[2-4]$/.test(h) ? Number(h.slice(1)) : null);
+    if (floor !== this.active) this.select(floor);
   };
 
   global.SpaceDir = SpaceDir;

@@ -60,7 +60,13 @@
 <script>
 'use strict';
 const TOKEN_KEY='tth_token';
-const token=localStorage.getItem(TOKEN_KEY)||'';
+const callbackHash=new URLSearchParams(location.hash.slice(1));
+let token=callbackHash.get('token')||'';
+try {
+  if(token){localStorage.setItem(TOKEN_KEY,token);localStorage.removeItem('tth_name');}
+  else token=localStorage.getItem(TOKEN_KEY)||'';
+} catch {} // 私密模式仍可使用這次登入回傳的 token。
+if(callbackHash.has('token'))history.replaceState(null,'',location.pathname+location.search);
 const lang=(location.pathname.match(/^\/(en|ja)(\/|$)/)||[, 'zh'])[1];
 const locale=lang==='zh'?'zh-TW':lang==='ja'?'ja-JP':'en-US';
 const base=lang==='zh'?'':'/'+lang;
@@ -88,6 +94,7 @@ function renderList(events){document.title=T.title+'｜言文字・Taiwan Talent
 function actionFor(e){
   const full=e.capacity>0&&e.reg_count>=e.capacity&&!e.registered&&e.registration_status!=='pending_payment';
   if(e.registered)return `<button class="btn btn--solid" id="ev-ticket">${T.ticket}</button>${e.price_twd===0&&!e.checked_in_at?`<button class="btn btn--ghost" id="ev-cancel">${T.cancel}</button>`:''}`;
+  if(e.status!=='報名中')return `<button class="btn btn--ghost" disabled>${{zh:'目前不開放報名',en:'Registration is closed',ja:'申込受付は終了しました'}[lang]}</button>`;
   if(full)return `<button class="btn btn--ghost" disabled>${T.full}</button>`;
   if(!token){const redirect=encodeURIComponent(location.href);return `<a class="btn btn--solid" href="/auth/google?redirect=${redirect}">${T.login}</a>`;}
   const label=e.registration_status==='pending_payment'?T.resume:(e.price_twd>0?T.pay:T.register);

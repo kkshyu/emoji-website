@@ -32,6 +32,8 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" https://www.emoji.tw/api/state
 - 金鑰＝超級管理員，可指派管理員、發點數、改所有內容。只存在環境變數，絕不可寫進前端或 commit。
 - agent 身分沒有綁定會員（`sub` 為 null），因此所有 `/api/me/*` 與報名類端點會回 403。這是刻意的。
 - agent 發放點數時，`point_ledger.actor` 記為 `agent`。
+- 會員 token 有效七天；每次請求以資料庫目前的管理員權限為準。部署本次修正後，舊版無期限 token 須重新登入。
+- OAuth state 有效十分鐘，使用 HttpOnly、SameSite=Lax cookie 綁定發起登入的瀏覽器，不能作為 API token。
 
 ## 慣例
 
@@ -46,6 +48,7 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" https://www.emoji.tw/api/state
 
 ### GET /api/public
 公開唯讀資料，無個資：`{ raised, updates, events, content }`。活動只含「報名中」且公開的項目。
+`content` 僅回首頁公告、菜單及空間文案／圖片白名單；IG token 與內部排程資料不會傳至瀏覽器。
 
 ### GET /api/events
 公開活動列表。只回 `visibility=public` 且「報名中」的活動與已成立報名數。
@@ -57,7 +60,7 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" https://www.emoji.tw/api/state
 點數方案定價表。回 `{ price_twd, packs }`。
 
 ### POST /api/checkout
-建立 Stripe 結帳（購買創始會籍）。body：`{ lang }`。回 `{ url }`。未設 `STRIPE_SECRET_KEY` 時回 503；超過 `SALE_END`（預設 2026-12-31）回 410；Stripe 已付款數達 `MAX_PARTICIPANTS`（預設 100）回 409。
+建立 Stripe 結帳（購買創始會籍）。body：`{ lang }`。回 `{ url }`。未設 `STRIPE_SECRET_KEY` 或 DB 未就緒時回 503；超過 `SALE_END`（預設 2026-12-31）回 410。已付款與有效結帳保留名額合計達 `MAX_PARTICIPANTS`（預設 100）回 409。新 checkout 保留 30 分鐘；以 Postgres 交易鎖序列化所有 instance 的名額盤點與建立。
 
 ### GET /api/checkout/verify
 付款成功頁驗證。query：`s`（Stripe checkout session id）。向 Stripe 確認 `payment_status=paid` 且為創始會員商品，回 `{ paid }`。
@@ -66,7 +69,7 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" https://www.emoji.tw/api/state
 驗證進出 QR token 是否有效。body：`{ token }`。回 `{ ok, claims }`。
 
 ### POST /api/stripe/webhook
-Stripe 活動付款 webhook。只接受 `STRIPE_WEBHOOK_SECRET` 驗證成功的原始 request body；處理 `checkout.session.completed`、`checkout.session.async_payment_succeeded` 與 `checkout.session.expired`，重送不會重複核銷。
+Stripe 活動與點數付款 webhook。只接受 `STRIPE_WEBHOOK_SECRET` 驗證成功的原始 request body；處理 `checkout.session.completed`、`checkout.session.async_payment_succeeded` 與 `checkout.session.expired`。點數與活動皆驗證訂單、帳號、session、TWD 幣別及金額快照；重送不會重複核銷或入點。
 
 ## 登入
 
@@ -88,6 +91,7 @@ Google 授權回呼，簽發會員 token 並導回。
 
 `users[]` 每筆含 `access_active`、`access_summary`、`points_balance`。
 會員身分則只回自己的資料（`me`、`commitments`、`access`、`points`、`point_orders`、報名中活動）。
+綁定會員的管理員另有本人 `access`、`points`、`point_orders`；會員及管理員皆有本人尚在處理的 `point_refunds`，供退款重試使用。
 
 ## 後台管理（需管理員或 agent 金鑰）
 
@@ -222,13 +226,13 @@ X 貼文 AI 起草：body `{ topic }`，回 `{ ok, draft: { title, caption, capt
 建立點數加值訂單（走 Stripe）。
 
 ### POST /api/me/points/orders/:id/fulfill
-完成自己的點數訂單。
+完成自己的點數訂單。session 必須與原訂單、會員、方案、TWD 幣別及應付金額全部吻合，不能套用其他已付款 checkout。
 
 ### POST /api/me/points/refunds
-點數退款。
+點數退款。body：`{ point_order_id, principal_points }`。先持久化扣點與 pending 退款紀錄，再對 Stripe 退款；中斷時回 502 及 `refund_id`。同訂單有 pending 紀錄時，再次送出只重試原紀錄與金額。Stripe 明確失敗或取消時交易回補原點數與贈點，回 409 及 `refund_id`；僅 succeeded 標示完成。
 
 ### POST /api/commitments
-送出參與（創始會籍）申請。
+送出參與（創始會籍）申請。Email 必須為目前已驗證的 Google 登入信箱，此表單不會更動登入身分。
 
 ### POST /api/event-applications
 登入帳號提出三樓活動空間申請，不需付費會籍；agent 金鑰沒有申請人身分，回 403。
