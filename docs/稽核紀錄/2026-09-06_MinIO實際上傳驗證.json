@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-09-05T19:40:45.150Z",
+  "server": "MinIO RELEASE.2025-04-22T22-12-26Z",
+  "storage": "isolated container tmpfs",
+  "sdk": "3.1127.0",
+  "actualObjectsVerified": 2,
+  "badCredentialsRejected": true,
+  "browserClosedOnSuccessAndFailure": true,
+  "s3TemporaryFilesAvoided": true,
+  "bucketRemoved": true
+}
