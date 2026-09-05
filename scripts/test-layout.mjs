@@ -94,6 +94,13 @@ test('composeLayout system page marks system current', () => {
   assert.match(html, /href="\/system"[^>]*aria-current="page"/);
 });
 
+test('composeLayout event list and detail mark events current', () => {
+  const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
+  assert.match(composeLayout(raw, '/events'), /href="\/events"[^>]*aria-current="page"/);
+  assert.match(composeLayout(raw, '/en/events/private-demo'), /href="\/en\/events"[^>]*aria-current="page"/);
+  assert.equal(localePaths('/ja/events/private-demo').ja, '/ja/events/private-demo');
+});
+
 test('composeLayout injects header and footer with aria-current', () => {
   const raw = `<!doctype html><body>${MARKER_HEADER}<main></main>${MARKER_FOOTER}</body>`;
   const html = composeLayout(raw, '/en/fellow');

@@ -45,7 +45,13 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" https://www.emoji.tw/api/state
 服務健康檢查。回 `{ ok, db, dbConfigured }`。
 
 ### GET /api/public
-公開唯讀資料，無個資：`{ raised, updates, events, content }`。只含「報名中」的活動。
+公開唯讀資料，無個資：`{ raised, updates, events, content }`。活動只含「報名中」且公開的項目。
+
+### GET /api/events
+公開活動列表。只回 `visibility=public` 且「報名中」的活動與已成立報名數。
+
+### GET /api/events/:slug
+活動詳情。公開活動與私人活動皆可由直接連結讀取；私人活動不會出現在列表。帶有效會員 Bearer token 時一併回自己的報名、付款與簽到狀態。
 
 ### GET /api/points/packs
 點數方案定價表。回 `{ price_twd, packs }`。
@@ -58,6 +64,9 @@ curl -H "Authorization: Bearer $ADMIN_API_KEY" https://www.emoji.tw/api/state
 
 ### POST /api/access/verify
 驗證進出 QR token 是否有效。body：`{ token }`。回 `{ ok, claims }`。
+
+### POST /api/stripe/webhook
+Stripe 活動付款 webhook。只接受 `STRIPE_WEBHOOK_SECRET` 驗證成功的原始 request body；處理 `checkout.session.completed`、`checkout.session.async_payment_succeeded` 與 `checkout.session.expired`，重送不會重複核銷。
 
 ## 登入
 
@@ -91,15 +100,23 @@ Google 授權回呼，簽發會員 token 並導回。
 刪除最新消息。
 
 ### POST /api/admin/events
-新增或更新活動。body：`{ id?, title, description, location, starts_at, capacity, status }`。
-`status` 限：`草稿`｜`報名中`｜`已結束`。`starts_at` 為 ISO `YYYY-MM-DDTHH:mm`。
-帶 `id` 為更新，找不到回 404。回 `{ ok, id }`。
+新增或更新活動。body：`{ id?, slug?, title, description, location, starts_at, ends_at, capacity, price_twd, visibility, status }`。
+`visibility` 限 `public`｜`private`；`status` 限 `草稿`｜`報名中`｜`已結束`；票價與名額為 0 以上整數。帶 `id` 為更新，回 `{ ok, id, slug }`。
 
 ### DELETE /api/admin/events/:id
-刪除活動，報名紀錄一併 CASCADE 清除。
+刪除沒有任何報名紀錄的活動。已有報名時回 409，應改為「已結束」以保留付款與簽到稽核。
 
 ### GET /api/admin/events/:id/regs
-該場活動的報名名單（含姓名、email、電話、備註）。回 `{ regs }`。
+該場活動的報名名單，含聯絡、票券狀態、應付／已付、付款與簽到時間。回 `{ regs }`。
+
+### POST /api/admin/events/:id/check-in
+掃描或人工簽到。body 擇一：`{ token }`（活動票 QR 內容）或 `{ registration_id }`。只接受已成立且未退款的票券；重掃回 `duplicate: true`。
+
+### DELETE /api/admin/events/:id/check-in/:registrationId
+取消一筆活動簽到，保留報名與付款紀錄。
+
+### POST /api/admin/events/:id/regs/:registrationId/refund
+對已成立的付費票執行 Stripe 全額退款並立即使票券失效。以 registration id 作 Stripe idempotency key，重送不會重複退款。
 
 ### POST /api/admin/content
 寫入網站內容（key-value，含菜單 `menu` 與空間文案）。body：`{ key, value }`。
@@ -208,10 +225,16 @@ X 貼文 AI 起草：body `{ topic }`，回 `{ ok, draft: { title, caption, capt
 送出參與（創始會籍）申請。
 
 ### POST /api/events/:id/register
-報名活動。body：`{ note }`。
+報名活動。body：`{ note?, lang? }`。免費票立即成立；付費票建立或沿用未過期的 Stripe Checkout，回 `{ url }`。付費活動未設定 `STRIPE_WEBHOOK_SECRET` 時 fail closed 回 503。
 
 ### DELETE /api/events/:id/register
-取消報名。
+取消免費且尚未簽到的報名。付費票須由後台退款，不可直接取消。
+
+### POST /api/events/checkout/verify
+會員付款回站補查。body：`{ session_id }`；驗證 Stripe Session 屬於目前帳號後呼叫同一個冪等核銷流程。webhook 仍是可靠核銷主路徑。
+
+### GET /api/events/:id/ticket
+取得自己的活動票券簽章 token。只對已成立且未退款的報名簽發；簽到時仍會查資料庫狀態。
 
 ## 門禁端點
 

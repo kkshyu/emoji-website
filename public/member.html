@@ -792,15 +792,18 @@
       || `<div class="m-empty">${T.noUpdates}</div>`;
 
     const events = (data.events || []).map(e => {
-      const full = e.capacity > 0 && e.reg_count >= e.capacity && !e.registered;
+      const detail = (LANG === 'zh' ? '' : '/' + LANG) + '/events/' + encodeURIComponent(e.slug || e.id);
+      const full = e.capacity > 0 && e.reg_count >= e.capacity && !e.registered && e.registration_status !== 'pending_payment';
       const cap = e.capacity > 0 ? T.cap(e.reg_count, e.capacity) : T.regCount(e.reg_count);
-      const btn = e.registered
-        ? `<button class="btn btn--ghost" data-unreg="${e.id}">${T.cancelReg}</button>`
-        : full ? `<span class="full">${T.full}</span>`
-        : `<button class="btn btn--solid" data-reg="${e.id}">${T.register}</button>`;
+      const free = LANG === 'en' ? 'Free' : LANG === 'ja' ? '無料' : '免費';
+      const pending = LANG === 'en' ? 'Payment pending' : LANG === 'ja' ? '支払い待ち' : '等待付款';
+      const price = e.price_twd > 0 ? 'NT$' + Number(e.price_twd).toLocaleString('en-US') : free;
+      const btn = full
+        ? `<span class="full">${T.full}</span>`
+        : `<a class="btn ${e.registered?'btn--ghost':'btn--solid'}" href="${detail}">${e.registered?T.viewEvent:T.register}</a>`;
       return `<div class="m-ev">
-        <div><h4>${esc(e.title)}${e.registered ? '　<span style="color:var(--muted);font-size:1rem">' + T.registered + '</span>' : ''}</h4>
-          <div class="meta">${esc(e.starts_at || T.timeTbd)}${e.location ? '｜' + esc(e.location) : ''}　·　${cap}</div>
+        <div><h4><a href="${detail}">${esc(e.title)}</a>${e.registered ? '　<span style="color:var(--muted);font-size:1rem">' + T.registered + '</span>' : ''}</h4>
+          <div class="meta">${esc(e.starts_at || T.timeTbd)}${e.location ? '｜' + esc(e.location) : ''}　·　${cap}　·　${price}${e.registration_status==='pending_payment'?'　·　'+pending:''}</div>
           ${e.description ? `<p>${esc(e.description)}</p>` : ''}</div>
         <div class="act">${btn}</div></div>`;
     }).join('') || `<div class="m-empty">${T.noEvents}</div>`;

@@ -10,6 +10,7 @@
 | `/api/*`、`/auth/google/*` | 後端 REST API 與 Google 登入；資料存 Postgres |
 | `/member` | 會員專區（進出 QR、點數錢包、購點／兌換／退款） |
 | `/admin` | 後台（會籍、發點、活動、內容） |
+| `/events`、`/en/events`、`/ja/events` | 公開活動列表；私人活動以不列出的直接連結分享 |
 
 前端靜態檔全部在 `public/`（`public/fellow/` 為 fellow 前端），伺服器源碼（`server.js`、`package.json`）不外露。
 
@@ -40,6 +41,8 @@ DB 未設定時伺服器優雅降級：靜態頁照常，`/api/*` 回 503。
 | `SUPER_ADMIN_EMAIL` | 超級管理員 Google 帳號（預設 `us@twouring.com`），可於後台指派其他管理員 |
 | `ADMIN_API_KEY` | AI agent 管理 API 金鑰（`openssl rand -hex 32`）；等同超管權限，未設＝停用，詳見 [docs/API.md](docs/API.md) |
 | `STRIPE_SECRET_KEY` | Stripe 結帳；未設時 `/api/checkout` 回 503 |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook 簽章；未設時付費活動 fail closed |
+| `EVENT_QR_SECRET` | 活動票券 QR 簽章；留空時沿用 `ACCESS_QR_SECRET` |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | 會員專區 Google 登入 |
 | `PUBLIC_ORIGIN` | 站台對外網址（正式：`https://www.emoji.tw`），供 Stripe 導回與 Google callback |
 | `WEB_ORIGINS` | 允許的 CORS／導回白名單（逗號分隔） |
@@ -52,7 +55,8 @@ DB 未設定時伺服器優雅降級：靜態頁照常，`/api/*` 回 503。
 ## 部署提醒
 
 - Google OAuth：Console 的授權導回 URI 需設為 `https://www.emoji.tw/auth/google/callback`。
-- Stripe 結帳成功／取消導回 `https://www.emoji.tw/fellow`。
+- Stripe 結帳成功／取消導回同站的會籍或活動詳情頁。
+- Stripe Dashboard 需將 `checkout.session.completed`、`checkout.session.async_payment_succeeded`、`checkout.session.expired` 送至 `https://www.emoji.tw/api/stripe/webhook`。
 
 
 ## 會員點數（摘要）

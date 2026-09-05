@@ -342,28 +342,35 @@ function tabEvents(d){
   const evStatusPill = s => s==='報名中'?'pill-live':(s==='已結束'?'pill-done':'pill-draft');
   const body = (d.events||[]).map(e=>{
     const cap = e.capacity>0 ? `${e.reg_count}／${e.capacity}` : `${e.reg_count}／不限`;
+    const link = '/events/' + encodeURIComponent(e.slug||e.id);
     return `<tr>
-      <td><b style="font-weight:500">${esc(e.title)}</b>${e.description?'<br><span style="color:var(--muted);font-size:.82rem">'+esc(e.description)+'</span>':''}</td>
-      <td class="a-mono">${esc(e.starts_at||'未定')}</td>
+      <td><b style="font-weight:500">${esc(e.title)}</b>
+        <br><a href="${link}" target="_blank" rel="noopener" style="color:var(--muted);font-size:.82rem">${e.visibility==='private'?'私人連結':'公開頁'} ↗</a></td>
+      <td class="a-mono">${esc(e.starts_at||'未定')}${e.ends_at?'<br>至 '+esc(e.ends_at):''}</td>
       <td>${esc(e.location||'')}</td>
-      <td class="num">${cap}</td>
+      <td class="num">${cap}<br><span style="color:var(--muted)">已到 ${e.checkin_count||0}</span></td>
+      <td class="num">${e.price_twd>0?NT(e.price_twd):'免費'}</td>
       <td><span class="pill ${evStatusPill(e.status)}">${esc(e.status)}</span></td>
       <td style="white-space:nowrap">
         <button class="btn btn--ghost btn-sm" data-ev-edit="${e.id}">編輯</button>
-        <button class="btn btn--ghost btn-sm" data-ev-regs="${e.id}">報名(${e.reg_count})</button>
+        <button class="btn btn--ghost btn-sm" data-ev-regs="${e.id}">名單／簽到</button>
         <button class="btn btn--ghost btn-sm" data-ev-del="${e.id}">刪除</button>
       </td>
     </tr>`;
-  }).join('') || '<tr><td colspan="6" class="a-empty">尚無活動</td></tr>';
+  }).join('') || '<tr><td colspan="7" class="a-empty">尚無活動</td></tr>';
   return `<div class="a-sec">
     <h2>活動管理</h2>
-    <p class="hint">建立社群活動；「報名中」會公開顯示於官網首頁，會員於會員專區報名。</p>
+    <p class="hint">公開活動會列在官網活動頁；私人活動只可由直接連結進入。免費票立即成立，付費票經 Stripe 確認後成立。</p>
     <div class="a-form">
       <input type="hidden" id="ev-id">
       <label>活動名稱<input id="ev-title" placeholder="例：七月社群沙龍"></label>
-      <label>時間<input id="ev-when" type="datetime-local"></label>
+      <label>網址代稱<input id="ev-slug" placeholder="留白自動產生"></label>
+      <label>開始<input id="ev-when" type="datetime-local"></label>
+      <label>結束<input id="ev-end" type="datetime-local"></label>
       <label>地點<input id="ev-loc" placeholder="言文字三樓"></label>
       <label>名額（0＝不限）<input id="ev-cap" type="number" min="0" value="0" style="width:120px"></label>
+      <label>票價 NT$（0＝免費）<input id="ev-price" type="number" min="0" step="1" value="0" style="width:140px"></label>
+      <label>可見性<select id="ev-visibility"><option value="public">公開</option><option value="private">私人連結</option></select></label>
       <label>狀態<select id="ev-status"><option>報名中</option><option>草稿</option><option>已結束</option></select></label>
     </div>
     <div class="a-form"><textarea id="ev-desc" placeholder="活動說明（可換行）"></textarea></div>
@@ -372,7 +379,7 @@ function tabEvents(d){
       <button class="btn btn--ghost btn-sm" id="ev-reset" style="display:none">取消編輯</button>
     </div>
     <div class="a-wrap2"><table class="a-tbl">
-      <thead><tr><th>活動</th><th>時間</th><th>地點</th><th class="num">報名／名額</th><th>狀態</th><th>操作</th></tr></thead>
+      <thead><tr><th>活動</th><th>時間</th><th>地點</th><th class="num">報名／名額</th><th class="num">票價</th><th>狀態</th><th>操作</th></tr></thead>
       <tbody>${body}</tbody></table></div>
     <div id="ev-regs" class="a-regs" style="display:none"></div>
   </div>`;
@@ -636,14 +643,19 @@ function bind(d, x){
   // 參與紀錄：確認入帳
   document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=()=>doThen(()=>api('/admin/commitments/'+b.dataset.confirm+'/confirm',{method:'POST'}),'已確認入帳'));
 
-  // 活動：建立/更新/編輯/刪除/看報名
+  // 活動：建立／更新、名單、付款與簽到
   on('ev-save','click',()=>{ const title=document.getElementById('ev-title').value.trim(); if(!title){toast('請輸入活動名稱');return;}
     const editing = !!document.getElementById('ev-id').value;
     doThen(()=>api('/admin/events',{method:'POST',body:{
       id: document.getElementById('ev-id').value || undefined,
-      title, starts_at: document.getElementById('ev-when').value || undefined,
+      title,
+      slug: document.getElementById('ev-slug').value.trim() || undefined,
+      starts_at: document.getElementById('ev-when').value || undefined,
+      ends_at: document.getElementById('ev-end').value || undefined,
       location: document.getElementById('ev-loc').value.trim(),
       capacity: Number(document.getElementById('ev-cap').value)||0,
+      price_twd: Number(document.getElementById('ev-price').value)||0,
+      visibility: document.getElementById('ev-visibility').value,
       status: document.getElementById('ev-status').value,
       description: document.getElementById('ev-desc').value.trim(),
     }}), editing?'已更新活動':'已建立活動'); });
@@ -652,9 +664,13 @@ function bind(d, x){
     const e=(d.events||[]).find(x=>x.id===b.dataset.evEdit); if(!e) return;
     document.getElementById('ev-id').value=e.id;
     document.getElementById('ev-title').value=e.title||'';
+    document.getElementById('ev-slug').value=e.slug||'';
     document.getElementById('ev-when').value=toLocalInput(e.starts_at_iso);
+    document.getElementById('ev-end').value=toLocalInput(e.ends_at_iso);
     document.getElementById('ev-loc').value=e.location||'';
     document.getElementById('ev-cap').value=e.capacity||0;
+    document.getElementById('ev-price').value=e.price_twd||0;
+    document.getElementById('ev-visibility').value=e.visibility||'public';
     document.getElementById('ev-status').value=e.status||'報名中';
     document.getElementById('ev-desc').value=e.description||'';
     document.getElementById('ev-save').textContent='更新活動';
@@ -662,7 +678,7 @@ function bind(d, x){
     window.scrollTo({top:0,behavior:'smooth'});
   });
   document.querySelectorAll('[data-ev-del]').forEach(b=>b.onclick=()=>{
-    if(!confirm('確定刪除此活動？報名紀錄會一併移除。')) return;
+    if(!confirm('確定刪除此活動？已有報名紀錄的活動不能刪除。')) return;
     doThen(()=>api('/admin/events/'+b.dataset.evDel,{method:'DELETE'}),'已刪除活動'); });
   document.querySelectorAll('[data-ev-regs]').forEach(b=>b.onclick=()=>showRegs(b.dataset.evRegs, d));
 
@@ -834,33 +850,92 @@ function bindMenu(){
 }
 
 function resetEventForm(){
-  ['ev-id','ev-title','ev-when','ev-loc','ev-desc'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['ev-id','ev-title','ev-slug','ev-when','ev-end','ev-loc','ev-desc'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('ev-cap').value=0;
+  document.getElementById('ev-price').value=0;
+  document.getElementById('ev-visibility').value='public';
   document.getElementById('ev-status').value='報名中';
   document.getElementById('ev-save').textContent='建立活動';
   document.getElementById('ev-reset').style.display='none';
 }
 
+let EVENT_SCANNER_STREAM = null;
+let EVENT_SCANNER_FRAME = 0;
+function stopEventScanner(){
+  cancelAnimationFrame(EVENT_SCANNER_FRAME);
+  EVENT_SCANNER_FRAME = 0;
+  if(EVENT_SCANNER_STREAM) EVENT_SCANNER_STREAM.getTracks().forEach(t=>t.stop());
+  EVENT_SCANNER_STREAM = null;
+}
+
 async function showRegs(eventId, d){
+  stopEventScanner();
   const host = document.getElementById('ev-regs');
   const ev = (d.events||[]).find(e=>e.id===eventId) || {};
   host.style.display=''; host.innerHTML='<p class="a-sub">載入報名名單…</p>';
   try{
     const { regs } = await api('/admin/events/'+eventId+'/regs');
-    const body = regs.map(r=>`<tr><td>${esc(r.name||'—')}</td><td class="a-mono">${esc(r.email||'')}</td>
-      <td class="a-mono">${esc(r.phone||'')}</td><td>${esc(r.note||'')}</td><td class="num">${esc(r.created_at)}</td></tr>`).join('')
-      || '<tr><td colspan="5" class="a-empty">尚無報名</td></tr>';
+    const body = regs.map(r=>`<tr><td>${esc(r.name||'—')}<br><span class="a-mono" style="color:var(--muted)">${esc(r.email||'')}</span></td>
+      <td>${esc(r.status)}</td><td class="num">${r.amount_due>0?NT(r.amount_paid)+'／'+NT(r.amount_due):'免費'}</td>
+      <td>${esc(r.checked_in_at||'尚未')}</td><td>${esc(r.note||'')}</td><td class="num">${esc(r.created_at)}</td>
+      <td style="white-space:nowrap">${r.status==='registered'?(r.checked_in_at
+        ?`<button class="btn btn--ghost btn-sm" data-uncheckin="${r.id}">取消簽到</button>`
+        :`<button class="btn btn--solid btn-sm" data-checkin="${r.id}">簽到</button>`):''}
+        ${r.status==='registered'&&r.amount_paid>0?`<button class="btn btn--ghost btn-sm" data-refund="${r.id}" data-refund-amount="${r.amount_paid}">全額退款</button>`:''}</td></tr>`).join('')
+      || '<tr><td colspan="7" class="a-empty">尚無報名</td></tr>';
     host.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap">
-        <b style="font-family:var(--serif)">「${esc(ev.title||'')}」報名名單（${regs.length}）</b>
+        <b style="font-family:var(--serif)">「${esc(ev.title||'')}」名單（${regs.length}）</b>
         <span><button class="btn btn--ghost btn-sm" id="rg-csv">匯出 CSV</button>
         <button class="btn btn--ghost btn-sm" id="rg-close">關閉</button></span>
       </div>
+      <div class="a-form" style="align-items:end">
+        <label style="flex:1">QR 票券內容<input id="rg-token" autocomplete="off" placeholder="掃描槍輸入或貼上票券"></label>
+        <button class="btn btn--solid btn-sm" id="rg-scan">驗票簽到</button>
+        <button class="btn btn--ghost btn-sm" id="rg-camera">開啟相機掃描</button>
+      </div>
+      <video id="rg-video" playsinline muted style="display:none;width:min(100%,520px);border-radius:12px;margin:8px 0"></video>
       <div class="a-wrap2"><table class="a-tbl">
-        <thead><tr><th>姓名</th><th>Email</th><th>電話</th><th>備註</th><th class="num">報名時間</th></tr></thead>
+        <thead><tr><th>姓名／Email</th><th>票券狀態</th><th class="num">付款</th><th>簽到</th><th>備註</th><th class="num">報名時間</th><th>操作</th></tr></thead>
         <tbody>${body}</tbody></table></div>`;
-    document.getElementById('rg-close').onclick=()=>{ host.style.display='none'; host.innerHTML=''; };
-    document.getElementById('rg-csv').onclick=()=>{ const rows=[['姓名','Email','電話','備註','報名時間']];
-      regs.forEach(r=>rows.push([r.name||'',r.email||'',r.phone||'',r.note||'',r.created_at||''])); downloadCSV('報名名單_'+(ev.title||'活動')+'.csv', rows); };
+
+    const checkIn = async body => {
+      try{
+        const out = await api('/admin/events/'+eventId+'/check-in',{method:'POST',body});
+        toast(out.duplicate?'這張票已簽到':'已完成簽到：'+(out.guest?.name||''));
+        await showRegs(eventId,d);
+      }catch(e){ toast(e.message); }
+    };
+    document.getElementById('rg-close').onclick=()=>{ stopEventScanner(); host.style.display='none'; host.innerHTML=''; };
+    document.getElementById('rg-csv').onclick=()=>{ const rows=[['姓名','Email','電話','票券狀態','應付','已付','簽到時間','備註','報名時間']];
+      regs.forEach(r=>rows.push([r.name||'',r.email||'',r.phone||'',r.status||'',r.amount_due||0,r.amount_paid||0,r.checked_in_at||'',r.note||'',r.created_at||'']));
+      downloadCSV('活動名單_'+(ev.title||'活動')+'.csv', rows); };
+    document.getElementById('rg-scan').onclick=()=>{ const token=document.getElementById('rg-token').value.trim(); if(token) checkIn({token}); else toast('請先掃描或貼上票券'); };
+    document.getElementById('rg-token').onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('rg-scan').click(); } };
+    document.querySelectorAll('[data-checkin]').forEach(b=>b.onclick=()=>checkIn({registration_id:b.dataset.checkin}));
+    document.querySelectorAll('[data-uncheckin]').forEach(b=>b.onclick=async()=>{
+      try{ await api('/admin/events/'+eventId+'/check-in/'+b.dataset.uncheckin,{method:'DELETE'}); toast('已取消簽到'); await showRegs(eventId,d); }catch(e){ toast(e.message); }
+    });
+    document.querySelectorAll('[data-refund]').forEach(b=>b.onclick=async()=>{
+      if(!confirm(`確定全額退款 ${NT(b.dataset.refundAmount)}？退款後票券立即失效。`)) return;
+      try{ await api('/admin/events/'+eventId+'/regs/'+b.dataset.refund+'/refund',{method:'POST'}); toast('已完成全額退款'); await showRegs(eventId,d); }catch(e){ toast(e.message); }
+    });
+    document.getElementById('rg-camera').onclick=async()=>{
+      if(!('BarcodeDetector' in window)||!navigator.mediaDevices?.getUserMedia){ toast('此瀏覽器不支援相機掃碼，請改用掃描槍或貼上票券。'); return; }
+      try{
+        stopEventScanner();
+        const video=document.getElementById('rg-video');
+        EVENT_SCANNER_STREAM=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
+        video.srcObject=EVENT_SCANNER_STREAM; video.style.display='block'; await video.play();
+        const detector=new BarcodeDetector({formats:['qr_code']});
+        const tick=async()=>{
+          if(!EVENT_SCANNER_STREAM) return;
+          const codes=await detector.detect(video).catch(()=>[]);
+          if(codes[0]?.rawValue){ const token=codes[0].rawValue; stopEventScanner(); await checkIn({token}); return; }
+          EVENT_SCANNER_FRAME=requestAnimationFrame(tick);
+        };
+        tick();
+      }catch(e){ stopEventScanner(); toast('無法開啟相機：'+e.message); }
+    };
     host.scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(e){ host.innerHTML='<p class="a-sub">'+esc(e.message)+'</p>'; }
 }
